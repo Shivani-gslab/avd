@@ -103,10 +103,11 @@ ethernet_interfaces:
   peer_type: server
   description: server02_Eth1
   shutdown: false
-  type: switched
   link_tracking_groups:
   - name: l2leaf-server02
     direction: downstream
+  switchport:
+    enabled: true
 port_channel_interfaces:
 - name: Port-Channel1
   description: MH-LEAF2A_Po2

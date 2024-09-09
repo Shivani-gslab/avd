@@ -147,12 +147,18 @@ class AvdStructuredConfigMlag(AvdFacts):
             "description": self.shared_utils.interface_descriptions.mlag_port_channel_interface(
                 InterfaceDescriptionData(shared_utils=self.shared_utils, interface=port_channel_interface_name),
             ),
-            "type": "switched",
             "shutdown": False,
-            "vlans": get(self.shared_utils.switch_data_combined, "mlag_peer_link_allowed_vlans"),
-            "mode": "trunk",
+            "switchport":
+                {
+                    "enabled": True,
+                    "mode": "trunk",
+                    "trunk":
+                        {
+                            "allowed_vlan": get(self.shared_utils.switch_data_combined, "mlag_peer_link_allowed_vlans"),
+                            "groups": [self._trunk_groups_mlag_name],
+                        },
+                },
             "service_profile": self.shared_utils.p2p_uplinks_qos_profile,
-            "trunk_groups": [self._trunk_groups_mlag_name],
             "struct_cfg": get(self.shared_utils.switch_data_combined, "mlag_port_channel_structured_config"),
             "flow_tracker": self.shared_utils.get_flow_tracker(None, "mlag_interfaces"),
         }

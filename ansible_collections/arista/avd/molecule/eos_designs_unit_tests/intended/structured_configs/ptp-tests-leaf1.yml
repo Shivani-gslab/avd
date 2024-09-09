@@ -357,9 +357,6 @@ ethernet_interfaces:
   port_profile: PTP-profile-BMCA
   description: bmca-endpoint_eth1
   shutdown: false
-  type: switched
-  mode: access
-  vlans: '11'
   ptp:
     announce:
       interval: 0
@@ -369,15 +366,16 @@ ethernet_interfaces:
       interval: -3
     transport: ipv4
     enable: true
+  switchport:
+    enabled: true
+    mode: access
+    access_vlan: '11'
 - name: Ethernet5
   peer: video-endpoint
   peer_interface: PCI1
   peer_type: server
   description: video-endpoint_PCI1
   shutdown: false
-  type: switched
-  mode: access
-  vlans: '11'
   spanning_tree_portfast: edge
   ptp:
     announce:
@@ -389,13 +387,16 @@ ethernet_interfaces:
     transport: ipv4
     enable: true
     role: master
+  switchport:
+    enabled: true
+    mode: access
+    access_vlan: '11'
 - name: Ethernet6
   peer: Endpoint-with-mpass
   peer_interface: PCI1
   peer_type: server
   description: Endpoint-with-mpass_PCI1
   shutdown: false
-  type: port-channel-member
   channel_group:
     id: 6
     mode: active
@@ -405,9 +406,6 @@ ethernet_interfaces:
   peer_type: server
   description: Endpoint-with-specific-PTP-profile_eth3
   shutdown: false
-  type: switched
-  mode: access
-  vlans: '11'
   ptp:
     announce:
       interval: -2
@@ -418,6 +416,10 @@ ethernet_interfaces:
     transport: ipv4
     enable: true
     role: master
+  switchport:
+    enabled: true
+    mode: access
+    access_vlan: '11'
 mlag_configuration:
   domain_id: ptp-test-leaf
   local_interface: Vlan4094
