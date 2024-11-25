@@ -90,36 +90,43 @@ jobs:
   # Test Requirements
   # ----------------------------------- #
   python_requirements:
-    name: Test Python requirements installation
-    runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache.outputs.cache-key }}
-    needs: [ file-changes ]
-    if: needs.file-changes.outputs.requirements == 'true'
-    strategy:
-      fail-fast: true
-      matrix:
-        python_version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt', 'ansible_collections/arista/avd/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: 'Install Python requirements'
-        run: |
-          pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+      name: Test Python requirements installation
+      runs-on: ubuntu-latest
+      outputs:
+        cache-key: ${{ steps.cache.outputs.cache-key }}
+      needs: [file-changes]
+      if: needs.file-changes.outputs.requirements == 'true'
+      strategy:
+        fail-fast: true
+        matrix:
+          python_version:
+            - "3.10"
+            - "3.11"
+            - "3.12"
+            - "3.13"
+      steps:
+        - uses: actions/checkout@v4
+        
+        # Cache pip dependencies for each Python version
+        - name: Cache pip dependencies
+          id: cache
+          uses: actions/cache@v3
+          with:
+            path: ~/.cache/pip
+            key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt', 'ansible_collections/arista/avd/requirements-dev.txt') }}
+            restore-keys: |
+              ${{ runner.os }}-pip-
+
+        # Set up Python for each version in the matrix
+        - name: Set up Python ${{ matrix.python_version }}
+          uses: actions/setup-python@v5
+          with:
+            python-version: ${{ matrix.python_version }}
+
+        # Install Python dependencies
+        - name: Install Python requirements
+          run: |
+            pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
   # ----------------------------------- #
   # EOS CLI CONFIG GEN MOLECULE
