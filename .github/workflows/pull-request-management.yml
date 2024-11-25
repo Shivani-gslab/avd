@@ -92,6 +92,8 @@ jobs:
   python_requirements:
     name: Test Python requirements installation
     runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache.outputs.cache-key }}
     needs: [ file-changes ]
     if: needs.file-changes.outputs.requirements == 'true'
     strategy:
