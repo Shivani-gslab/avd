@@ -125,6 +125,7 @@ jobs:
 
         # Install Python dependencies
         - name: Install Python requirements
+          if: steps.cache.output.cache-hit != 'true'
           run: |
             pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
