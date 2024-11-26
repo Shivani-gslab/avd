@@ -1555,7 +1555,7 @@ keys:
                         type: int
                         convert_types:
                           - str
-                        description: Reload preempt delay in seconds.
+                        description: Reload preempt delay in seconds/ms.
                         min: 0
                         max: 3600
               timers:
