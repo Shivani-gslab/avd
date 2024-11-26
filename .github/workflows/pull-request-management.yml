@@ -115,6 +115,7 @@ jobs:
             path: ~/.cache/pip
             key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt', 'ansible_collections/arista/avd/requirements-dev.txt') }}
             restore-keys: |
+              ${{ runner.os }}-pip-${{ matrix.python_version }}-
               ${{ runner.os }}-pip-
 
         # Set up Python for each version in the matrix
