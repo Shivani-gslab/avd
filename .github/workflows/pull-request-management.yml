@@ -164,24 +164,24 @@ jobs:
       - uses: actions/checkout@v4
 
        # Cache pip dependencies for .github/requirements-ci.txt (for molecule jobs)
-      # - name: Cache pip dependencies for requirements-ci.txt
-      #   id: cache-ci
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.cache/pip
-      #     key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pip-${{ matrix.python_version }}-
+      - name: Cache pip dependencies for requirements-ci.txt
+        id: cache-ci
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python_version }}-
 
       # Cache Ansible Galaxy collections
-      # - name: Cache Galaxy collections
-      #   id: galaxy-cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.ansible/collections
-      #     key: ${{ runner.os }}-ansible-galaxy-${{ hashFiles('ansible_collections/arista/avd/collections.yml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-ansible-galaxy-
+      - name: Cache Galaxy collections
+        id: galaxy-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-galaxy-${{ hashFiles('ansible_collections/arista/avd/collections.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ansible-galaxy-
 
       # Set up Python
       - name: Set up Python
@@ -191,15 +191,15 @@ jobs:
 
       # Install Python requirements
       - name: Install Python requirements
-        # if: steps.cache-ci.outputs.cache-hit != 'true'
+        if: steps.cache-ci.outputs.cache-hit != 'true'
         run: |
           pip install -r .github/requirements-ci.txt --upgrade
 
       # Install Ansible Galaxy collections
-      # - name: Install Ansible Galaxy collections
-      #   if: steps.galaxy-cache.outputs.cache-hit != 'true'
-      #   run: |
-      #     ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml
+      - name: Install Ansible Galaxy collections
+        if: steps.galaxy-cache.outputs.cache-hit != 'true'
+        run: |
+          ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml
 
       # Run Molecule scenarios
       - name: Run molecule action
@@ -208,11 +208,12 @@ jobs:
           molecule_parentdir: 'ansible_collections/arista/avd'
           molecule_command: 'test'
           molecule_args: '--scenario-name ${{ matrix.avd_scenario }}'
-          # pip_file: .github/requirements-ci.txt
+          pip_file: .github/requirements-ci.txt
           galaxy_file: "ansible_collections/arista/avd/collections.yml"
           ansible: ${{ matrix.ansible_version }}
           check_git: true
           check_git_enforced: true
+          extra_args: "--cache-dir ~/.cache/pip" 
 
   # ----------------------------------- #
   # DHCP Provisioner Molecule Job
