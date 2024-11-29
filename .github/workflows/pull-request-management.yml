@@ -389,7 +389,7 @@ jobs:
 
       # Install Python and Ansible dependencies if cache misses
       - name: Install Python requirements
-        if: steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-ansible.outputs.cache-hit != 'true'
+        # if: steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-ansible.outputs.cache-hit != 'true'
         run: |
           pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
           pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
