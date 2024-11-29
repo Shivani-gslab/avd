@@ -354,37 +354,45 @@ jobs:
     name: Run ansible-test sanity validation
     runs-on: ubuntu-latest
     needs: [file-changes]
-    strategy:
-      fail-fast: true
-      matrix:
-        python_version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
     steps:
       - uses: actions/checkout@v4
 
       # Cache pip dependencies
       - name: Cache pip dependencies
-        id: cache
+        id: cache-pip
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # Set up Python for each version in the matrix
-      - name: Set up Python ${{ matrix.python_version }}
+      # Cache ansible-core dependencies
+      - name: Cache ansible-core dependencies
+        id: cache-ansible
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ansible-core
+          key: ${{ runner.os }}-ansible-core-<2.19.0
+          restore-keys: |
+            ${{ runner.os }}-ansible-core-
+
+      # Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: |
+            3.10
+            3.11
+            3.12
+            3.13
 
-      # Install Python dependencies
+      # Install Python and Ansible dependencies if cache misses
       - name: Install Python requirements
+        if: steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-ansible.outputs.cache-hit != 'true'
         run: |
-          pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+          pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
+          pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
 
       # Run ansible-test sanity
       - name: Run ansible-test sanity
