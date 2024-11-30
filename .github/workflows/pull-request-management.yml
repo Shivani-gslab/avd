@@ -406,6 +406,25 @@ jobs:
     needs: [ file-changes ]
     steps:
       - uses: actions/checkout@v4
+      # Cache pip dependencies
+      - name: Cache pip dependencies
+        id: cache-pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # Cache ansible-core dependencies
+      - name: Cache ansible-core dependencies
+        id: cache-ansible
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ansible-core
+          key: ${{ runner.os }}-ansible-core-<2.19.0
+          restore-keys: |
+            ${{ runner.os }}-ansible-core-
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
