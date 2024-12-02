@@ -390,8 +390,13 @@ jobs:
       # Install Python and Ansible dependencies if cache misses
       - name: Install Python requirements
         run: |
-          pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
-          pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
+          if pip install --upgrade --dry-run -r .github/requirements-ci.txt | grep -q "Would install" && grep -q "^Would install pyavd-"; then
+            echo "Dependencies are outdated. Installing/upgrading..."
+            pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
+            pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
+          else
+            echo "Dependencies are up-to-date. Skipping installation."
+          fi
 
       # Run ansible-test sanity
       - name: Run ansible-test sanity
