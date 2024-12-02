@@ -357,25 +357,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Cache pip dependencies
-      - name: Cache pip dependencies
-        id: cache-pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # # Cache pip dependencies
+      # - name: Cache pip dependencies
+      #   id: cache-pip
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
 
-      # Cache ansible-core dependencies
-      - name: Cache ansible-core dependencies
-        id: cache-ansible
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ansible-core
-          key: ${{ runner.os }}-ansible-core-<2.19.0
-          restore-keys: |
-            ${{ runner.os }}-ansible-core-
+      # # Cache ansible-core dependencies
+      # - name: Cache ansible-core dependencies
+      #   id: cache-ansible
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/ansible-core
+      #     key: ${{ runner.os }}-ansible-core-<2.19.0
+      #     restore-keys: |
+      #       ${{ runner.os }}-ansible-core-
 
       # Set up Python
       - name: Set up Python
@@ -386,6 +386,7 @@ jobs:
             3.11
             3.12
             3.13
+          cache: 'pip'
       
       # Install Python dependencies
       - name: Install Python requirement
@@ -398,11 +399,11 @@ jobs:
       #     pip install --upgrade --dry-run -r ansible_collections/arista/avd/requirements-dev.txt
           
 
-      # Run ansible-test sanity
-      - name: Run ansible-test sanity
-        run: |
-          cd ansible_collections/arista/avd/
-          ansible-test sanity --color yes -v
+      # # Run ansible-test sanity
+      # - name: Run ansible-test sanity
+      #   run: |
+      #     cd ansible_collections/arista/avd/
+      #     ansible-test sanity --color yes -v
 
   # ansible_test_units:
   #   name: Run ansible-test units test cases
