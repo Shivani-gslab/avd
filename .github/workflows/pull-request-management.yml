@@ -110,9 +110,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
-          cache: 'pip'
+      - name: Cache pip dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt', 'ansible_collections/arista/avd/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install Python requirements
-        if: steps.cache-ci.outputs.cache-hit != 'true' || steps.cache-dev.outputs.cache-hit != 'true'
+        if: steps.cache.output.cache-hit != 'true'
         run: |
           pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
