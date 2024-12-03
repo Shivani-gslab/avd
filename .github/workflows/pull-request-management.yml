@@ -92,9 +92,7 @@ jobs:
   python_requirements:
     name: Test Python requirements installation
     runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache.outputs.cache-key }}
-    needs: [file-changes]
+    needs: [ file-changes ]
     if: needs.file-changes.outputs.requirements == 'true'
     strategy:
       fail-fast: true
@@ -106,20 +104,11 @@ jobs:
           - "3.13"
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python_version }}
+      - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
-      - name: Cache pip dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python_version }}-${{ hashFiles('.github/requirements-ci.txt', 'ansible_collections/arista/avd/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install Python requirements
-        if: steps.cache.output.cache-hit != 'true'
+      - name: 'Install Python requirements'
         run: |
           pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
