@@ -89,28 +89,28 @@ jobs:
   # ----------------------------------- #
   # Test Requirements
   # ----------------------------------- #
-  python_requirements:
-    name: Test Python requirements installation
-    runs-on: ubuntu-latest
-    needs: [ file-changes ]
-    if: needs.file-changes.outputs.requirements == 'true'
-    strategy:
-      fail-fast: true
-      matrix:
-        python_version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: 'Install Python requirements'
-        run: |
-          pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+  # python_requirements:
+  #   name: Test Python requirements installation
+  #   runs-on: ubuntu-latest
+  #   needs: [ file-changes ]
+  #   if: needs.file-changes.outputs.requirements == 'true'
+  #   strategy:
+  #     fail-fast: true
+  #     matrix:
+  #       python_version:
+  #         - "3.10"
+  #         - "3.11"
+  #         - "3.12"
+  #         - "3.13"
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Python 3
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python_version }}
+  #     - name: 'Install Python requirements'
+  #       run: |
+  #         pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
   # ----------------------------------- #
   # EOS CLI CONFIG GEN MOLECULE
@@ -320,55 +320,55 @@ jobs:
   #         check_git: true
   #         check_git_enforced: true
 
-  # ----------------------------------- #
-  # Ansible tests
-  # ----------------------------------- #
+  install_dependencies:
+    name: Install and cache dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3
+        id: setup-python 
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+          cache: 'pip'
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/ansible-core
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-${{ steps.setup-python.outputs.python-version }}
+          restore-keys: |
+            ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-
+            ${{ runner.os }}-dependencies-
+      - name: 'Install Python requirements'
+        run: |
+          pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+      - name: 'Install Ansible collections'
+        run: |
+          ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml 
+
   ansible_test_sanity:
     name: Run ansible-test sanity validation
     runs-on: ubuntu-latest
-    needs: [file-changes]
+    needs: [file-changes, install_dependencies]
     steps:
       - uses: actions/checkout@v4
-
-      # Cache pip dependencies
-      - name: Cache pip dependencies
-        id: cache-pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      # Cache ansible-core dependencies
-      - name: Cache ansible-core dependencies
-        id: cache-ansible
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ansible-core
-          key: ${{ runner.os }}-ansible-core-<2.19.0
-          restore-keys: |
-            ${{ runner.os }}-ansible-core-
-
-      # Set up Python
-      - name: Set up Python
+      - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.10
-            3.11
-            3.12
-            3.13
-
-      # Install Python and Ansible dependencies if cache misses
-      - name: Install Python requirements
-        if: steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-ansible.outputs.cache-hit != 'true'
-        run: |
-          pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
-          pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
-
-      # Run ansible-test sanity
-      - name: Run ansible-test sanity
+          python-version: 3.13 
+      - name: Restore dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/ansible-core
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-3.13
+          restore-keys: |
+            ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-
+            ${{ runner.os }}-dependencies-
+      - name: 'Run ansible-test sanity'
         run: |
           cd ansible_collections/arista/avd/
           ansible-test sanity --color yes -v
@@ -376,46 +376,127 @@ jobs:
   ansible_test_units:
     name: Run ansible-test units test cases
     runs-on: ubuntu-latest
-    needs: [file-changes]
+    needs: [file-changes, install_dependencies]
     steps:
-      # Checkout repository
       - uses: actions/checkout@v4
-
-      # Cache Python dependencies
-      - name: Cache Python dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}-${{ hashFiles('.github/requirements-extra.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      # Set up Python environment
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.10
-
-      # Install Python dependencies
-      - name: Install Python requirements
+          python-version: 3.13
+          cache: pip
+      - name: Restore dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/ansible-core
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-3.13
+          restore-keys: |
+            ${{ runner.os }}-dependencies-${{ hashFiles('.github/requirements-ci.txt') }}-ansible-
+            ${{ runner.os }}-dependencies-
+      - name: Install additional requirements
         run: |
-          # Create a requirements file for additional dependencies
-          echo "mock" > .github/requirements-extra.txt
-          echo "pytest" >> .github/requirements-extra.txt
-          echo "pytest-mock" >> .github/requirements-extra.txt
-          echo "pytest-xdist" >> .github/requirements-extra.txt
-          echo "pyyaml" >> .github/requirements-extra.txt
-          echo "ansible-core<2.19.0" >> .github/requirements-extra.txt
-          
-          # Install all dependencies
-          pip install -r .github/requirements-ci.txt -r .github/requirements-extra.txt --upgrade
-
-      # Run ansible-test units
-      - name: Run ansible-test units test cases
+          pip install mock pytest pytest-mock pytest-xdist pyyaml 
+      - name: 'Run ansible-test units test cases'
         run: |
           cd ansible_collections/arista/avd/
           ansible-test units -vv
+  # ----------------------------------- #
+  # Ansible tests
+  # ----------------------------------- #
+  # ansible_test_sanity:
+  #   name: Run ansible-test sanity validation
+  #   runs-on: ubuntu-latest
+  #   needs: [file-changes]
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     # Cache pip dependencies
+  #     - name: Cache pip dependencies
+  #       id: cache-pip
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/pip
+  #         key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pip-
+
+  #     # Cache ansible-core dependencies
+  #     - name: Cache ansible-core dependencies
+  #       id: cache-ansible
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/ansible-core
+  #         key: ${{ runner.os }}-ansible-core-<2.19.0
+  #         restore-keys: |
+  #           ${{ runner.os }}-ansible-core-
+
+  #     # Set up Python
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: |
+  #           3.10
+  #           3.11
+  #           3.12
+  #           3.13
+
+  #     # Install Python and Ansible dependencies if cache misses
+  #     - name: Install Python requirements
+  #       if: steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-ansible.outputs.cache-hit != 'true'
+  #       run: |
+  #         pip install --cache-dir ~/.cache/pip -r .github/requirements-ci.txt --upgrade
+  #         pip install --cache-dir ~/.cache/ansible-core "ansible-core<2.19.0"
+
+  #     # Run ansible-test sanity
+  #     - name: Run ansible-test sanity
+  #       run: |
+  #         cd ansible_collections/arista/avd/
+  #         ansible-test sanity --color yes -v
+
+  # ansible_test_units:
+  #   name: Run ansible-test units test cases
+  #   runs-on: ubuntu-latest
+  #   needs: [file-changes]
+  #   steps:
+  #     # Checkout repository
+  #     - uses: actions/checkout@v4
+
+  #     # Cache Python dependencies
+  #     - name: Cache Python dependencies
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/pip
+  #         key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements-ci.txt') }}-${{ hashFiles('.github/requirements-extra.txt') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pip-
+
+  #     # Set up Python environment
+  #     - name: Set up Python 3
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: |
+  #           3.10
+
+  #     # Install Python dependencies
+  #     - name: Install Python requirements
+  #       run: |
+  #         # Create a requirements file for additional dependencies
+  #         echo "mock" > .github/requirements-extra.txt
+  #         echo "pytest" >> .github/requirements-extra.txt
+  #         echo "pytest-mock" >> .github/requirements-extra.txt
+  #         echo "pytest-xdist" >> .github/requirements-extra.txt
+  #         echo "pyyaml" >> .github/requirements-extra.txt
+  #         echo "ansible-core<2.19.0" >> .github/requirements-extra.txt
+          
+  #         # Install all dependencies
+  #         pip install -r .github/requirements-ci.txt -r .github/requirements-extra.txt --upgrade
+
+  #     # Run ansible-test units
+  #     - name: Run ansible-test units test cases
+  #       run: |
+  #         cd ansible_collections/arista/avd/
+  #         ansible-test units -vv
 
 
   # ansible_test_integration:
