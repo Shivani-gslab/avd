@@ -357,16 +357,16 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-requirements-dev-${{ hashFiles('ansible_collections/arista/avd/requirements-dev.txt') }}-${{ matrix.python_version }}
 
-      # Restore cache for ansible-core<2.19.0
+      # Restore cache for ansible-core
       - name: Restore cache for ansible-core
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-dev-${{ hashFiles("ansible-core<2.19.0") }}-${{ matrix.python_version }}
+          path: ~/.cache/ansible
+          key: ${{ runner.os }}-pip-ansible-core-${{ matrix.python_version }}
 
       - name: Install ansible requirements
         run: |
-          pip install -r "ansible-core<2.19.0" --upgrade
+          pip install "ansible-core<2.19.0" --upgrade
 
       # Install Python requirements (both requirements files)
       - name: Install Python requirements
@@ -417,13 +417,13 @@ jobs:
       - name: Restore cache for ansible-core<2.19.0
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-${{ matrix.python_version }}
+          path: ~/.cache/ansible
+          key: ${{ runner.os }}-pip-ansible-core-${{ matrix.python_version }}
           restore-keys: |
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.10
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.11
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.12
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.13
+            ${{ runner.os }}-pip-ansible-core-3.10
+            ${{ runner.os }}-pip-ansible-core-3.11
+            ${{ runner.os }}-pip-ansible-core-3.12
+            ${{ runner.os }}-pip-ansible-core-3.13
 
       - name: 'Run ansible-test sanity'
         run: |
@@ -452,10 +452,11 @@ jobs:
       - name: Restore cache for ansible-core<2.19.0
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.10
+          path: ~/.cache/ansible
+          key: ${{ runner.os }}-pip-ansible-core-3.10
           restore-keys: |
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('ansible-core<2.19.0') }}-3.10
+            ${{ runner.os }}-pip-ansible-core-3.10
+
       - name: 'Install Python requirements'
         run: |
           pip install mock pytest pytest-mock pytest-xdist pyyaml --upgrade
