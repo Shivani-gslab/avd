@@ -665,7 +665,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
+          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.13
           restore-keys: |
             ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.12
             ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.13
@@ -674,11 +674,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/ansible
-          key: ${{ runner.os }}-pip-ansible-core-${{ matrix.python_version }}
+          key: ${{ runner.os }}-pip-ansible-core-3.13
           restore-keys: |
             ${{ runner.os }}-pip-ansible-core-3.12
             ${{ runner.os }}-pip-ansible-core-3.13
 
+      - name: Print pip list
+        run: |
+          echo "Installed Python packages for Python version ${{ matrix.python_version }}:"
+          pip list
       # - name: 'Install Python requirements'
       #   run: |
       #     pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
