@@ -424,9 +424,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.10
+          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
           restore-keys: |
-            ${{ runner.os }}-pip-requirements-ci-3.10-
+            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.10
+            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.11
+            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.12
+            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.13
       - name: 'Install Python requirements'
         run: |
           pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" --upgrade
