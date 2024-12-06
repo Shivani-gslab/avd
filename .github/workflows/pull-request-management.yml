@@ -349,8 +349,6 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
-          restore-keys: |
-            ${{ runner.os }}-pip-requirements-ci-${{ matrix.python_version }}-
 
       # Restore cache for requirements-dev.txt
       - name: Restore cache for requirements-dev.txt
@@ -358,8 +356,6 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-requirements-dev-${{ hashFiles('ansible_collections/arista/avd/requirements-dev.txt') }}-${{ matrix.python_version }}
-          restore-keys: |
-            ${{ runner.os }}-pip-requirements-dev-${{ matrix.python_version }}-
 
       # Install Python requirements (both requirements files)
       - name: Install Python requirements
@@ -367,19 +363,19 @@ jobs:
           pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
           pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
-      # Save cache for requirements-ci.txt
-      - name: Save cache for requirements-ci.txt
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
+      # # Save cache for requirements-ci.txt
+      # - name: Save cache for requirements-ci.txt
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
 
-      # Save cache for requirements-dev.txt
-      - name: Save cache for requirements-dev.txt
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-dev-${{ hashFiles('ansible_collections/arista/avd/requirements-dev.txt') }}-${{ matrix.python_version }}
+      # # Save cache for requirements-dev.txt
+      # - name: Save cache for requirements-dev.txt
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-requirements-dev-${{ hashFiles('ansible_collections/arista/avd/requirements-dev.txt') }}-${{ matrix.python_version }}
 
   ansible_test_sanity:
     name: Run ansible-test sanity validation
