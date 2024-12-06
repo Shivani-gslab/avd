@@ -403,27 +403,27 @@ jobs:
             3.12
             3.13
 
-      - name: Restore cache for requirements-ci.txt
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
-          restore-keys: |
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.10
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.11
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.12
-            ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.13
+      # - name: Restore cache for requirements-ci.txt
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-${{ matrix.python_version }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.10
+      #       ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.11
+      #       ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.12
+      #       ${{ runner.os }}-pip-requirements-ci-${{ hashFiles('.github/requirements-ci.txt') }}-3.13
 
-      - name: Restore cache for ansible-core<2.19.0
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ansible
-          key: ${{ runner.os }}-pip-ansible-core-${{ matrix.python_version }}
-          restore-keys: |
-            ${{ runner.os }}-pip-ansible-core-3.10
-            ${{ runner.os }}-pip-ansible-core-3.11
-            ${{ runner.os }}-pip-ansible-core-3.12
-            ${{ runner.os }}-pip-ansible-core-3.13
+      # - name: Restore cache for ansible-core<2.19.0
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/ansible
+      #     key: ${{ runner.os }}-pip-ansible-core-${{ matrix.python_version }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-ansible-core-3.10
+      #       ${{ runner.os }}-pip-ansible-core-3.11
+      #       ${{ runner.os }}-pip-ansible-core-3.12
+      #       ${{ runner.os }}-pip-ansible-core-3.13
 
       - name: 'Run ansible-test sanity'
         run: |
@@ -683,9 +683,11 @@ jobs:
         run: |
           echo "Installed Python packages for Python version ${{ matrix.python_version }}:"
           pip list
+
       # - name: 'Install Python requirements'
       #   run: |
       #     pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+
       - name: 'Run ansible-test integration test cases'
         run: |
           cd ansible_collections/arista/avd/
