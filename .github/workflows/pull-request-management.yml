@@ -99,7 +99,7 @@ jobs:
           id: install 
           run: |
             pip install -r .github/requirements-ci.txt --upgrade
-            echo "path=$(pwd)/.venv" >> $GITHUB_OUTPUT
+            echo "path=$GITHUB_WORKSPACE/.venv" >> $GITHUB_OUTPUT
         - name: Print path after setting output
           run: |
             echo "Path after output: ${{ steps.install.outputs.path }}" 
@@ -109,6 +109,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: List files and permissions
+        run: ls -l /home/runner/work/avd/avd/
       - name: Use dependencies
         run: |
           source ${{ needs.setup.outputs.dependencies-path }}/bin/activate
