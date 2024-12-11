@@ -98,8 +98,10 @@ jobs:
         - name: Install dependencies
           id: install 
           run: |
+            python3 -m venv $GITHUB_WORKSPACE/avd/avd/.venv 
+            source $GITHUB_WORKSPACE/avd/avd/.venv/bin/activate
             pip install -r .github/requirements-ci.txt --upgrade
-            echo "path=$GITHUB_WORKSPACE/.venv" >> $GITHUB_OUTPUT
+            echo "path=$GITHUB_WORKSPACE/avd/avd/.venv" >> $GITHUB_OUTPUT
         - name: Print path after setting output
           run: |
             echo "Path after output: ${{ steps.install.outputs.path }}" 
