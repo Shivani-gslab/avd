@@ -89,16 +89,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
+      - uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.10
+      - name: install venv  
         run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
+          pip install virtualenv &&
+          python3 -m venv .venv && 
+          source .venv/bin/activate &&
           pip install -r .github/requirements-ci.txt --upgrade
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: dependencies
-          path: .venv
+          path: $GITHUB_WORKSPACE/.venv
+      - name: List files and permissions
+        run: |
+          echo $GITHUB_WORKSPACE
+          ls -l $GITHUB_WORKSPACE/
       
   my_job:
     needs: setup
