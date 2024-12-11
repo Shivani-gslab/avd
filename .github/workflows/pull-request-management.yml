@@ -91,11 +91,18 @@ jobs:
         dependencies-path: ${{ steps.install.outputs.path }}
       steps:
         - uses: actions/checkout@v3
+        - uses: actions/setup-python@v5
+          with:
+            python-version: |
+              3.10
         - name: Install dependencies
           id: install 
           run: |
             pip install -r .github/requirements-ci.txt --upgrade
-            echo "path=$(pwd)/.venv" >> $GITHUB_OUTPUT 
+            echo "path=$(pwd)/.venv" >> $GITHUB_OUTPUT
+        - name: Print path after setting output
+          run: |
+            echo "Path after output: ${{ steps.install.outputs.path }}" 
 
   my_job:
     needs: setup
