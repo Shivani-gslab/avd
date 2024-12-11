@@ -96,14 +96,14 @@ jobs:
       - name: install venv  
         run: |
           pip install virtualenv &&
-          python3 -m venv .venv && 
-          source .venv/bin/activate &&
+          python3 -m venv venv && 
+          source venv/bin/activate &&
           pip install -r .github/requirements-ci.txt --upgrade
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: dependencies
-          path: $GITHUB_WORKSPACE/.venv
+          path: $GITHUB_WORKSPACE/venv
       - name: List files and permissions
         run: |
           echo $GITHUB_WORKSPACE
