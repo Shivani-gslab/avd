@@ -339,7 +339,7 @@ jobs:
             3.12
             3.13
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - name: 'Install Python requirements'
         run: |
           pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
@@ -360,7 +360,7 @@ jobs:
           python-version: |
             3.12
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - name: 'Install Python requirements'
         run: |
           pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
@@ -382,7 +382,7 @@ jobs:
             3.12
             3.13
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - name: 'Install Python requirements'
         run: |
           pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
@@ -406,7 +406,7 @@ jobs:
             3.12
             3.13
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - name: 'Install Python & Ansible requirements'
         run: |
           pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
@@ -429,7 +429,7 @@ jobs:
           python-version: |
             3.10
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - uses: actions/checkout@v4
       - name: 'Install Python & Ansible requirements'
         run: |
@@ -471,7 +471,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: 'pip'
-          cache-latest: true
+          check-latest: true
       - name: 'Install tox'
         run: |
           pip install tox tox-gh-actions --upgrade
