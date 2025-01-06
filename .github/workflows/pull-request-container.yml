@@ -1,0 +1,108 @@
+name: "Collection code testing"
+
+"on": pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  # Set -vvv is ACTIONS_STEP_DEBUG is set
+  # Apparently it is set in secrets when running with debug
+  ANSIBLE_VERBOSITY: ${{ secrets.ACTIONS_STEP_DEBUG && 3 || 0 }}
+  AVD_NEVER_RUN_FROM_SOURCE: 1
+  PY_COLORS: 1 # allows molecule colors to be passed to GitHub Actions
+  ANSIBLE_FORCE_COLOR: 1 # allows ansible colors to be passed to GitHub Actions
+
+jobs:
+  file-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      eos_design: ${{ steps.filter.outputs.eos_design }}
+      config_gen: ${{ steps.filter.outputs.config_gen }}
+      cloudvision: ${{ steps.filter.outputs.cloudvision }}
+      dhcp: ${{ steps.filter.outputs.dhcp }}
+      plugins: ${{ steps.filter.outputs.plugins }}
+      requirements: ${{ steps.filter.outputs.requirements }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            eos_design:
+              - 'ansible_collections/arista/avd/roles/eos_designs/*'
+              - 'ansible_collections/arista/avd/roles/eos_designs/**/*'
+              - '.github/workflows/pull-request-management.yml'
+              - 'ansible_collections/arista/avd/molecule/*'
+              - 'ansible_collections/arista/avd/molecule/**/*'
+              - 'python-avd/pyavd/_eos_designs/*'
+              - 'python-avd/pyavd/_eos_designs/**/*'
+              - '!ansible_collections/arista/avd/roles/eos_config_deploy_cvp/*'
+              - '!ansible_collections/arista/avd/roles/eos_config_deploy_cvp/**/*'
+              - '!ansible_collections/arista/avd/molecule/cvp_configlet_upload/*'
+              - '!ansible_collections/arista/avd/molecule/cvp_configlet_upload/**/*'
+            config_gen:
+              - 'ansible_collections/arista/avd/roles/eos_cli_config_gen/*'
+              - 'ansible_collections/arista/avd/roles/eos_cli_config_gen/**/*'
+              - '.github/workflows/pull-request-management.yml'
+              - 'ansible_collections/arista/avd/molecule/eos_cli_config_gen*/*'
+              - 'ansible_collections/arista/avd/molecule/eos_cli_config_gen*/**/*'
+              - 'python-avd/pyavd/_eos_cli_config_gen/*'
+              - 'python-avd/pyavd/_eos_cli_config_gen/**/*'
+            validate_state:
+              - 'ansible_collections/arista/avd/roles/eos_validate_state/*'
+              - 'ansible_collections/arista/avd/roles/eos_validate_state/**/*'
+            cloudvision:
+              - 'ansible_collections/arista/avd/roles/eos_config_deploy_cvp/*'
+              - 'ansible_collections/arista/avd/roles/eos_config_deploy_cvp/**/*'
+              - 'ansible_collections/arista/avd/molecule/cvp_configlet_upload/*'
+              - 'ansible_collections/arista/avd/molecule/cvp_configlet_upload/**/*'
+              - '.github/workflows/pull-request-management.yml'
+            dhcp:
+              - 'ansible_collections/arista/avd/roles/dhcp_provisioner/*'
+              - 'ansible_collections/arista/avd/roles/dhcp_provisioner/**/*'
+              - '.github/workflows/pull-request-management.yml'
+            plugins:
+              - 'ansible_collections/arista/avd/plugins/filter/**'
+              - 'ansible_collections/arista/avd/plugins/test/**'
+            requirements:
+              - 'ansible_collections/arista/avd/requirements.txt'
+              - 'ansible_collections/arista/avd/requirements-dev.txt'
+              - 'ansible_collections/arista/avd/meta/runtime.yml'
+              - '.github/requirements-ci.txt'
+              - '.github/workflows/pull-request-management.yml'
+            docs:
+              - '.github/workflows/pull-request-management.yml'
+              - 'mkdocs.yml'
+              - 'ansible_collections/arista/avd/docs/**'
+              - 'ansible_collections/arista/avd/roles/**/*.md'
+              - 'ansible_collections/arista/avd/**/*.md'
+              - 'ansible_collections/arista/avd/README.md'
+              - 'ansible_collections/arista/avd/**/*.schema.yml'
+            pyavd:
+              - 'python_avd/*'
+              - 'python_avd/**/*'
+  container-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: 
+      image: ubuntu:latest
+      options: --cpus 1
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.10
+            3.11
+            3.12
+            3.13
+      - name: Install dependencies
+        run: |
+          pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
