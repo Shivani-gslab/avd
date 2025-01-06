@@ -90,7 +90,7 @@ jobs:
     # Docker Hub image that `container-job` executes in
     container: 
       image: ubuntu:latest
-      options: --cpus 1
+      options: --reuse
 
     steps:
       - name: Check out repository code
