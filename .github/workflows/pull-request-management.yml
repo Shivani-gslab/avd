@@ -105,4 +105,4 @@ jobs:
             3.13
       - name: Install dependencies
         run: |
-          pip install -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
