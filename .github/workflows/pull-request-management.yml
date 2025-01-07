@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
     container: 
-      image: docker:latest
+      image: ubuntu:latest
       options: --cpus 1
 
     steps:
@@ -100,11 +100,13 @@ jobs:
         with:
           python-version: |
             3.10
+            3.11
+            3.12
+            3.13
       - name: Install dependencies
         run: |
-          python -m ensurepip
-          pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
-
+          pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+          
       - name: Get container ID
         id: container-info
         run: echo "::set-output name=id::$(docker ps -aqf 'name=github-actions-job')"
