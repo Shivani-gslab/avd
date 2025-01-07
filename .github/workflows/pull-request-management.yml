@@ -13,7 +13,9 @@ env:
   AVD_NEVER_RUN_FROM_SOURCE: 1
   PY_COLORS: 1 # allows molecule colors to be passed to GitHub Actions
   ANSIBLE_FORCE_COLOR: 1 # allows ansible colors to be passed to GitHub Actions
-
+permissions:
+  contents: read     # Allows read access to the repository's contents (code)
+  packages: write
 jobs:
   file-changes:
     runs-on: ubuntu-latest
@@ -87,6 +89,9 @@ jobs:
   container-job:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12, 3.13] # Python versions
     # Docker Hub image that `container-job` executes in
     container: 
       image: ubuntu:latest
@@ -95,28 +100,61 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Set up Python 3
-        uses: actions/setup-python@v5
-        with:
-          python-version: |
-            3.10
-            3.11
-            3.12
-            3.13
-      - name: Install dependencies
+      - name: Set up Docker
         run: |
           apt-get update
-          apt-get install -y make build-essential python3-dev
-          python -m pip install --upgrade pip setuptools wheel
-          pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
-          
-      - name: Get container ID
-        id: container-info
-        run: echo "::set-output name=id::$(docker ps -aqf 'name=github-actions-job')"
+          apt-get install -y docker.io
+      
+      - id: string
+        uses: vishalmamidi/lowercase-action@v1
+        with:
+          string: ${{ github.repository_owner }}
+        
+      - name: log lowercase repo name
+        run: echo ${{ steps.string.outputs.lowercase }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.string.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
 
-      - name: Commit the container changes to an image
+          # Step 4: Dynamically create Dockerfile
+      - name: Create Dockerfile dynamically
         run: |
-          docker commit -m "Added Python and dependencies" -a "GitHub Actions" ${{ steps.container-info.outputs.id }} my-python-app:latest
+          echo "Creating Dockerfile..."
+          cat <<EOF > Dockerfile
+          ARG PYTHON_VERSION
+          FROM python:\${PYTHON_VERSION}-slim
+
+          # Install Git to clone the repo
+          RUN apt-get update && apt-get install -y git make
+
+          # Clone the repository in the Docker image
+          RUN git clone https://github.com/${{ github.repository }} /avd
+
+          WORKDIR /avd
+
+          # Ensure to copy the requirements-ci.txt file from the correct location
+          COPY .github/requirements-ci.txt /avd/.github/requirements-ci.txt
+
+          # Install the requirements directly
+          RUN pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+
+          CMD ["python"]
+          EOF
+          echo "Dockerfile created successfully."
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:${{ matrix.python-version }} \
+            --build-arg PYTHON_VERSION=${{ matrix.python-version }} .
+
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:${{ matrix.python-version }}
 
       - name: Save image as artifact
         uses: actions/upload-artifact@v3
