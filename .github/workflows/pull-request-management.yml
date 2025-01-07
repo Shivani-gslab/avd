@@ -107,6 +107,8 @@ jobs:
         run: |
           pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Build the Docker image
         uses: docker/build-push-action@v3
         with:
