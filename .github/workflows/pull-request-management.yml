@@ -102,6 +102,7 @@ jobs:
             3.10
       - name: Install dependencies
         run: |
+          python -m ensurepip
           pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
       - name: Get container ID
