@@ -106,7 +106,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt-get update
-          pt-get install -y make build-essential python3-dev
+          apt-get install -y make build-essential python3-dev
           python -m pip install --upgrade pip setuptools wheel
           pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
           
