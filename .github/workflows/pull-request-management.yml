@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
     container: 
-      image: docker:latest
+      image: ubuntu:latest
       options: --cpus 1
 
     steps:
@@ -106,19 +106,26 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: my-python-app:latest
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v3
 
-      - name: Commit the container changes to an image
-        run: |
-          CONTAINER_ID=$(docker ps -aqf "name=github-actions-job")
-          docker commit -m "Added Python and dependencies" -a "GitHub Actions" $CONTAINER_ID my-python-app:latest
+      # - name: Commit the container changes to an image
+      #   run: |
+      #     CONTAINER_ID=$(docker ps -aqf "name=github-actions-job")
+      #     docker commit -m "Added Python and dependencies" -a "GitHub Actions" $CONTAINER_ID my-python-app:latest
 
-      - name: Save image as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-app-image
-          path: ${{ github.workspace }}/.docker/my-python-app:latest.tar
+      # - name: Save image as artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: python-app-image
+      #     path: ${{ github.workspace }}/.docker/my-python-app:latest.tar
 
   # reuse-container-job:
   #   name: reuse first job
