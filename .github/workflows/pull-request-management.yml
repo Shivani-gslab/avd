@@ -171,6 +171,7 @@ jobs:
           # # # Install the requirements directly
           # # RUN pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           RUN ls -l
+          RUN pwd
           CMD ["python"]
           EOF
           echo "Dockerfile created successfully."
@@ -199,7 +200,7 @@ jobs:
         shell: bash
         run: |
           pwd
-          ls -l
+          ls -al
           ls -l /__w/avd/
           source UV3.12/bin/activate
           cd ansible_collections/arista/avd
