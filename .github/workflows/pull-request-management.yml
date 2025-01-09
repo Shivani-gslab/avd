@@ -178,7 +178,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 .
+          docker build --no-cache -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 .
 
       - name: Push Docker Image
         run: |
