@@ -13,9 +13,7 @@ env:
   AVD_NEVER_RUN_FROM_SOURCE: 1
   PY_COLORS: 1 # allows molecule colors to be passed to GitHub Actions
   ANSIBLE_FORCE_COLOR: 1 # allows ansible colors to be passed to GitHub Actions
-permissions:
-  contents: read     # Allows read access to the repository's contents (code)
-  packages: write
+
 jobs:
   file-changes:
     runs-on: ubuntu-latest
@@ -91,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11, 3.12, 3.13] # Python versions
+        python-version: [3.12] # Python versions
     # Docker Hub image that `container-job` executes in
     container: 
       image: ubuntu:latest
@@ -112,6 +110,7 @@ jobs:
         
       - name: log lowercase repo name
         run: echo ${{ steps.string.outputs.lowercase }}
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -141,7 +140,7 @@ jobs:
           COPY .github/requirements-ci.txt /avd/.github/requirements-ci.txt
 
           # Install the requirements directly
-          RUN pip install "ansible-core<2.19.0" -r .github/requirements-ci.txt --upgrade
+          RUN pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
@@ -156,51 +155,47 @@ jobs:
         run: |
           docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:${{ matrix.python-version }}
 
-      - name: Save image as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-app-image
-          path: ${{ github.workspace }}/.docker/my-python-app:latest.tar
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      # - name: Build the Docker image
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     context: .
-      #     push: false
-      #     tags: my-python-app:latest
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-
-      # - name: Commit the container changes to an image
+  reuse-ghcr-image:
+    name: reuse first job
+    runs-on: ubuntu-latest
+    needs: [ container-job ]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      # - name: Set up Docker
       #   run: |
-      #     CONTAINER_ID=$(docker ps -aqf "name=github-actions-job")
-      #     docker commit -m "Added Python and dependencies" -a "GitHub Actions" $CONTAINER_ID my-python-app:latest
+      #     sudo apt-get update
+      #     sudo apt-get install -y docker.io
+      
+      - id: string
+        uses: vishalmamidi/lowercase-action@v1
+        with:
+          string: ${{ github.repository_owner }}
+        
+      - name: log lowercase repo name
+        run: echo ${{ steps.string.outputs.lowercase }}
 
-      # - name: Save image as artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: python-app-image
-      #     path: ${{ github.workspace }}/.docker/my-python-app:latest.tar
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.string.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  # reuse-container-job:
-  #   name: reuse first job
-  #   runs-on: ubuntu-latest
-  #   needs: [ container-job ]
-  #   steps:
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: project
-  #         path: /tmp
+      # - name: Pull docker image from ghcr
+      #   run: |
+      #     docker pull ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:3.12
 
-  #     - name: Load image
-  #       run: docker load --input /tmp/project.tar
+      - name: Run Docker Container
+        run: |
+          docker run -dit --name avd-python-container ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:3.12 bash
+        
+      - name: Execute Command Inside Container
+        run: |
+          docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test units -vv"
+        
+      - name: Stop and Remove Docker Container
+        run: |
+          docker stop avd-python-container
+          docker rm avd-python-container
 
-  #     - name: Run
-  #       uses: addnab/docker-run-action@v3
-  #       with:
-  #         image: project-image
-  #         run: |
-  #           pip list
