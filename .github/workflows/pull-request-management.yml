@@ -87,9 +87,9 @@ jobs:
   container-job:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.12] # Python versions
+    # strategy:
+    #   matrix:
+    #     python-version: [3.12] # Python versions
     # Docker Hub image that `container-job` executes in
     container: 
       image: ubuntu:latest
@@ -125,22 +125,40 @@ jobs:
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
-          ARG PYTHON_VERSION
-          FROM python:\${PYTHON_VERSION}-slim
+          FROM ubuntu:latest
 
           # Install Git to clone the repo
-          RUN apt-get update && apt-get install -y git make
+          RUN apt-get update && apt-get install -y git make python3-pip python3.12
+
+          # Install UV
+          RUN pip install uv --break-system-packages
+
+          # Install python versions
+          RUN uv python install 3.10 3.11 3.12 3.13
+
 
           # Clone the repository in the Docker image
-          RUN git clone https://github.com/${{ github.repository }} /avd
+          RUN git clone https://github.com/${{ github.repository }}
 
           WORKDIR /avd
 
-          # Ensure to copy the requirements-ci.txt file from the correct location
-          COPY .github/requirements-ci.txt /avd/.github/requirements-ci.txt
+          # Create virtual env
+          RUN uv venv --python 3.10 UV3.10  && \
+              UV3.10/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.11 UV3.11 && \
+              UV3.11/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.12 UV3.12 && \
+              UV3.12/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.13 UV3.13 && \
+              UV3.13/bin/python -m ensurepip --upgrade 
 
-          # Install the requirements directly
-          RUN pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.12/bin/activate && \
+            UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # WORKDIR /avd
+          
+          # # # Install the requirements directly
+          # # RUN pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
@@ -148,12 +166,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:${{ matrix.python-version }} \
-            --build-arg PYTHON_VERSION=${{ matrix.python-version }} .
+          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 .
 
       - name: Push Docker Image
         run: |
-          docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:${{ matrix.python-version }}
+          docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1
 
   reuse-ghcr-image:
     name: reuse first job
@@ -188,12 +205,26 @@ jobs:
 
       - name: Run Docker Container
         run: |
-          docker run -dit --name avd-python-container ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:3.12 bash
+          docker run -dit --name avd-python-container ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 bash
         
-      - name: Execute Command Inside Container
+      # - name: Execute Ansible unit tests
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv"
+      
+      # - name: Execute Ansible integration tests
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+      #     docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+      
+      # - name: Execute Ansible sanity tests
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      #     docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+
+      - name: Execute Ansible lint tests
         run: |
-          docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test units -vv"
-        
+          docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test integration -vv"
+
       - name: Stop and Remove Docker Container
         run: |
           docker stop avd-python-container
