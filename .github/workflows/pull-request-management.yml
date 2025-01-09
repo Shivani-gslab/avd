@@ -196,6 +196,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: run tests
+        shell: bash
         run: |
           source UV3.12/bin/activate
           cd ansible_collections/arista/avd
