@@ -200,6 +200,7 @@ jobs:
         run: |
           pwd
           ls -l
+          ls -l /__w/avd/
           source UV3.12/bin/activate
           cd ansible_collections/arista/avd
           ansible-test units -vv
