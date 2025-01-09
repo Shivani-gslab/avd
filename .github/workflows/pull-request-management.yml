@@ -191,7 +191,7 @@ jobs:
     container:
       image: ghcr.io/shivani-gslab/avd/python:0.0.1
       credentials:
-        username: ${{ github.actor }}
+        username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out repository code
