@@ -184,37 +184,37 @@ jobs:
         run: |
           docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python_avd:0.0.1
 
-  reuse_container_image:
-    name: Reuse image with ghcr credentials
-    runs-on: ubuntu-latest
-    needs: [container-job]
-    container:
-      image: ghcr.io/shivani-gslab/avd/python_avd:0.0.1
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}  
-    steps:
-      - name: Check for dockerenv file
-        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: run tests
-        shell: bash
-        run: |
-          pwd
-          ls -al
-          ls -l /__w/avd/
-          # source UV3.12/bin/activate
-          cd ansible_collections/arista/avd
-          ansible-test units -vv
+  # reuse_container_image:
+  #   name: Reuse image with ghcr credentials
+  #   runs-on: ubuntu-latest
+  #   needs: [container-job]
+  #   container:
+  #     image: ghcr.io/shivani-gslab/avd/python_avd:0.0.1
+  #     credentials:
+  #       username: ${{ github.repository_owner }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}  
+  #   steps:
+  #     - name: Check for dockerenv file
+  #       run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v4
+  #     - name: run tests
+  #       shell: bash
+  #       run: |
+  #         pwd
+  #         ls -al
+  #         ls -l /__w/avd/
+  #         # source UV3.12/bin/activate
+  #         cd ansible_collections/arista/avd
+  #         ansible-test units -vv
 
   reuse-ghcr-image:
-    name: reuse first job
+    name: Reuse first job
     runs-on: ubuntu-latest
     needs: [ container-job ]
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      # - name: Check out repository code
+      #   uses: actions/checkout@v4
       # - name: Set up Docker
       #   run: |
       #     sudo apt-get update
@@ -247,22 +247,18 @@ jobs:
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv"
       
-  #     - name: Execute Ansible integration tests
-  #       run: |
-  #         docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+      - name: Execute Ansible integration tests
+        run: |
+          docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
   #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
       
-  #     - name: Execute Ansible sanity tests
-  #       run: |
-  #         docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      - name: Execute Ansible sanity tests
+        run: |
+          docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
   #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
-  #     # - name: Execute Ansible lint tests
-  #     #   run: |
-  #     #     docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test integration -vv"
-
-  #     - name: Stop and Remove Docker Container
-  #       run: |
-  #         docker stop avd-python-container
-  #         docker rm avd-python-container
+      - name: Stop and Remove Docker Container
+        run: |
+          docker stop avd-python-container
+          docker rm avd-python-container
 
