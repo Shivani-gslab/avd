@@ -175,6 +175,10 @@ jobs:
                 wait \$pid2; status2=\$?; \
                 wait \$pid3; status3=\$?; \
                 wait \$pid4; status4=\$?; \
+                echo \"Status of pid1: \$status1\"; \
+                echo \"Status of pid2: \$status2\"; \
+                echo \"Status of pid3: \$status3\"; \
+                echo \"Status of pid4: \$status4\"; \
                 if [ \$status1 -ne 0 ] || [ \$status2 -ne 0 ] || [ \$status3 -ne 0 ] || [ \$status4 -ne 0 ]; then \
                   echo \"One or more processes failed.\"; \
                   exit 1; \
