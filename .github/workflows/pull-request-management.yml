@@ -149,8 +149,8 @@ jobs:
           #     UV3.11/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.12 UV3.12 && \
               UV3.12/bin/python -m ensurepip --upgrade 
-          # RUN uv venv --python 3.13 UV3.13 && \
-          #     UV3.13/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.13 UV3.13 && \
+              UV3.13/bin/python -m ensurepip --upgrade 
 
           # # Activate virtual env
           # RUN . UV3.10/bin/activate && \
@@ -168,9 +168,9 @@ jobs:
           #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
           #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
 
-          # # Activate virtual env
-          # RUN . UV3.13/bin/activate && \
-          #   UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.13/bin/activate && \
+            UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
@@ -250,12 +250,12 @@ jobs:
       - name: Execute Ansible integration tests
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
-  #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
       
       - name: Execute Ansible sanity tests
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-  #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
       - name: Stop and Remove Docker Container
         run: |
