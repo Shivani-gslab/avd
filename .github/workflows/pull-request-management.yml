@@ -196,13 +196,16 @@ jobs:
     steps:
       - name: Check for dockerenv file
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: run tests
         shell: bash
         run: |
           pwd
-          ls
+          ls -al
+          ls -l /__w/avd/
           # source UV3.12/bin/activate
-          cd ansible_collections/arista/avd
+          cd __w/avd/avd/ansible_collections/arista/avd
           ansible-test units -vv
 
   reuse-ghcr-image:
