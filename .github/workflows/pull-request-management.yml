@@ -205,7 +205,7 @@ jobs:
           ls -al
           ls -l /__w/avd/
           # source UV3.12/bin/activate
-          cd __w/avd/avd/ansible_collections/arista/avd
+          cd ansible_collections/arista/avd
           ansible-test units -vv
 
   reuse-ghcr-image:
