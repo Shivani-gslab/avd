@@ -154,7 +154,10 @@ jobs:
                     UV3.11/bin/python -m ensurepip --upgrade && \
                     source UV3.11/bin/activate && \
                     git clone https://github.com/${{ github.repository }} repo_UV3.11 && \
+                    ls -l && \
                     cd repo_UV3.11 && \
+                    pwd && \
+                    ls -l && \
                     ../UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
                     -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
                   pid2=\$! && \
@@ -162,7 +165,10 @@ jobs:
                     UV3.12/bin/python -m ensurepip --upgrade && \
                     source UV3.12/bin/activate && \
                     git clone https://github.com/${{ github.repository }} repo_UV3.12 && \
+                    ls -l && \
                     cd repo_UV3.12 && \
+                    pwd && \
+                    ls -l && \
                     ../UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
                     -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
                   pid3=\$! && \
@@ -170,7 +176,10 @@ jobs:
                     UV3.13/bin/python -m ensurepip --upgrade && \
                     source UV3.13/bin/activate && \
                     git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
+                    ls -l && \
                     cd repo_UV3.13 && \
+                    pwd && \
+                    ls -l && \
                     ../UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
                     -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
                   pid4=\$! && \
