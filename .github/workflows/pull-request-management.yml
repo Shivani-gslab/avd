@@ -135,6 +135,7 @@ jobs:
 
           # Install python versions
           RUN uv python install 3.10 3.11 3.12 3.13
+
           # Create the parallel_install.sh script dynamically
           RUN echo '#!/bin/bash\n\
           set -e\n\
@@ -146,6 +147,10 @@ jobs:
             echo "Starting UV venv for Python $version in $dir..."\n\
           \n\
             uv venv --python $version $dir\n\
+            if [ $? -ne 0 ]; then\n\
+              echo "Error creating virtual environment for Python $version"\n\
+              exit 1\n\
+            fi\n\
             $dir/bin/python -m ensurepip --upgrade\n\
             source $dir/bin/activate\n\
             git clone https://github.com/${GITHUB_REPOSITORY} repo_$dir\n\
@@ -168,7 +173,7 @@ jobs:
           status=$?\n\
           \n\
           # Check the final status\n\
-          if [ $status -ne 0 ]; then\n\
+          if [ "$status" -ne 0 ]; then\n\
             echo "One or more processes failed."\n\
             exit 1\n\
           fi\n\
@@ -180,6 +185,7 @@ jobs:
 
           # Run the script
           RUN /usr/local/bin/parallel_install.sh
+
           # # Clone the repository in each virtual environment into unique directories
           # RUN set -e; \
           #   bash -c " \
