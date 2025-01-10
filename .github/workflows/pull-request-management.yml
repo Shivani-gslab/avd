@@ -128,7 +128,7 @@ jobs:
           FROM ubuntu:latest
 
           # Install Git to clone the repo
-          RUN apt-get update && apt-get install -y git make python3-pip python3.12
+          RUN apt-get update && apt-get install -y git parallel make python3-pip python3.12
 
           # Install UV
           RUN pip install uv --break-system-packages
