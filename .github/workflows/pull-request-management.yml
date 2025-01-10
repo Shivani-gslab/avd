@@ -138,55 +138,48 @@ jobs:
 
           # Clone the repository in each virtual environment into unique directories
           RUN set -e; \
-              bash -c " \
-                  ( uv venv --python 3.10 UV3.10 && \
-                    UV3.10/bin/python -m ensurepip --upgrade && \
-                    source UV3.10/bin/activate && \
-                    git clone https://github.com/${{ github.repository }} repo_UV3.10 && \
-                    ls -l && \
-                    cd repo_UV3.10 && \
-                    pwd && \
-                    ls -l && \
-                    ../UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                    -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                  pid1=\$! && \
-                  ( uv venv --python 3.11 UV3.11 && \
-                    UV3.11/bin/python -m ensurepip --upgrade && \
-                    source UV3.11/bin/activate && \
-                    git clone https://github.com/${{ github.repository }} repo_UV3.11 && \
-                    ls -l && \
-                    cd repo_UV3.11 && \
-                    pwd && \
-                    ls -l && \
-                    ../UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                    -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                  pid2=\$! && \
-                  ( uv venv --python 3.12 UV3.12 && \
-                    UV3.12/bin/python -m ensurepip --upgrade && \
-                    source UV3.12/bin/activate && \
-                    git clone https://github.com/${{ github.repository }} repo_UV3.12 && \
-                    ls -l && \
-                    cd repo_UV3.12 && \
-                    pwd && \
-                    ls -l && \
-                    ../UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                    -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                  pid3=\$! && \
-                  ( uv venv --python 3.13 UV3.13 && \
-                    UV3.13/bin/python -m ensurepip --upgrade && \
-                    source UV3.13/bin/activate && \
-                    git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
-                    ls -l && \
-                    cd repo_UV3.13 && \
-                    pwd && \
-                    ls -l && \
-                    ../UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                    -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                  pid4=\$! && \
-                  wait \$pid1 || { echo \"Process 1 failed\"; exit 1; } && \
-                  wait \$pid2 || { echo \"Process 2 failed\"; exit 1; } && \
-                  wait \$pid3 || { echo \"Process 3 failed\"; exit 1; } && \
-                  wait \$pid4 || { echo \"Process 4 failed\"; exit 1; }"
+          bash -c " \
+              ( uv venv --python 3.10 UV3.10 && \
+                UV3.10/bin/python -m ensurepip --upgrade && \
+                source UV3.10/bin/activate && \
+                git clone https://github.com/${{ github.repository }} repo_UV3.10 && \
+                cd repo_UV3.10 && \
+                ../UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
+                -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
+              pid1=\$! && \
+              ( uv venv --python 3.11 UV3.11 && \
+                UV3.11/bin/python -m ensurepip --upgrade && \
+                source UV3.11/bin/activate && \
+                git clone https://github.com/${{ github.repository }} repo_UV3.11 && \
+                cd repo_UV3.11 && \
+                ../UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
+                -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
+              pid2=\$! && \
+              ( uv venv --python 3.12 UV3.12 && \
+                UV3.12/bin/python -m ensurepip --upgrade && \
+                source UV3.12/bin/activate && \
+                git clone https://github.com/${{ github.repository }} repo_UV3.12 && \
+                cd repo_UV3.12 && \
+                ../UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
+                -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
+              pid3=\$! && \
+              ( uv venv --python 3.13 UV3.13 && \
+                UV3.13/bin/python -m ensurepip --upgrade && \
+                source UV3.13/bin/activate && \
+                git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
+                cd repo_UV3.13 && \
+                UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
+                -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
+              pid4=\$! && \
+              wait \$pid1; status1=\$?; \
+              wait \$pid2; status2=\$?; \
+              wait \$pid3; status3=\$?; \
+              wait \$pid4; status4=\$?; \
+              if [ \$status1 -ne 0 ]; then echo \"Process 1 failed with status \$status1\"; exit \$status1; fi; \
+              if [ \$status2 -ne 0 ]; then echo \"Process 2 failed with status \$status2\"; exit \$status2; fi; \
+              if [ \$status3 -ne 0 ]; then echo \"Process 3 failed with status \$status3\"; exit \$status3; fi; \
+              if [ \$status4 -ne 0 ]; then echo \"Process 4 failed with status \$status4\"; exit \$status4; fi"
+
           # # Clone the repository in each virtual environment and install requirements in parallel
           # RUN ( \
           #     uv venv --python 3.10 UV3.10 && \
