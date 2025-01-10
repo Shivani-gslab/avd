@@ -175,10 +175,11 @@ jobs:
                 wait \$pid2; status2=\$?; \
                 wait \$pid3; status3=\$?; \
                 wait \$pid4; status4=\$?; \
-                if [ \$status1 -ne 0 ]; then echo \"Process 1 failed with status \$status1\"; exit \$status1; fi; \
-                if [ \$status2 -ne 0 ]; then echo \"Process 2 failed with status \$status2\"; exit \$status2; fi; \
-                if [ \$status3 -ne 0 ]; then echo \"Process 3 failed with status \$status3\"; exit \$status3; fi; \
-                if [ \$status4 -ne 0 ]; then echo \"Process 4 failed with status \$status4\"; exit \$status4; fi"
+                if [ \$status1 -ne 0 ] || [ \$status2 -ne 0 ] || [ \$status3 -ne 0 ] || [ \$status4 -ne 0 ]; then \
+                  echo \"One or more processes failed.\"; \
+                  exit 1; \
+                fi; \
+                echo \"All processes completed successfully.\""
 
           # # Clone the repository in each virtual environment and install requirements in parallel
           # RUN ( \
