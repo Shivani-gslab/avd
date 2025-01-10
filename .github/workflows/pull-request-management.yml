@@ -160,15 +160,15 @@ jobs:
           # RUN . UV3.11/bin/activate && \
           #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          # Activate virtual env
-          # RUN . UV3.12/bin/activate && \
-          #   UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          Activate virtual env
+          RUN . UV3.12/bin/activate && \
+            UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          RUN parallel --link --tag 'bash -c' ::: \
-            ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
-            ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
+          # RUN parallel --link --tag 'bash -c' ::: \
+          #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
+          #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
 
-            # # Activate virtual env
+          # # Activate virtual env
           # RUN . UV3.13/bin/activate && \
           #   UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
@@ -184,27 +184,27 @@ jobs:
         run: |
           docker push ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1
 
-  # reuse_container_image:
-  #   name: Reuse image with ghcr credentials
-  #   runs-on: ubuntu-latest
-  #   needs: [container-job]
-  #   container:
-  #     image: ghcr.io/shivani-gslab/avd/python:0.0.1
-  #     credentials:
-  #       username: ${{ github.repository_owner }}
-  #       password: ${{ secrets.GITHUB_TOKEN }}
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
-  #     - name: run tests
-  #       shell: bash
-  #       run: |
-  #         pwd
-  #         ls -al
-  #         ls -l /__w/avd/
-  #         source UV3.12/bin/activate
-  #         cd ansible_collections/arista/avd
-  #         ansible-test units -vv
+  reuse_container_image:
+    name: Reuse image with ghcr credentials
+    runs-on: ubuntu-latest
+    needs: [container-job]
+    container:
+      image: ghcr.io/shivani-gslab/avd/python:0.0.1
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: run tests
+        shell: bash
+        run: |
+          pwd
+          ls -al
+          ls -l /__w/avd/
+          source UV3.12/bin/activate
+          cd ansible_collections/arista/avd
+          ansible-test units -vv
 
   reuse-ghcr-image:
     name: reuse first job
