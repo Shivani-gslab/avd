@@ -168,7 +168,7 @@ jobs:
                   source UV3.13/bin/activate && \
                   git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
                   cd repo_UV3.13 && \
-                  ../UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
+                  UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
                   -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
                 pid4=\$! && \
                 wait \$pid1; status1=\$?; \
