@@ -143,22 +143,22 @@ jobs:
           WORKDIR /avd
 
           # Create virtual env
-          # RUN uv venv --python 3.10 UV3.10  && \
-          #     UV3.10/bin/python -m ensurepip --upgrade 
-          # RUN uv venv --python 3.11 UV3.11 && \
-          #     UV3.11/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.10 UV3.10  && \
+              UV3.10/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.11 UV3.11 && \
+              UV3.11/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.12 UV3.12 && \
               UV3.12/bin/python -m ensurepip --upgrade 
-          # RUN uv venv --python 3.13 UV3.13 && \
-          #     UV3.13/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.13 UV3.13 && \
+              UV3.13/bin/python -m ensurepip --upgrade 
 
-          # # Activate virtual env
-          # RUN . UV3.10/bin/activate && \
-          #   UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.10/bin/activate && \
+            UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          # # Activate virtual env
-          # RUN . UV3.11/bin/activate && \
-          #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.11/bin/activate && \
+            UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
@@ -168,20 +168,17 @@ jobs:
           #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
           #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
 
-          # # Activate virtual env
-          # RUN . UV3.13/bin/activate && \
-          #   UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.13/bin/activate && \
+            UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
           echo "Dockerfile created successfully."
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
 
       - name: Build Docker Image
         run: |
-          docker buildx build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 .
+          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 .
 
       - name: Push Docker Image
         run: |
