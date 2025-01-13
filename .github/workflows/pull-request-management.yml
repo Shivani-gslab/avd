@@ -139,8 +139,8 @@ jobs:
 
           # Build the wheel package
           RUN cd python-avd && \
-              pip3 install build
-              python3 -m build --wheel
+              pip install build
+              python -m build --wheel
            
 
           # # Create virtual env
