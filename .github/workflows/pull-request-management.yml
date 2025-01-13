@@ -100,7 +100,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker
         run: |
-          apt-get update
           apt-get install -y docker.io
       
       - id: string
@@ -129,7 +128,7 @@ jobs:
           FROM ubuntu:latest
 
           # Install pre-requisites
-          RUN apt-get update && apt-get install -y git parallel make python3-pip python3.12
+          RUN apt-get install -y git parallel make python3-pip python3.12
 
           # Install UV
           RUN pip install uv --break-system-packages
@@ -143,10 +142,10 @@ jobs:
 
           WORKDIR /avd
 
-          # # Build the wheel package
-          # RUN cd python-avd && \
-          #     pip install build
-          #     python3.12 -m build --wheel
+          # Build the wheel package
+          RUN cd python-avd && \
+            python3 -m pip install --upgrade pip build && \
+            python3 -m build --wheel --outdir /tmp/wheels
            
           WORKDIR /
           # Create virtual env
@@ -170,7 +169,7 @@ jobs:
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
-            ../UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \ -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
           # # RUN parallel --link --tag 'bash -c' ::: \
           # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
@@ -179,7 +178,7 @@ jobs:
           # Activate virtual env
           RUN . UV3.13/bin/activate && \
             cd avd/ && \
-            ../UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \ -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
