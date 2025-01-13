@@ -121,13 +121,14 @@ jobs:
           DOCKER_CLI_EXPERIMENTAL: enabled
 
           # Step 4: Dynamically create Dockerfile
+      # Dynamically create Dockerfile
       - name: Create Dockerfile dynamically
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
           FROM ubuntu:latest
 
-          # Install Git to clone the repo
+          # Install pre-requisites
           RUN apt-get update && apt-get install -y git parallel make python3-pip python3.12
 
           # Install UV
@@ -136,120 +137,47 @@ jobs:
           # Install python versions
           RUN uv python install 3.10 3.11 3.12 3.13
 
-          # Clone the repository in each virtual environment into unique directories
-          RUN set -e; \
-            bash -c " \
-                ( uv venv --python 3.10 UV3.10 && \
-                  UV3.10/bin/python -m ensurepip --upgrade && \
-                  source UV3.10/bin/activate && \
-                  git clone https://github.com/${{ github.repository }} repo_UV3.10 && \
-                  cd repo_UV3.10 && \
-                  ../UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                  -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                pid1=\$! && \
-                ( uv venv --python 3.11 UV3.11 && \
-                  UV3.11/bin/python -m ensurepip --upgrade && \
-                  source UV3.11/bin/activate && \
-                  git clone https://github.com/${{ github.repository }} repo_UV3.11 && \
-                  cd repo_UV3.11 && \
-                  ../UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                  -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                pid2=\$! && \
-                ( uv venv --python 3.12 UV3.12 && \
-                  UV3.12/bin/python -m ensurepip --upgrade && \
-                  source UV3.12/bin/activate && \
-                  git clone https://github.com/${{ github.repository }} repo_UV3.12 && \
-                  cd repo_UV3.12 && \
-                  ../UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                  -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                pid3=\$! && \
-                ( uv venv --python 3.13 UV3.13 && \
-                  UV3.13/bin/python -m ensurepip --upgrade && \
-                  source UV3.13/bin/activate && \
-                  git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
-                  cd repo_UV3.13 && \
-                  UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml \"ansible-core<2.19.0\" \
-                  -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade ) & \
-                pid4=\$! && \
-                wait \$pid1; status1=\$?; \
-                wait \$pid2; status2=\$?; \
-                wait \$pid3; status3=\$?; \
-                wait \$pid4; status4=\$?; \
-                echo \"Status of pid1: \$status1\"; \
-                echo \"Status of pid2: \$status2\"; \
-                echo \"Status of pid3: \$status3\"; \
-                echo \"Status of pid4: \$status4\"; \
-                if [ \$status1 -ne 0 ] || [ \$status2 -ne 0 ] || [ \$status3 -ne 0 ] || [ \$status4 -ne 0 ]; then \
-                  echo \"One or more processes failed.\"; \
-                  exit 1; \
-                fi; \
-                echo \"All processes completed successfully.\""
 
-          # # Clone the repository in each virtual environment and install requirements in parallel
-          # RUN ( \
-          #     uv venv --python 3.10 UV3.10 && \
-          #     . UV3.10/bin/activate && \
-          #     git clone https://github.com/${{ github.repository }} repo_UV3.10 && \
-          #     cd repo_UV3.13 && \
-          #     pwd && \
-          #     ls -l && \
-          #     .UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-          #     -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade \
-          # ) & pid1=$! && \
-          # ( \
-          #     uv venv --python 3.11 UV3.11 && \
-          #     . UV3.11/bin/activate && \
-          #     git clone https://github.com/${{ github.repository }} repo_UV3.11 && \
-          #     cd repo_UV3.11 && \
-          #     pwd && \
-          #     ls -l && \
-          #     .UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-          #     -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade \
-          # ) & pid2=$! && \
-          # ( \
-          #     uv venv --python 3.12 UV3.12 && \
-          #     . UV3.12/bin/activate && \
-          #     git clone https://github.com/${{ github.repository }} repo_UV3.12 && \
-          #     cd repo_UV3.12 && \
-          #     pwd && \
-          #     ls -l && \
-          #     .UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-          #     -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade \
-          # ) & pid3=$! && \
-          # ( \
-          #     uv venv --python 3.13 UV3.13 && \
-          #     . UV3.13/bin/activate && \
-          #     git clone https://github.com/${{ github.repository }} repo_UV3.13 && \
-          #     cd repo_UV3.13 && \
-          #     pwd && \
-          #     ls -l && \
-          #     .UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-          #     -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade \
-          # ) & pid4=$! && \
-          # wait $pid1 || exit 1 && \
-          # wait $pid2 || exit 1 && \
-          # wait $pid3 || exit 1 && \
-          # wait $pid4 || exit 1
+          # Clone the repository in the Docker image
+          RUN git clone https://github.com/${{ github.repository }}
 
-          # # Activate virtual env
-          # RUN . UV3.10/bin/activate && \
-          #   UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          WORKDIR /avd
+
+          # Build the wheel package
+          RUN cd python-avd && \
+              pip install build
+              python3.12 -m build --wheel
+           
+          WORKDIR /
+          # Create virtual env
+          # RUN uv venv --python 3.10 UV3.10  && \
+          #     UV3.10/bin/python -m ensurepip --upgrade 
+          # RUN uv venv --python 3.11 UV3.11 && \
+          #     UV3.11/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.12 UV3.12 && \
+              UV3.12/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.13 UV3.13 && \
+              UV3.13/bin/python -m ensurepip --upgrade 
+
+          # # # Activate virtual env
+          # # RUN . UV3.10/bin/activate && \
+          # #   UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          # # Activate virtual env
-          # RUN . UV3.11/bin/activate && \
-          #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # # # Activate virtual env
+          # # RUN . UV3.11/bin/activate && \
+          # #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
           # Activate virtual env
-          # RUN . UV3.12/bin/activate && \
-          #   UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          RUN . UV3.12/bin/activate && \
+            UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          # RUN parallel --link --tag 'bash -c' ::: \
-          #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
-          #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
+          # # RUN parallel --link --tag 'bash -c' ::: \
+          # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
+          # #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
 
-          # # Activate virtual env
-          # RUN . UV3.13/bin/activate && \
-          #   UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.13/bin/activate && \
+            UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           CMD ["python"]
           EOF
