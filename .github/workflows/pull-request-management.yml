@@ -143,10 +143,10 @@ jobs:
 
           WORKDIR /avd
 
-          # Build the wheel package
-          RUN cd python-avd && \
-              pip install build
-              python3.12 -m build --wheel
+          # # Build the wheel package
+          # RUN cd python-avd && \
+          #     pip install build
+          #     python3.12 -m build --wheel
            
           WORKDIR /
           # Create virtual env
