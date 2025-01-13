@@ -220,19 +220,25 @@ jobs:
       #     sudo apt-get update
       #     sudo apt-get install -y docker.io
       
-      - id: string
-        uses: vishalmamidi/lowercase-action@v1
-        with:
-          string: ${{ github.repository_owner }}
+      # - id: string
+      #   uses: vishalmamidi/lowercase-action@v1
+      #   with:
+      #     string: ${{ github.repository_owner }}
         
-      - name: log lowercase repo name
-        run: echo ${{ steps.string.outputs.lowercase }}
+      - name: Convert GitHub username to lowercase
+        id: lowercase
+        run: |
+          echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]' > lowercase_username.txt
+          echo "::set-output name=lowercase::$(cat lowercase_username.txt)"
+
+      - name: log lowercase repo owner name
+        run: echo ${{ steps.lowercase.outputs.lowercase }}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ steps.string.outputs.lowercase }}
+          username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: Pull docker image from ghcr
@@ -241,7 +247,7 @@ jobs:
 
       - name: Run Docker Container
         run: |
-          docker run -dit --name avd-python-container ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python_avd:0.0.1 bash
+          docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python_avd:0.0.1 bash
         
       - name: Execute Ansible unit tests
         run: |
