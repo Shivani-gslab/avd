@@ -138,12 +138,10 @@ jobs:
           WORKDIR /avd
 
           # Build the wheel package
-          RUN pip install -r .github/requirements-ci.txt --upgrade && \
-              mkdir -p /wheels && \
-              find / -name "pyavd*.whl" -exec mv {} /wheels/ \; && \
-              echo "Wheel packages moved to /wheels:" && \
-              ls -al /wheels && \
-              test "$(ls -A /wheels)" || (echo "No wheel package found in /wheels!" && exit 1) 
+          RUN cd python-avd && \
+              pip3 install build
+              python3 -m build --wheel
+           
 
           # # Create virtual env
           # # RUN uv venv --python 3.10 UV3.10  && \
@@ -179,9 +177,9 @@ jobs:
           EOF
           echo "Dockerfile created successfully."
 
-      # - name: Build Docker Image
-      #   run: |
-      #     docker build -t ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python_avd:0.0.1 .
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python_avd:0.0.1 .
 
       # - name: Push Docker Image
       #   run: |
