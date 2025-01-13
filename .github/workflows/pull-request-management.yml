@@ -171,8 +171,10 @@ jobs:
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
-            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \ -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
-          
+            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r avd/.github/requirements-ci.txt \
+            -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
+
           # # RUN parallel --link --tag 'bash -c' ::: \
           # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
           # #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
@@ -180,8 +182,9 @@ jobs:
           # Activate virtual env
           RUN . UV3.13/bin/activate && \
             cd avd/ && \
-            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \ -r avd/.github/requirements-ci.txt -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
-
+            ../UV3.13/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r avd/.github/requirements-ci.txt \
+            -r avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade
           CMD ["python"]
           EOF
           echo "Dockerfile created successfully."
