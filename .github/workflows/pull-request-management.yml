@@ -94,6 +94,13 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Cache APT packages
+        uses: actions/cache@v3
+        with:
+          path: /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-${{ hashFiles('apt-cache-key') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
       - name: Set up Docker
         run: |
           apt-get update
@@ -111,13 +118,6 @@ jobs:
           username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: /cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip- 
       # Dynamically create Dockerfile
       - name: Create Dockerfile dynamically
         run: |
@@ -126,7 +126,9 @@ jobs:
           FROM ubuntu:latest
           
           # Install pre-requisites
-          RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip
+          RUN apt-get update && apt-get install -y --no-install-recommends \
+            docker.io openssh-client git make python3-pip && \
+            apt-get clean && rm -rf /var/lib/apt/lists/*
           
           # Install UV
           RUN pip install uv --break-system-packages
