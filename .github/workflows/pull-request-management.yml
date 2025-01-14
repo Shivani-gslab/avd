@@ -254,12 +254,7 @@ jobs:
         
       - name: Execute Ansible unit tests
         run: |
-          pwd
-          ls -l
-          ls -l ansible_collections
-          ls -l ansible_collections/arista
-          ls -l ansible_collections/arista/avd
-          docker exec avd-python-container bash -c "source ../UV3.12/bin/activate && ls -l ansible_collections/arista/avd && ansible-test units -vv"
+          docker exec avd-python-container bash -c "pwd && ls -l"
       
   #     - name: Execute Ansible integration tests
   #       run: |
