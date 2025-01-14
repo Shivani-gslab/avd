@@ -92,7 +92,7 @@ jobs:
     #     python-version: [3.12] # Python versions
     # Docker Hub image that `container-job` executes in
     container: 
-      image: ubuntu:20.04-slim
+      image: ubuntu:latest
       options: --cpus 1
 
     steps:
@@ -120,7 +120,7 @@ jobs:
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
-          FROM ubuntu:20.04-slim
+          FROM ubuntu:latest
 
           # Install pre-requisites
           RUN apt-get update && apt-get install -y --no-install-recommends git make python3-pip
