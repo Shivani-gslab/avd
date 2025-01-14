@@ -254,6 +254,7 @@ jobs:
         
       - name: Execute Ansible unit tests
         run: |
+          pwd
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv"
       
   #     - name: Execute Ansible integration tests
