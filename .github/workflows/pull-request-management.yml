@@ -169,7 +169,7 @@ jobs:
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
             ../UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-            -r ansible_collections/arista/avd/requirements-dev.txt python-avd/dist/*.whl --upgrade && \
+            -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
             ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl
 
           # # RUN parallel --link --tag 'bash -c' ::: \
