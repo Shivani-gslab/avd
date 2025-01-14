@@ -85,12 +85,7 @@ jobs:
               - 'python_avd/*'
               - 'python_avd/**/*'
   container-job:
-    # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #     python-version: [3.12] # Python versions
-    # Docker Hub image that `container-job` executes in
     container: 
       image: ubuntu:latest
       options: --cpus 1
@@ -103,19 +98,18 @@ jobs:
           apt-get update
           apt-get install -y docker.io
       
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-          # Step 4: Dynamically create Dockerfile
       # Dynamically create Dockerfile
       - name: Create Dockerfile dynamically
         run: |
@@ -146,32 +140,32 @@ jobs:
            
           WORKDIR /
           # Create virtual env
-          # RUN uv venv --python 3.10 UV3.10  && \
-          #     UV3.10/bin/python -m ensurepip --upgrade 
-          # RUN uv venv --python 3.11 UV3.11 && \
-          #     UV3.11/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.10 UV3.10  && \
+              UV3.10/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.11 UV3.11 && \
+              UV3.11/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.12 UV3.12 && \
               UV3.12/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.13 UV3.13 && \
               UV3.13/bin/python -m ensurepip --upgrade 
 
-          # # # Activate virtual env
-          # # RUN . UV3.10/bin/activate && \
-          # #   UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+          # Activate virtual env
+          RUN . UV3.10/bin/activate && \
+            cd avd/ && \
+            ../UV3.10/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           
-          # # # Activate virtual env
-          # # RUN . UV3.11/bin/activate && \
-          # #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
-          
+          # Activate virtual env
+          RUN . UV3.11/bin/activate && \
+            cd avd/ && \
+            ../UV3.11/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
+
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
             ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
             -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
-
-          # # RUN parallel --link --tag 'bash -c' ::: \
-          # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
-          # #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
 
           # Activate virtual env
           RUN . UV3.13/bin/activate && \
@@ -182,35 +176,27 @@ jobs:
           EOF
           echo "Dockerfile created successfully."
       
-      - name: Build Docker Image
-        run: |
-          docker build -t ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 .
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 .
 
-      - name: Push Docker Image
-        run: |
-          docker push ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1
-
-  # reuse_container_image:
-  #   name: Reuse image with ghcr credentials
-  #   runs-on: ubuntu-latest
-  #   needs: [container-job]
-  #   container:
-  #     image: ghcr.io/shivani-gslab/avd/python:0.0.1
-  #     credentials:
-  #       username: ${{ github.repository_owner }}
-  #       password: ${{ secrets.GITHUB_TOKEN }}
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
-  #     - name: run tests
-  #       shell: bash
-  #       run: |
-  #         pwd
-  #         ls -al
-  #         ls -l /__w/avd/
-  #         source UV3.12/bin/activate
-  #         cd ansible_collections/arista/avd
-  #         ansible-test units -vv
+      # - name: Push Docker Image
+      #   run: |
+      #     docker push ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: myimage:latest
+          outputs: type=docker,dest=/tmp/myimage.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: myimage
+          path: /tmp/myimage.tar
 
   reuse-ghcr-image:
     name: reuse first job
@@ -220,46 +206,110 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Docker Container
-        run: |
-          docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
+      # - name: Run Docker Container
+      #   run: |
+      #     docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
         
-      - name: Execute Ansible unit tests 3.12
+      # - name: Execute Ansible unit tests 3.12
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
+
+      # - name: Execute Ansible integration tests 3.12
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+      # - name: Execute Ansible integration tests 3.13
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+      
+      # - name: Execute Ansible sanity tests 3.13
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      # - name: Execute Ansible sanity tests 3.12
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+
+      # - name: Stop and Remove Docker Container
+      #   run: |
+      #     docker stop avd-python-container
+      #     docker rm avd-python-container
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: myimage
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/myimage.tar
+          docker image ls -a
+      - name: Start Docker container
+        run: |
+          docker run -d --name avd-python-container myimage:latest
+  unit-tests:
+    name: Execute Ansible unit tests 3.12
+    runs-on: ubuntu-latest
+    needs: use
+    steps:
+      - name: Run unit tests
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
 
-      - name: Execute Ansible integration tests 3.12
+  integration-tests-3-12:
+    name: Execute Ansible integration tests 3.12
+    runs-on: ubuntu-latest
+    needs: use
+    steps:
+      - name: Run integration tests
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-      - name: Execute Ansible integration tests 3.13
+
+  integration-tests-3-13:
+    name: Execute Ansible integration tests 3.13
+    runs-on: ubuntu-latest
+    needs: use
+    steps:
+      - name: Run integration tests
         run: |
           docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-      
-      - name: Execute Ansible sanity tests 3.13
-        run: |
-          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-      - name: Execute Ansible sanity tests 3.12
+
+  sanity-tests-3-12:
+    name: Execute Ansible sanity tests 3.12
+    runs-on: ubuntu-latest
+    needs: use
+    steps:
+      - name: Run sanity tests
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
-      # - name: Execute Ansible lint tests
-      #   run: |
-      #     docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test integration -vv"
+  sanity-tests-3-13:
+    name: Execute Ansible sanity tests 3.13
+    runs-on: ubuntu-latest
+    needs: use
+    steps:
+      - name: Run sanity tests
+        run: |
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
-      - name: Stop and Remove Docker Container
+  cleanup:
+    name: Clean up Docker container
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests-3-12, integration-tests-3-13, sanity-tests-3-12, sanity-tests-3-13]
+    steps:
+      - name: Stop and remove Docker container
         run: |
           docker stop avd-python-container
           docker rm avd-python-container
-
