@@ -245,18 +245,24 @@ jobs:
         run: |
           docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python_avd:0.0.1 bash
         
-      - name: Execute Ansible unit tests
+      - name: Execute Ansible unit tests 3.12
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
       
-      - name: Execute Ansible integration tests
+      - name: Execute Ansible integration tests 3.12
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+
+      - name: Execute Ansible integration tests 3.13
+        run: |
           docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
       
-      - name: Execute Ansible sanity tests
+      - name: Execute Ansible sanity tests 3.12
         run: |
           docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      
+      - name: Execute Ansible sanity tests 3.13
+        run: |
           docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
       - name: Stop and Remove Docker Container
