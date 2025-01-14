@@ -131,6 +131,9 @@ jobs:
           # Install python versions
           RUN uv python install 3.10 3.11 3.12 3.13
 
+          # Create a directory to store cached dependencies
+          ENV PIP_CACHE_DIR=/cache
+          RUN mkdir -p /cache
 
           # Clone the repository in the Docker image
           RUN git clone https://github.com/${{ github.repository }}
@@ -164,7 +167,7 @@ jobs:
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
-            ../UV3.12/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            ../UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
             -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
 
           # # RUN parallel --link --tag 'bash -c' ::: \
@@ -174,7 +177,7 @@ jobs:
           # Activate virtual env
           RUN . UV3.13/bin/activate && \
             cd avd/ && \
-            ../UV3.13/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            ../UV3.13/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR /tmp/wheels/*.whl mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
             -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
           CMD ["python"]
           EOF
