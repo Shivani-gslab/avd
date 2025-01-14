@@ -252,26 +252,33 @@ jobs:
         run: |
           docker run -dit --name avd-python-container ghcr.io/${{ steps.string.outputs.lowercase }}/avd/python:0.0.1 bash
         
-      - name: Execute Ansible unit tests
+      - name: Execute Ansible unit tests 3.12
         run: |
-          docker exec avd-python-container bash -c "pwd && ls -l"
+          docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
+      - name: Execute Ansible unit tests 3.13
+        run: |
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
       
-  #     - name: Execute Ansible integration tests
-  #       run: |
-  #         docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
-  #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+      - name: Execute Ansible integration tests 3.12
+        run: |
+          docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+      - name: Execute Ansible integration tests 3.13
+        run: |
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
       
-  #     - name: Execute Ansible sanity tests
-  #       run: |
-  #         docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-  #         docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      - name: Execute Ansible sanity tests 3.13
+        run: |
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      - name: Execute Ansible sanity tests 3.12
+        run: |
+          docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
-  #     # - name: Execute Ansible lint tests
-  #     #   run: |
-  #     #     docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test integration -vv"
+      # - name: Execute Ansible lint tests
+      #   run: |
+      #     docker exec avd-python-container bash -c "cd ansible_collections/arista/avd && ansible-test integration -vv"
 
-  #     - name: Stop and Remove Docker Container
-  #       run: |
-  #         docker stop avd-python-container
-  #         docker rm avd-python-container
+      - name: Stop and Remove Docker Container
+        run: |
+          docker stop avd-python-container
+          docker rm avd-python-container
 
