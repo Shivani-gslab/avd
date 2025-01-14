@@ -181,7 +181,7 @@ jobs:
             cd avd/ && \
             ../UV3.13/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
             -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-            ../UV3.13/bin/python -m pip installpython-avd/dist/*.whl
+            ../UV3.13/bin/python -m pip install python-avd/dist/*.whl
 
           CMD ["python"]
           EOF
