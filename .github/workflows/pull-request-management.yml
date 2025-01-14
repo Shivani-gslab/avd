@@ -143,7 +143,8 @@ jobs:
           # Build the wheel package
           RUN cd python-avd && \
             python3 -m pip install --break-system-packages build && \
-            python3 -m build --wheel --outdir /tmp/wheels
+            python3 -m build --wheel
+          # python3 -m build --wheel --outdir /tmp/wheels
  
           WORKDIR /
           # Create virtual env
@@ -168,7 +169,7 @@ jobs:
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
             ../UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-            -r ansible_collections/arista/avd/requirements-dev.txt /tmp/wheels/*.whl --upgrade
+            -r ansible_collections/arista/avd/requirements-dev.txt python-avd/dist/*.whl --upgrade
 
           # # RUN parallel --link --tag 'bash -c' ::: \
           # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
@@ -178,7 +179,7 @@ jobs:
           RUN . UV3.13/bin/activate && \
             cd avd/ && \
             ../UV3.13/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-            -r ansible_collections/arista/avd/requirements-dev.txt /tmp/wheels/*.whl --upgrade
+            -r ansible_collections/arista/avd/requirements-dev.txt python-avd/dist/*.whl --upgrade
           CMD ["python"]
           EOF
           echo "Dockerfile created successfully."
