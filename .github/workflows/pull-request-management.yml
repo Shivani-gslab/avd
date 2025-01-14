@@ -144,37 +144,38 @@ jobs:
           RUN cd python-avd && \
             python3 -m pip install --break-system-packages build && \
             python3 -m build --wheel --outdir /tmp/wheels
-          # python3 -m build --wheel --outdir /tmp/wheels
  
           WORKDIR /
           # Create virtual env
-          # RUN uv venv --python 3.10 UV3.10  && \
-          #     UV3.10/bin/python -m ensurepip --upgrade 
-          # RUN uv venv --python 3.11 UV3.11 && \
-          #     UV3.11/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.10 UV3.10  && \
+              UV3.10/bin/python -m ensurepip --upgrade 
+          RUN uv venv --python 3.11 UV3.11 && \
+              UV3.11/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.12 UV3.12 && \
               UV3.12/bin/python -m ensurepip --upgrade 
           RUN uv venv --python 3.13 UV3.13 && \
               UV3.13/bin/python -m ensurepip --upgrade 
 
-          # # # Activate virtual env
-          # # RUN . UV3.10/bin/activate && \
-          # #   UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
-          
-          # # # Activate virtual env
-          # # RUN . UV3.11/bin/activate && \
-          # #   UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade
-          
+          # # Activate virtual env
+          RUN . UV3.12/bin/activate && \
+            cd avd/ && \
+            ../UV3.10/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+            ../UV3.10/bin/python -m pip install /tmp/wheels/*.whl
+
+          # # Activate virtual env
+          RUN . UV3.12/bin/activate && \
+            cd avd/ && \
+            ../UV3.11/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+            -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+            ../UV3.11/bin/python -m pip install /tmp/wheels/*.whl
+
           # Activate virtual env
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
             ../UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
             -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-            ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl
-
-          # # RUN parallel --link --tag 'bash -c' ::: \
-          # #   ". UV3.12/bin/activate && UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade" \
-          # #   ". UV3.13/bin/activate && UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml 'ansible-core<2.19.0' -r .github/requirements-ci.txt -r ansible_collections/arista/avd/requirements-dev.txt --upgrade"
+            ../UV3.12/bin/python -m pip install /tmp/wheels/*.whl
 
           # Activate virtual env
           RUN . UV3.13/bin/activate && \
