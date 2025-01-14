@@ -205,6 +205,10 @@ jobs:
           username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull Docker Image
+        run: |
+          docker pull ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1
+
       - name: Run Docker Container
         run: |
           docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
@@ -261,6 +265,10 @@ jobs:
           registry: ghcr.io
           username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if Docker container is running
+        run: |
+          docker ps -q -f name=avd-python-container || (echo "Container not running!" && exit 1)
 
       - name: Run ansible unit tests
         run: |
