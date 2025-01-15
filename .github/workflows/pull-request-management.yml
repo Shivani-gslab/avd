@@ -120,7 +120,7 @@ jobs:
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
-          FROM python:3.11-slim
+          FROM python:3.13-slim
 
           # Install pre-requisites
           RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip && apt-get clean
@@ -222,7 +222,7 @@ jobs:
 
   reuse-ghcr-image:
     name: Reuse first job
-    runs-on: ubuntu-latest
+    runs-on: python:3.13-slim
     needs: [ container-job ]
     steps: 
       - name: Convert GitHub username to lowercase
