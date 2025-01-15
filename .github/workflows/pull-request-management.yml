@@ -146,7 +146,7 @@ jobs:
  
           WORKDIR /
 
-          RUN for PYVER in 3.10 3.11 3.12 3.13; do \
+          RUN for PYVER in 3.12 3.13; do \
                 uv venv --python \$PYVER /venvs/UV\$PYVER && \
                 /venvs/UV\$PYVER/bin/python -m ensurepip --upgrade && \
                 /venvs/UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} \
@@ -264,7 +264,7 @@ jobs:
         run: |
           pwd
           ls
-          
+
       - name: Execute Ansible integration tests 3.13
         run: |
           docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
