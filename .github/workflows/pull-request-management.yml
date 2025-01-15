@@ -130,10 +130,9 @@ jobs:
 
           # Install prerequisites and dependencies
           RUN apt-get update && apt-get install -y --no-install-recommends \
-                openssh-client git make python3-pip && \
-              pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
-              uv python install $PYTHON_VERSIONS
-
+                openssh-client git make python3-pip
+          RUN pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages
+          RUN uv python install $PYTHON_VERSIONS
           # # Clone the repository in the Docker image
           # RUN git clone https://github.com/${{ github.repository }}
           RUN if [ -d ".git" ]; then \
@@ -149,25 +148,22 @@ jobs:
             python3 -m pip install --break-system-packages build && \
             python3 -m build --wheel --outdir /tmp/wheels
           
-          WORKDIR /
-          # Create virtual environments if they don't exist
+          # Create virtual environments only if they don't exist
           RUN for version in 3.10 3.11 3.12 3.13; do \
+              echo "Checking if virtual environment for Python $version exists..." && \
               if [ ! -d "UV$version" ]; then \
-                  echo "Virtual environment UV$version does not exist. Creating it..." && \
+                  echo "Virtual environment for Python $version does not exist. Creating it..." && \
                   uv venv --python $version UV$version && \
                   UV$version/bin/python -m ensurepip --upgrade && \
                   echo "Virtual environment UV$version created and pip upgraded."; \
               else \
-                  echo "Virtual environment UV$version already exists, skipping creation..."; \
-              fi; \
-          done
-
-          # Create virtual environments only if they don't exist
-          RUN for version in 3.10 3.11 3.12 3.13; do \
-              . UV$version/bin/python -m pip install /tmp/wheels/*.whl && \
-              . UV$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
+                  echo "Virtual environment for Python $version already exists, skipping creation..."; \
+              fi && \
+              echo "Activating and installing dependencies in UV$version..." && \
+              UV$version/bin/python -m pip install /tmp/wheels/*.whl && \
+              UV$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                   mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-                  -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+                  -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
               echo "Dependencies installed for Python $version in virtual environment UV$version."; \
           done
 
