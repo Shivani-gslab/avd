@@ -130,9 +130,14 @@ jobs:
 
           # Install prerequisites and dependencies
           RUN apt-get update && apt-get install -y --no-install-recommends \
-                openssh-client git make python3-pip && \
-              pip install uv --break-system-packages && \
-              uv python install 3.10 3.11 3.12 3.13
+              openssh-client git make python3-pip python3-dev && \
+              apt-get clean
+
+          # Install UV (if not already installed)
+          RUN pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages
+
+          # Install Python versions only if not already installed
+          RUN uv python install 3.10 3.11 3.12 3.13 || echo "Python versions already installed."
           
           # # Clone the repository in the Docker image
           # RUN git clone https://github.com/${{ github.repository }}
