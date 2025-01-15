@@ -152,14 +152,27 @@ jobs:
           
           WORKDIR /
           # Create virtual env
-          RUN uv venv --python 3.10 UV3.10  && \
-              UV3.10/bin/python -m ensurepip --upgrade 
-          RUN uv venv --python 3.11 UV3.11 && \
-              UV3.11/bin/python -m ensurepip --upgrade 
-          RUN uv venv --python 3.12 UV3.12 && \
-              UV3.12/bin/python -m ensurepip --upgrade 
-          RUN uv venv --python 3.13 UV3.13 && \
-              UV3.13/bin/python -m ensurepip --upgrade 
+          # Create virtual environments only if they don't exist
+          RUN if [ ! -d "UV3.10" ]; then \
+                uv venv --python 3.10 UV3.10 && \
+                UV3.10/bin/python -m ensurepip --upgrade; \
+              fi
+
+          RUN if [ ! -d "UV3.11" ]; then \
+                uv venv --python 3.11 UV3.11 && \
+                UV3.11/bin/python -m ensurepip --upgrade; \
+              fi
+
+          RUN if [ ! -d "UV3.12" ]; then \
+                uv venv --python 3.12 UV3.12 && \
+                UV3.12/bin/python -m ensurepip --upgrade; \
+              fi
+
+          RUN if [ ! -d "UV3.13" ]; then \
+                uv venv --python 3.13 UV3.13 && \
+                UV3.13/bin/python -m ensurepip --upgrade; \
+              fi
+
           
           # Activate virtual env3.10
           RUN . UV3.10/bin/activate && \
