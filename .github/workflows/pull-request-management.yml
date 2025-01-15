@@ -130,9 +130,10 @@ jobs:
 
           # Install prerequisites and dependencies
           RUN apt-get update && apt-get install -y --no-install-recommends \
-                openssh-client git make python3-pip
-          RUN pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages
-          RUN uv python install $PYTHON_VERSIONS
+                openssh-client git make python3-pip && \
+              pip install uv --break-system-packages && \
+              uv python install 3.10 3.11 3.12 3.13
+          
           # # Clone the repository in the Docker image
           # RUN git clone https://github.com/${{ github.repository }}
           RUN if [ -d ".git" ]; then \
