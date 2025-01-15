@@ -154,70 +154,24 @@ jobs:
             python3 -m pip install --break-system-packages build && \
             python3 -m build --wheel --outdir /tmp/wheels
           
-          WORKDIR /
-          # Create virtual environment for Python 3.10
-          RUN echo "Creating virtual environment for Python 3.10..." && \
-              if [ ! -d "UV3.10" ]; then \
-                  uv venv --python 3.10 UV3.10 && \
-                  UV3.10/bin/python -m ensurepip --upgrade && \
-                  echo "Virtual environment UV3.10 created and pip upgraded."; \
+          # Create virtual environments only if they don't exist
+          RUN for version in 3.10 3.11 3.12 3.13; do \
+              echo "Checking if virtual environment for Python \$version exists..." && \
+              if [ ! -d "UV\$version" ]; then \
+                  echo "Virtual environment for Python \$version does not exist. Creating it..." && \
+                  uv venv --python \$version UV\$version && \
+                  UV\$version/bin/python -m ensurepip --upgrade && \
+                  echo "Virtual environment UV\$version created and pip upgraded."; \
               else \
-                  echo "Virtual environment UV3.10 already exists, skipping creation..."; \
+                  echo "Virtual environment for Python \$version already exists, skipping creation..."; \
               fi && \
-              echo "Installing dependencies for Python 3.10 in UV3.10..." && \
-              UV3.10/bin/python -m pip install /tmp/wheels/*.whl && \
-              UV3.10/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
-              mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-              -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-              echo "Dependencies installed for Python 3.10 in virtual environment UV3.10."
-          
-          # Create virtual environment for Python 3.11
-          RUN echo "Creating virtual environment for Python 3.11..." && \
-              if [ ! -d "UV3.11" ]; then \
-                  uv venv --python 3.11 UV3.11 && \
-                  UV3.11/bin/python -m ensurepip --upgrade && \
-                  echo "Virtual environment UV3.11 created and pip upgraded."; \
-              else \
-                  echo "Virtual environment UV3.11 already exists, skipping creation..."; \
-              fi && \
-              echo "Installing dependencies for Python 3.11 in UV3.11..." && \
-              UV3.11/bin/python -m pip install /tmp/wheels/*.whl && \
-              UV3.11/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
-              mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-              -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-              echo "Dependencies installed for Python 3.11 in virtual environment UV3.11."
-          
-          # Create virtual environment for Python 3.12
-          RUN echo "Creating virtual environment for Python 3.12..." && \
-              if [ ! -d "UV3.12" ]; then \
-                  uv venv --python 3.12 UV3.12 && \
-                  UV3.12/bin/python -m ensurepip --upgrade && \
-                  echo "Virtual environment UV3.12 created and pip upgraded."; \
-              else \
-                  echo "Virtual environment UV3.12 already exists, skipping creation..."; \
-              fi && \
-              echo "Installing dependencies for Python 3.12 in UV3.12..." && \
-              UV3.12/bin/python -m pip install /tmp/wheels/*.whl && \
-              UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
-              mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-              -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-              echo "Dependencies installed for Python 3.12 in virtual environment UV3.12."
-          
-          # Create virtual environment for Python 3.13
-          RUN echo "Creating virtual environment for Python 3.13..." && \
-              if [ ! -d "UV3.13" ]; then \
-                  uv venv --python 3.13 UV3.13 && \
-                  UV3.13/bin/python -m ensurepip --upgrade && \
-                  echo "Virtual environment UV3.13 created and pip upgraded."; \
-              else \
-                  echo "Virtual environment UV3.13 already exists, skipping creation..."; \
-              fi && \
-              echo "Installing dependencies for Python 3.13 in UV3.13..." && \
-              UV3.13/bin/python -m pip install /tmp/wheels/*.whl && \
-              UV3.13/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
-              mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-              -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-              echo "Dependencies installed for Python 3.13 in virtual environment UV3.13."
+              echo "Activating and installing dependencies in UV\$version..." && \
+              UV\$version/bin/python -m pip install /tmp/wheels/*.whl && \
+              UV\$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
+                  mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+                  -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+              echo "Dependencies installed for Python \$version in virtual environment UV\$version."; \
+          done
 
           # Clean up
           RUN apt-get clean && \
