@@ -150,14 +150,24 @@ jobs:
             python3 -m build --wheel --outdir /tmp/wheels
           
           # Create virtual environments and install dependencies
-          RUN for version in $PYTHON_VERSIONS; do \
-                uv venv --python $version UV$version && \
-                UV$version/bin/python -m ensurepip --upgrade && \
-                UV$version/bin/python -m pip install /tmp/wheels/*.whl && \
-                UV$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
-                  mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-                  -r ansible_collections/arista/avd/requirements-dev.txt --upgrade; \
-              done
+          # Create virtual environments for each Python version
+          RUN for version in 3.10 3.11 3.12 3.13; do \
+              echo "Checking if virtual environment for Python $version exists..." && \
+              if [ ! -d "UV$version" ]; then \
+                  echo "Virtual environment for Python $version does not exist. Creating it..." && \
+                  uv venv --python $version UV$version && \
+                  UV$version/bin/python -m ensurepip --upgrade && \
+                  echo "Virtual environment UV$version created and pip upgraded."; \
+              else \
+                  echo "Virtual environment for Python $version already exists, skipping creation..."; \
+              fi && \
+              echo "Activating and installing dependencies in UV$version..." && \
+              UV$version/bin/python -m pip install /tmp/wheels/*.whl && \
+              UV$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
+                mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+                -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+              echo "Dependencies installed for Python $version in virtual environment UV$version."; \
+          done
 
           # Clean up
           RUN apt-get clean && \
