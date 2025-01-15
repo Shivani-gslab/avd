@@ -154,6 +154,7 @@ jobs:
             python3 -m pip install --break-system-packages build && \
             python3 -m build --wheel --outdir /tmp/wheels
           
+          WORKDIR /
           # Create virtual environments only if they don't exist
           RUN for version in 3.10 3.11 3.12 3.13; do \
               echo "Checking if virtual environment for Python \$version exists..." && \
