@@ -120,7 +120,7 @@ jobs:
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
-          FROM ubuntu:latest
+          FROM python:3.11-slim
 
           # Install pre-requisites
           RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip && apt-get clean
