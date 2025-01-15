@@ -217,8 +217,10 @@ jobs:
             command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
           - name: Execute pyavd tests 3.10
             command: "source UV3.10/bin/activate && UV3.10/bin/python -m pip install tox tox-gh-actions --upgrade && cd avd/python-avd && tox"
+            condition: ${{ needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true' || needs.file-changes.outputs.pyavd == 'true' }}
           - name: Execute pyavd tests 3.11
             command: "source UV3.11/bin/activate && UV3.11/bin/python -m pip install tox tox-gh-actions --upgrade && cd avd/python-avd && tox"
+            condition: ${{ needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true' || needs.file-changes.outputs.pyavd == 'true' }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
