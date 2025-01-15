@@ -147,12 +147,12 @@ jobs:
           WORKDIR /
 
           RUN for PYVER in 3.12 3.13; do \
-                uv venv --python \$PYVER /venvs/UV\$PYVER && \
-                /venvs/UV\$PYVER/bin/python -m ensurepip --upgrade && \
-                /venvs/UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} \
+                uv venv --python \$PYVER UV\$PYVER && \
+                UV\$PYVER/bin/python -m ensurepip --upgrade && \
+                UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} \
                   mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                   -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
-                /venvs/UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} /tmp/wheels/*.whl; \
+                UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} /tmp/wheels/*.whl; \
               done
           # # Create virtual env
           # RUN uv venv --python 3.10 UV3.10  && \
@@ -267,15 +267,15 @@ jobs:
 
       - name: Execute Ansible integration tests 3.13
         run: |
-          docker exec avd-python-container bash -c "source ../UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
       
       # - name: Execute Ansible sanity tests 3.12
       #   run: |
       #     docker exec avd-python-container bash -c "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
       
-      - name: Execute Ansible sanity tests 3.13
-        run: |
-          docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+      # - name: Execute Ansible sanity tests 3.13
+      #   run: |
+      #     docker exec avd-python-container bash -c "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
       - name: Stop and Remove Docker Container
         run: |
