@@ -156,8 +156,9 @@ jobs:
           
           WORKDIR /
           # Create virtual environments only if they don't exist
-          RUN for version in 3.10 3.11 3.12 3.13; do \
-              echo "Checking if virtual environment for Python $version exists..." && \
+          RUN bash -c 'for version in 3.10 3.11 3.12 3.13; do \
+              echo "Version: $version"; \
+              echo "Checking if virtual environment for Python $version exists..."; \
               if [ ! -d "UV$version" ]; then \
                   echo "Virtual environment for Python $version does not exist. Creating it..." && \
                   uv venv --python $version UV$version && \
@@ -172,7 +173,9 @@ jobs:
               mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
               -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
               echo "Dependencies installed for Python $version in virtual environment UV$version."; \
-          done
+          done'
+
+
 
 
           # Clean up
