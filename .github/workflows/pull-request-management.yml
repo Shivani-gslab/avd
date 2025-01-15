@@ -124,7 +124,7 @@ jobs:
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
 
           # Create the cache directory
-          RUN mkdir -p $PIP_CACHE_DIR
+          RUN mkdir -p /cache
 
           WORKDIR /avd
 
