@@ -117,7 +117,7 @@ jobs:
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
-          FROM ubuntu:latest
+          FROM ghcr.io/shivani-gslab/avd/python:0.0.1
           RUN pwd
           # Install pre-requisites
           RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip
