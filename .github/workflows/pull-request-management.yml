@@ -170,7 +170,7 @@ jobs:
               UV\$version/bin/python -m pip install /tmp/wheels/*.whl && \
               UV\$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                   mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
-                  -r ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
+                  -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
               echo "Dependencies installed for Python \$version in virtual environment UV\$version."; \
           done
 
