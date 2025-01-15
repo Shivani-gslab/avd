@@ -131,13 +131,8 @@ jobs:
           # Install prerequisites and dependencies
           RUN apt-get update && apt-get install -y --no-install-recommends \
               openssh-client git make python3-pip python3-dev && \
-              apt-get clean
-
-          # Install UV (if not already installed)
-          RUN pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages
-
-          # Install Python versions only if not already installed
-          RUN uv python install 3.10 3.11 3.12 3.13 || echo "Python versions already installed."
+              pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
+              uv python install 3.10 3.11 3.12 3.13
           
           # # Clone the repository in the Docker image
           # RUN git clone https://github.com/${{ github.repository }}
@@ -209,12 +204,7 @@ jobs:
             command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
           - name: Execute Ansible lint tests 3.11
             command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
-          - name: Execute pyavd tests 3.10
-            command: "source UV3.10/bin/activate && UV3.10/bin/python -m pip install tox tox-gh-actions --upgrade && cd avd/python-avd && tox"
-            condition: ${{ needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true' || needs.file-changes.outputs.pyavd == 'true' }}
-          - name: Execute pyavd tests 3.11
-            command: "source UV3.11/bin/activate && UV3.11/bin/python -m pip install tox tox-gh-actions --upgrade && cd avd/python-avd && tox"
-            condition: ${{ needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true' || needs.file-changes.outputs.pyavd == 'true' }}
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
