@@ -156,7 +156,7 @@ jobs:
           # Activate virtual env3.10
           RUN . UV3.10/bin/activate && \
             cd avd/ && \
-            ../UV3.11/bin/python -m pip install /tmp/wheels/*.whl && \
+            ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl && \
             ../UV3.10/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                 mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                 "anta>=1.1.0" "cvprac>=1.4.0" "netaddr>=0.7.19" "PyYAML>=6.0.0" \
@@ -165,7 +165,7 @@ jobs:
           # Activate virtual env3.11
           RUN . UV3.11/bin/activate && \
             cd avd/ && \
-            ../UV3.11/bin/python -m pip install /tmp/wheels/*.whl && \
+            ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl && \
             ../UV3.11/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                 mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                 "anta>=1.1.0" "cvprac>=1.4.0" "netaddr>=0.7.19" "PyYAML>=6.0.0" \
@@ -174,7 +174,7 @@ jobs:
           # Activate virtual env3.12
           RUN . UV3.12/bin/activate && \
             cd avd/ && \
-            ../UV3.11/bin/python -m pip install /tmp/wheels/*.whl && \
+            ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl && \
             ../UV3.12/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                 mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                 "anta>=1.1.0" "cvprac>=1.4.0" "netaddr>=0.7.19" "PyYAML>=6.0.0" \
@@ -183,7 +183,7 @@ jobs:
           # Activate virtual env3.13
           RUN . UV3.13/bin/activate && \
             cd avd/ && \
-            ../UV3.11/bin/python -m pip install /tmp/wheels/*.whl && \
+            ../UV3.13/bin/python -m pip install /tmp/wheels/*.whl && \
             ../UV3.13/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                 mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                 "anta>=1.1.0" "cvprac>=1.4.0" "netaddr>=0.7.19" "PyYAML>=6.0.0" \
