@@ -132,8 +132,16 @@ jobs:
           ENV PIP_CACHE_DIR=/cache
           RUN mkdir -p /cache
           
-          # Clone the repository in the Docker image
-          RUN git clone https://github.com/${{ github.repository }}
+          # # Clone the repository in the Docker image
+          # RUN git clone https://github.com/${{ github.repository }}
+          RUN if [ -d "avd/.git" ]; then \
+            echo "Repository exists, pulling latest changes..."; \
+            cd avd && git pull; \
+          else \
+            echo "Cloning repository..."; \
+            git clone https://github.com/${{ github.repository }}; \
+          fi
+
 
           WORKDIR /avd
           
