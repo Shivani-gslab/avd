@@ -119,11 +119,13 @@ jobs:
           cat <<EOF > Dockerfile
           # Base image
           FROM ghcr.io/shivani-gslab/avd/python:0.0.1
-          # Create the cache directory
-          RUN mkdir -p $PIP_CACHE_DIR
           # Set environment variables
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
+
+          # Create the cache directory
+          RUN mkdir -p $PIP_CACHE_DIR
+
           WORKDIR /avd
 
           # Install prerequisites and dependencies
