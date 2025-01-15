@@ -214,7 +214,11 @@ jobs:
           - name: Execute Ansible sanity tests 3.12
             command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
           - name: Execute Ansible lint tests 3.11
-            command: "source UV3.12/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+            command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+          - name: Execute pyavd tests 3.10
+            command: "source UV3.10/bin/activate && pip install tox tox-gh-actions --upgrade && cd python-avd && tox"
+          - name: Execute pyavd tests 3.11
+            command: "source UV3.11/bin/activate && pip install tox tox-gh-actions --upgrade && cd python-avd && tox"
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
