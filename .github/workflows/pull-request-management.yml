@@ -87,7 +87,7 @@ jobs:
   container-job-1:
     runs-on: ubuntu-latest
     container: 
-      image: ghcr.io/shivani-gslab/avd/python:0.0.1
+      image: ubuntu:latest
       options: --cpus 1
 
     outputs:
@@ -178,6 +178,9 @@ jobs:
       image: ${{ needs.container-job-1.outputs.image_tag }}
       #image: ghcr.io/shivani-gslab/avd/python:497-92985fc8
       options: --cpus 1
+      credentials:
+        username: shivani-gslab
+        password: ${{ secrets.github_token }}
     outputs:
       image_tag: ${{ steps.wheel-image-tag.outputs.wheel_image_tag }}
     steps:
