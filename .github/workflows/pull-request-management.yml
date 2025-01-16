@@ -199,6 +199,8 @@ jobs:
 
           # Build the Docker image for the wheel package
           echo "Building the Docker image for the wheel package..."
+          docker run -dit --name avd-python-container ghcr.io/shivani-gslab/avd/python:497-92985fc8 bash
+          docker exec avd-python-container bash -c pwd
           cd ..
           pwd
           ls -l
