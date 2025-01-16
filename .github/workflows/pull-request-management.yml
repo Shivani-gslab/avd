@@ -167,7 +167,9 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
           IMAGE_TAG=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:${{ github.run_number }}-$SHORT_SHA
-          docker build -t $IMAGE_TAG .
+          pwd
+          ls -l
+          #docker build -t $IMAGE_TAG .
           docker push $IMAGE_TAG
           echo "::set-output name=image_tag::$IMAGE_TAG"
 
@@ -198,7 +200,7 @@ jobs:
 
           # Build the Docker image for the wheel package
           echo "Building the Docker image for the wheel package..."
-          docker build -t $WHEEL_IMAGE_TAG /tmp/wheels
+          docker build -t $WHEEL_IMAGE_TAG .
 
           # Push the Docker image to the GitHub container registry
           echo "Pushing the Docker image to the registry..."
