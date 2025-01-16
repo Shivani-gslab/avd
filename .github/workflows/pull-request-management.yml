@@ -122,7 +122,7 @@ jobs:
           FROM ubuntu:latest
 
           # Install pre-requisites
-          RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip && apt-get clean && rm -rf /var/lib/apt/lists/*
+          RUN apt-get update && apt-get install -y --no-install-recommends openssh-client git make python3-pip
 
           # Install UV
           RUN pip install uv --break-system-packages
