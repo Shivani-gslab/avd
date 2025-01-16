@@ -138,8 +138,8 @@ jobs:
             echo "Cloning repository..."; \
             git clone https://github.com/${{ github.repository }}; \
           fi
-
-          RUN for version in 3.10 3.11 3.12 3.13; do \
+          WORKDIR /
+          RUN for version in 3.12; do \
               echo "Checking if virtual environment for Python \$version exists..." && \
               if [ ! -d "UV\$version" ]; then \
                   echo "Virtual environment for Python \$version does not exist. Creating it..." && \
@@ -192,57 +192,68 @@ jobs:
           python3 -m pip install --break-system-packages build
           python3 -m build --wheel --outdir /tmp/wheels
           # Install pyavd
-          /UV3.11/bin/python -m pip install /tmp/wheels/*.whl
+          /UV3.12/bin/python -m pip install /tmp/wheels/*.whl
           
           # Generate a unique tag using run number and truncated commit SHA
-          # SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-          # WHEEL_IMAGE_TAG=ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-$SHORT_SHA
-
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+          WHEEL_IMAGE_TAG=ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-$SHORT_SHA
+          docker build -t $WHEEL_IMAGE_TAG .
+          docker push $WHEEL_IMAGE_TAG
+          echo "::set-output name=wheel_image_tag::$WHEEL_IMAGE_TAG"
           
 
-  # reuse-ghcr-image:
-  #   name: reuse first job
-  #   runs-on: ubuntu-latest
-  #   needs: [ container-job ]
-  #   strategy:
-  #     matrix:
-  #       task:
-  #         - name: Execute Ansible unit tests 3.12
-  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
-  #         - name: Execute Ansible integration tests 3.12
-  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-  #         - name: Execute Ansible integration tests 3.13
-  #           command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-  #         - name: Execute Ansible sanity tests 3.13
-  #           command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-  #         - name: Execute Ansible sanity tests 3.12
-  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-  #         - name: Execute Ansible lint tests 3.11
-  #           command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+  reuse-ghcr-image:
+    name: reuse first job
+    needs: container-job-2
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.container-job-2.outputs.wheel_image_tag }}
+      #image: ghcr.io/shivani-gslab/avd/python:497-92985fc8
+      options: --cpus 1
 
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+    # strategy:
+    #   matrix:
+    #     task:
+    #       - name: Execute Ansible unit tests 3.12
+    #         command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
+    #       - name: Execute Ansible integration tests 3.12
+    #         command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+    #       - name: Execute Ansible integration tests 3.13
+    #         command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+    #       - name: Execute Ansible sanity tests 3.13
+    #         command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+    #       - name: Execute Ansible sanity tests 3.12
+    #         command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+    #       - name: Execute Ansible lint tests 3.11
+    #         command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Run Anisble unit tests
+        run: |
+          /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
       
-  #     - name: Convert GitHub username to lowercase
-  #       id: lowercase
-  #       run: |
-  #         echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-  #     - name: Log in to GitHub Container Registry
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ steps.lowercase.outputs.lowercase }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Run Docker Container
-  #       run: |
-  #         docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
-  #     - name: Run Task - ${{ matrix.task.name }}
-  #       run: |
-  #         docker exec avd-python-container bash -c "${{ matrix.task.command }}"
-  #     - name: Stop and Remove Docker Container
-  #       run: |
-  #         docker stop avd-python-container || echo "Container already stopped"
-  #         docker rm avd-python-container || echo "Container already removed"
+      # - name: Run Docker Container
+      #   run: |
+      #     docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
+      # - name: Run Task - ${{ matrix.task.name }}
+      #   run: |
+      #     docker exec avd-python-container bash -c "${{ matrix.task.command }}"
+      # - name: Stop and Remove Docker Container
+      #   run: |
+      #     docker stop avd-python-container || echo "Container already stopped"
+      #     docker rm avd-python-container || echo "Container already removed"
