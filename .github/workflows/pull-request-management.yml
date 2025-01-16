@@ -94,7 +94,6 @@ jobs:
     container: 
       image: ubuntu:latest
       options: --cpus 1
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
