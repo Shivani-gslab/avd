@@ -252,7 +252,7 @@ jobs:
       - name: Additional Task in Second Container
         id: resue
         run: |
-          /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
+          source /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
 
 
     # strategy:
