@@ -208,7 +208,10 @@ jobs:
           python3 -m pip install --break-system-packages build
           python3 -m build --wheel --outdir /tmp/wheels
           # Install pyavd
+          /UV3.10/bin/python -m pip install /tmp/wheels/*.whl
+          /UV3.11/bin/python -m pip install /tmp/wheels/*.whl
           /UV3.12/bin/python -m pip install /tmp/wheels/*.whl
+          /UV3.13/bin/python -m pip install /tmp/wheels/*.whl
           
           # Generate a unique tag using run number and truncated commit SHA
           WHEEL_IMAGE_TAG=${{ needs.container-job-1.outputs.image_tag }}
@@ -256,4 +259,4 @@ jobs:
       - name: Run Task - ${{ matrix.task.name }}
         run: |
           git config --global --add safe.directory /__w/avd/avd
-          ${{ matrix.task.command }}"
+          ${{ matrix.task.command }}
