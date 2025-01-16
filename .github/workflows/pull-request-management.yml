@@ -139,7 +139,7 @@ jobs:
             git clone https://github.com/${{ github.repository }}; \
           fi
           WORKDIR /
-          RUN for version in 3.12; do \
+          RUN for version in 3.10 3.11 3.12 3.13; do \
               echo "Checking if virtual environment for Python \$version exists..." && \
               if [ ! -d "UV\$version" ]; then \
                   echo "Virtual environment for Python \$version does not exist. Creating it..." && \
