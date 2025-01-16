@@ -230,29 +230,29 @@ jobs:
       #image: ${{ needs.container-job-1.outputs.image_tag }}
       image: ghcr.io/shivani-gslab/avd/python:514-7d369d53
       options: --cpus 1
-      # credentials:
-      #   username: shivani-gslab
-      #   password: ${{ secrets.github_token }}
+      credentials:
+        username: shivani-gslab
+        password: ${{ secrets.github_token }}
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Additional Task in Second Container
         id: resue
         run: |
-          source /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
+          . /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
 
 
     # strategy:
