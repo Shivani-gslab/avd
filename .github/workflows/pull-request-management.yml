@@ -205,6 +205,9 @@ jobs:
           cd ..
           pwd
           ls -l
+          cd ..
+          pwd
+          ls -l
           #docker build -t $WHEEL_IMAGE_TAG .
 
           # Push the Docker image to the GitHub container registry
