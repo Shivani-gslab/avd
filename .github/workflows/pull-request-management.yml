@@ -199,7 +199,6 @@ jobs:
 
           # Build the Docker image for the wheel package
           echo "Building the Docker image for the wheel package..."
-          docker run -dit --name avd-python-container ghcr.io/shivani-gslab/avd/python:497-92985fc8 bash
           cd ..
           pwd
           ls -l
@@ -209,6 +208,7 @@ jobs:
           cd ..
           pwd
           ls -l
+          ls -ld /tmp/**/*
           #docker build -t $WHEEL_IMAGE_TAG .
 
           # Push the Docker image to the GitHub container registry
