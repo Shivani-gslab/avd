@@ -252,6 +252,7 @@ jobs:
       - name: Additional Task in Second Container
         id: resue
         run: |
+          git config --global --add safe.directory /__w/avd/avd
           . /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
 
 
