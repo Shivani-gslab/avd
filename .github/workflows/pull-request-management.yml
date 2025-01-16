@@ -234,6 +234,9 @@ jobs:
     container: 
       image: ghcr.io/shivani-gslab/avd/python_avd:${{ github.event.pull_request.head.sha }}
       options: --cpus 1
+      credentials:
+        username: shivani-gslab
+        password: ${{ secrets.github_token }}
     steps: 
       # - name: Convert GitHub username to lowercase
       #   id: lowercase
