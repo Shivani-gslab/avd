@@ -259,4 +259,10 @@ jobs:
       - name: Run Task - ${{ matrix.task.name }}
         run: |
           git config --global --add safe.directory /__w/avd/avd
+          pwd
+          ls -l
+          cd ..
+          ls -l
+          cd ..
+          ls -l
           ${{ matrix.task.command }}
