@@ -198,6 +198,7 @@ jobs:
 
           # Build the Docker image for the wheel package
           echo "Building the Docker image for the wheel package..."
+          cd ~
           pwd
           ls -l
           #docker build -t $WHEEL_IMAGE_TAG .
