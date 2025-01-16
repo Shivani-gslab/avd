@@ -195,8 +195,7 @@ jobs:
           /UV3.12/bin/python -m pip install /tmp/wheels/*.whl
           
           # Generate a unique tag using run number and truncated commit SHA
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
-          WHEEL_IMAGE_TAG=ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-$SHORT_SHA
+          WHEEL_IMAGE_TAG=${{ needs.container-job-1.outputs.image_tag }}
           docker build -t $WHEEL_IMAGE_TAG .
           docker push $WHEEL_IMAGE_TAG
           echo "::set-output name=wheel_image_tag::$WHEEL_IMAGE_TAG"
