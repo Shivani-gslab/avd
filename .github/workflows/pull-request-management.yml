@@ -185,7 +185,7 @@ jobs:
 
       - name: Additional Task in Second Container
         run: |
-          pwd
+          ls -l
           cd python-avd
 
           # Build the wheel package
