@@ -265,4 +265,6 @@ jobs:
           ls -l
           cd ..
           ls -l
+          cd ..
+          ls -l
           ${{ matrix.task.command }}
