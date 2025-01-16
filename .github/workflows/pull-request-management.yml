@@ -165,7 +165,8 @@ jobs:
       - name: Build Docker Image
         id: build-image
         run: |
-          IMAGE_TAG=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:${{ github.run_number }}-${{ github.sha::8 }}
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+          IMAGE_TAG=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:${{ github.run_number }}-$SHORT_SHA
           docker build -t $IMAGE_TAG .
           docker push $IMAGE_TAG
           echo "::set-output name=image_tag::$IMAGE_TAG"
@@ -191,13 +192,19 @@ jobs:
           python3 -m pip install --break-system-packages build
           python3 -m build --wheel --outdir /tmp/wheels
           
-          # Push the wheel package to the GitHub container registry
-          echo "Pushing wheel package to the registry..."
-          docker build -t ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-${{ github.sha::8 }} /tmp/wheels
-          docker push ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-${{ github.sha::8 }}
+          # Generate a unique tag using run number and truncated commit SHA
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+          WHEEL_IMAGE_TAG=ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-$SHORT_SHA
 
-          echo "Wheel package built and pushed successfully!"
+          # Build the Docker image for the wheel package
+          echo "Building the Docker image for the wheel package..."
+          docker build -t $WHEEL_IMAGE_TAG /tmp/wheels
 
+          # Push the Docker image to the GitHub container registry
+          echo "Pushing the Docker image to the registry..."
+          docker push $WHEEL_IMAGE_TAG
+
+          echo "Wheel package built and pushed successfully with tag: $WHEEL_IMAGE_TAG"
 
   # reuse-ghcr-image:
   #   name: reuse first job
@@ -245,4 +252,3 @@ jobs:
   #       run: |
   #         docker stop avd-python-container || echo "Container already stopped"
   #         docker rm avd-python-container || echo "Container already removed"
-  
