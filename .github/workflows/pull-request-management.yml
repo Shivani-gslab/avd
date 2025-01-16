@@ -84,12 +84,14 @@ jobs:
             pyavd:
               - 'python_avd/*'
               - 'python_avd/**/*'
-  container-job:
-    # Containers must run in Linux based operating systems
+  container-job-1:
     runs-on: ubuntu-latest
     container: 
       image: ubuntu:latest
       options: --cpus 1
+
+    outputs:
+      image_tag: ${{ steps.build-image.outputs.image_tag }}
 
     steps:
       - name: Check out repository code
@@ -99,7 +101,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y docker.io
-      
+
       - name: Convert GitHub username to lowercase
         id: lowercase
         run: |
@@ -112,30 +114,23 @@ jobs:
           username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Dynamically create Dockerfile
       - name: Create Dockerfile dynamically
         run: |
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
           # Base image
           FROM ghcr.io/shivani-gslab/avd/python:0.0.1
-          # Set environment variables
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
 
-          # Create the cache directory
           RUN mkdir -p /cache
-
           WORKDIR /avd
 
-          # Install prerequisites and dependencies
           RUN apt-get update && apt-get install -y --no-install-recommends \
               openssh-client git make python3-pip python3-dev && \
               pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
               uv python install 3.10 3.11 3.12 3.13
-          
-          # # Clone the repository in the Docker image
-          # RUN git clone https://github.com/${{ github.repository }}
+
           RUN if [ -d ".git" ]; then \
             echo "Repository exists, pulling latest changes..."; \
             git pull; \
@@ -143,14 +138,7 @@ jobs:
             echo "Cloning repository..."; \
             git clone https://github.com/${{ github.repository }}; \
           fi
-          
-          # Build the wheel package
-          RUN cd python-avd && \
-            python3 -m pip install --break-system-packages build && \
-            python3 -m build --wheel --outdir /tmp/wheels
-          
-          WORKDIR /
-          # Create virtual environments only if they don't exist
+
           RUN for version in 3.10 3.11 3.12 3.13; do \
               echo "Checking if virtual environment for Python \$version exists..." && \
               if [ ! -d "UV\$version" ]; then \
@@ -161,73 +149,99 @@ jobs:
               else \
                   echo "Virtual environment for Python \$version already exists, skipping creation..."; \
               fi && \
-              echo "Activating and installing dependencies in UV\$version..." && \
-              UV\$version/bin/python -m pip install /tmp/wheels/*.whl && \
               UV\$version/bin/python -m pip install --cache-dir=$PIP_CACHE_DIR \
                   mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
                   -r /avd/ansible_collections/arista/avd/requirements-dev.txt --upgrade && \
               echo "Dependencies installed for Python \$version in virtual environment UV\$version."; \
           done
 
-          # Clean up
           RUN apt-get clean && \
               rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
           CMD ["python"]
           EOF
           echo "Dockerfile created successfully."
-      
+
       - name: Build Docker Image
+        id: build-image
         run: |
-          docker build -t ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 .
+          IMAGE_TAG=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:${{ github.run_number }}-${{ github.sha::8 }}
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+          echo "::set-output name=image_tag::$IMAGE_TAG"
 
-      - name: Push Docker Image
-        run: |
-          docker push ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1
-
-  reuse-ghcr-image:
-    name: reuse first job
+  container-job-2:
+    needs: container-job-1
     runs-on: ubuntu-latest
-    needs: [ container-job ]
-    strategy:
-      matrix:
-        task:
-          - name: Execute Ansible unit tests 3.12
-            command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
-          - name: Execute Ansible integration tests 3.12
-            command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-          - name: Execute Ansible integration tests 3.13
-            command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
-          - name: Execute Ansible sanity tests 3.13
-            command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-          - name: Execute Ansible sanity tests 3.12
-            command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-          - name: Execute Ansible lint tests 3.11
-            command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+    container:
+      image: ${{ needs.container-job-1.outputs.image_tag }}
+      options: --cpus 1
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
+      - name: Additional Task in Second Container
+        run: |
+          echo "Using the image: ${{ needs.container-job-1.outputs.image_tag }}"
+          cd python-avd
+
+          # Build the wheel package
+          echo "Building the wheel package..."
+          python3 -m pip install --break-system-packages build
+          python3 -m build --wheel --outdir /tmp/wheels
+          
+          # Push the wheel package to the GitHub container registry
+          echo "Pushing wheel package to the registry..."
+          docker build -t ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-${{ github.sha::8 }} /tmp/wheels
+          docker push ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-${{ github.sha::8 }}
+
+          echo "Wheel package built and pushed successfully!"
+
+
+  # reuse-ghcr-image:
+  #   name: reuse first job
+  #   runs-on: ubuntu-latest
+  #   needs: [ container-job ]
+  #   strategy:
+  #     matrix:
+  #       task:
+  #         - name: Execute Ansible unit tests 3.12
+  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test units -vv"
+  #         - name: Execute Ansible integration tests 3.12
+  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+  #         - name: Execute Ansible integration tests 3.13
+  #           command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test integration -vv"
+  #         - name: Execute Ansible sanity tests 3.13
+  #           command: "source UV3.13/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+  #         - name: Execute Ansible sanity tests 3.12
+  #           command: "source UV3.12/bin/activate && cd avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+  #         - name: Execute Ansible lint tests 3.11
+  #           command: "source UV3.11/bin/activate && ansible-galaxy collection install -r avd/ansible_collections/arista/avd/collections.yml && cd avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v4
       
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+  #     - name: Convert GitHub username to lowercase
+  #       id: lowercase
+  #       run: |
+  #         echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ steps.lowercase.outputs.lowercase }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Docker Container
-        run: |
-          docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
-      - name: Run Task - ${{ matrix.task.name }}
-        run: |
-          docker exec avd-python-container bash -c "${{ matrix.task.command }}"
-      - name: Stop and Remove Docker Container
-        run: |
-          docker stop avd-python-container || echo "Container already stopped"
-          docker rm avd-python-container || echo "Container already removed"
+  #     - name: Run Docker Container
+  #       run: |
+  #         docker run -dit --name avd-python-container ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd/python:0.0.1 bash
+  #     - name: Run Task - ${{ matrix.task.name }}
+  #       run: |
+  #         docker exec avd-python-container bash -c "${{ matrix.task.command }}"
+  #     - name: Stop and Remove Docker Container
+  #       run: |
+  #         docker stop avd-python-container || echo "Container already stopped"
+  #         docker rm avd-python-container || echo "Container already removed"
