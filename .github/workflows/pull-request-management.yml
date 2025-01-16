@@ -180,52 +180,24 @@ jobs:
       options: --cpus 1
 
     steps:
-      # - name: Check out repository code
-      #   uses: actions/checkout@v4
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
       - name: Additional Task in Second Container
         run: |
-          pwd
-          ls -l
-          cd ..
-          ls -l
-          cd ..
-          ls -l
-          cd ..
-          ls -l
-
           cd python-avd
 
           # Build the wheel package
-          # echo "Building the wheel package..."
-          # python3 -m pip install --break-system-packages build
-          # python3 -m build --wheel --outdir /tmp/wheels
+          echo "Building the wheel package..."
+          python3 -m pip install --break-system-packages build
+          python3 -m build --wheel --outdir /tmp/wheels
           
           # Generate a unique tag using run number and truncated commit SHA
           # SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
           # WHEEL_IMAGE_TAG=ghcr.io/${{ needs.container-job-1.outputs.image_tag }}/avd/python-wheel:${{ github.run_number }}-$SHORT_SHA
 
-          # Build the Docker image for the wheel package
-          echo "Building the Docker image for the wheel package..."
-          docker run -dit --name avd-python-container ghcr.io/shivani-gslab/avd/python:497-92985fc8 bash
-          docker exec avd-python-container bash -c pwd
-          cd ..
-          pwd
-          ls -l
-          cd ..
-          pwd
-          ls -l
-          cd ..
-          pwd
-          ls -l
-          ls -ld /tmp/**/*
-          #docker build -t $WHEEL_IMAGE_TAG .
-
-          # Push the Docker image to the GitHub container registry
-          # echo "Pushing the Docker image to the registry..."
-          # #docker push $WHEEL_IMAGE_TAG
-
-          # echo "Wheel package built and pushed successfully with tag: $WHEEL_IMAGE_TAG"
+          # Install pyavd
+          /UV3.11/bin/python -m pip install /tmp/wheels/*.whl
 
   # reuse-ghcr-image:
   #   name: reuse first job
