@@ -145,7 +145,7 @@ jobs:
  
           WORKDIR /
 
-          RUN for PYVER in 3.12 3.13; do \
+          RUN for PYVER in 3.12; do \
                 uv venv --python \$PYVER UV\$PYVER && \
                 UV\$PYVER/bin/python -m ensurepip --upgrade && \
                 UV\$PYVER/bin/python -m pip install --cache-dir=\${PIP_CACHE_DIR} \
@@ -233,18 +233,19 @@ jobs:
     needs: [ container-job ]
     container: 
       image: ghcr.io/shivani-gslab/avd/python_avd:${{ github.event.pull_request.head.sha }}
+      options: --cpus 1
     steps: 
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: Pull docker image from ghcr
       #   run: |
