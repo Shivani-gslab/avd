@@ -178,14 +178,25 @@ jobs:
       image: ${{ needs.container-job-1.outputs.image_tag }}
       #image: ghcr.io/shivani-gslab/avd/python:497-92985fc8
       options: --cpus 1
-      credentials:
-        username: shivani-gslab
-        password: ${{ secrets.github_token }}
+      # credentials:
+      #   username: shivani-gslab
+      #   password: ${{ secrets.github_token }}
     outputs:
       image_tag: ${{ steps.wheel-image-tag.outputs.wheel_image_tag }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Convert GitHub username to lowercase
+        id: lowercase
+        run: |
+          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.lowercase.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Additional Task in Second Container
         id: wheel-image-tag
@@ -239,6 +250,17 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Convert GitHub username to lowercase
+        id: lowercase
+        run: |
+          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.lowercase.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Anisble unit tests
         run: |
