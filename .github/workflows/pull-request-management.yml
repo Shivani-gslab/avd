@@ -127,7 +127,7 @@ jobs:
           WORKDIR /avd
 
           RUN apt-get update && apt-get install -y --no-install-recommends \
-              openssh-client git make python3-pip python3-dev && \
+              openssh-client git make python3-pip python3-dev docker.io && \
               pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
               uv python install 3.10 3.11 3.12 3.13
 
