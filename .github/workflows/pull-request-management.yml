@@ -87,7 +87,7 @@ jobs:
   container-job-1:
     runs-on: ubuntu-latest
     container: 
-      image: ubuntu:latest
+      image: ghcr.io/shivani-gslab/avd/python:0.0.1
       options: --cpus 1
 
     outputs:
@@ -178,12 +178,14 @@ jobs:
       image: ${{ needs.container-job-1.outputs.image_tag }}
       #image: ghcr.io/shivani-gslab/avd/python:497-92985fc8
       options: --cpus 1
-
+    outputs:
+      image_tag: ${{ steps.wheel-image-tag.outputs.wheel_image_tag }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
       - name: Additional Task in Second Container
+        id: wheel-image-tag
         run: |
           cd python-avd
 
@@ -196,7 +198,12 @@ jobs:
           
           # Generate a unique tag using run number and truncated commit SHA
           WHEEL_IMAGE_TAG=${{ needs.container-job-1.outputs.image_tag }}
-          docker build -t $WHEEL_IMAGE_TAG .
+          # docker build -t $WHEEL_IMAGE_TAG .
+          # docker push $WHEEL_IMAGE_TAG
+          # Build the updated image from the current container state
+          docker commit $(docker ps -q --filter ancestor=${{ needs.container-job-1.outputs.image_tag }}) $WHEEL_IMAGE_TAG
+
+          # Push the updated image to GitHub Container Registry
           docker push $WHEEL_IMAGE_TAG
           echo "::set-output name=wheel_image_tag::$WHEEL_IMAGE_TAG"
           
