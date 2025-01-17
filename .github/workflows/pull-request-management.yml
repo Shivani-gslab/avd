@@ -201,6 +201,8 @@ jobs:
       - name: Additional Task in Second Container
         id: wheel-image-tag
         run: |
+          cd /
+          ls -l
           cd python-avd
 
           # Build the wheel package
