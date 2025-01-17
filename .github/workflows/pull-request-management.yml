@@ -184,8 +184,8 @@ jobs:
     outputs:
       image_tag: ${{ steps.wheel-image-tag.outputs.wheel_image_tag }}
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      # - name: Check out repository code
+      #   uses: actions/checkout@v4
       - name: Convert GitHub username to lowercase
         id: lowercase
         run: |
@@ -251,8 +251,8 @@ jobs:
           - name: Execute Ansible lint tests 3.11
             command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      # - name: Check out repository code
+      #   uses: actions/checkout@v4
       - name: Convert GitHub username to lowercase
         id: lowercase
         run: |
