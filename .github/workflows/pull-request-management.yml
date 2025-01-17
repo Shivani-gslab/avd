@@ -266,7 +266,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Task - ${{ matrix.task.name }}
         run: |
-          git config --global --add safe.directory /_w/avd/avd
+          git config --global --add safe.directory /__w/avd/avd
           ${{ matrix.task.command }}
 
   # delete-ghcr-image:
