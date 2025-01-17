@@ -230,54 +230,44 @@ jobs:
     needs: container-job-2
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.container-job-2.outputs.wheel_image_tag }}
+      image: ${{ needs.container-job-2.outputs.image_tag }}
       #image: ghcr.io/shivani-gslab/avd/python:529-7c8454ae-2
       options: --cpus 1
-      credentials:
-        username: shivani-gslab
-        password: ${{ secrets.github_token }}
       
+
+    strategy:
+      matrix:
+        task:
+          - name: Execute Ansible unit tests 3.12
+            command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv"
+          - name: Execute Ansible integration tests 3.12
+            command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+          - name: Execute Ansible integration tests 3.13
+            command: ". /UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+          - name: Execute Ansible sanity tests 3.13
+            command: ". /UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          - name: Execute Ansible sanity tests 3.12
+            command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          - name: Execute Ansible lint tests 3.11
+            command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Additional Task in Second Container
-        id: resue
+      - name: Convert GitHub username to lowercase
+        id: lowercase
         run: |
-          git config --global --add safe.directory /__w/avd/avd
-          . /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv
-    # strategy:
-    #   matrix:
-    #     task:
-    #       - name: Execute Ansible unit tests 3.12
-    #         command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test units -vv"
-    #       - name: Execute Ansible integration tests 3.12
-    #         command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
-    #       - name: Execute Ansible integration tests 3.13
-    #         command: ". /UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
-    #       - name: Execute Ansible sanity tests 3.13
-    #         command: ". /UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-    #       - name: Execute Ansible sanity tests 3.12
-    #         command: ". /UV3.12/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-    #       - name: Execute Ansible lint tests 3.11
-    #         command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r ansible_collections/arista/avd/collections.yml && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
-    # steps:
-    #   - name: Check out repository code
-    #     uses: actions/checkout@v4
-    #   - name: Convert GitHub username to lowercase
-    #     id: lowercase
-    #     run: |
-    #       echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
 
-    #   - name: Log in to GitHub Container Registry
-    #     uses: docker/login-action@v2
-    #     with:
-    #       registry: ghcr.io
-    #       username: ${{ steps.lowercase.outputs.lowercase }}
-    #       password: ${{ secrets.GITHUB_TOKEN }}
-    #   - name: Run Task - ${{ matrix.task.name }}
-    #     run: |
-    #       git config --global --add safe.directory /_w/avd/avd
-    #       ${{ matrix.task.command }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.lowercase.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Task - ${{ matrix.task.name }}
+        run: |
+          git config --global --add safe.directory /_w/avd/avd
+          ${{ matrix.task.command }}
 
   # delete-ghcr-image:
   #   runs-on: ubuntu-latest
