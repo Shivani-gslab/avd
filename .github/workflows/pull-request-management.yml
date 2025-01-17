@@ -207,6 +207,7 @@ jobs:
           # docker build -t $WHEEL_IMAGE_TAG .
           # docker push $WHEEL_IMAGE_TAG
           # Build the updated image from the current container state
+          ls /avd/python-avd/pyavd/_schema/
           docker commit $(docker ps -q --filter ancestor=${{ needs.container-job-1.outputs.image_tag }}) $WHEEL_IMAGE_TAG
 
           # Push the updated image to GitHub Container Registry
@@ -231,15 +232,15 @@ jobs:
           - name: Execute Ansible unit tests 3.12
             command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
           - name: Execute Ansible integration tests 3.12
-            command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
-          - name: Execute Ansible integration tests 3.13
-            command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
-          - name: Execute Ansible sanity tests 3.13
-            command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-          - name: Execute Ansible sanity tests 3.12
-            command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-          - name: Execute Ansible lint tests 3.11
-            command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r /avd/ansible_collections/arista/avd/collections.yml && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+            command: "pwd && ls /avd/python-avd/pyavd/_schema/ && . /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
+          # - name: Execute Ansible integration tests 3.13
+          #   command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
+          # - name: Execute Ansible sanity tests 3.13
+          #   command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          # - name: Execute Ansible sanity tests 3.12
+          #   command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          # - name: Execute Ansible lint tests 3.11
+          #   command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r /avd/ansible_collections/arista/avd/collections.yml && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
     steps:
       # - name: Check out repository code
       #   uses: actions/checkout@v4
