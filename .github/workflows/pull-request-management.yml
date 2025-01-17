@@ -120,7 +120,7 @@ jobs:
           cat <<EOF > Dockerfile
           # Base image
           # FROM ghcr.io/shivani-gslab/avd-slim-test:0.1
-          FROM unbuntu:latest
+          FROM ubuntu:latest
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
           RUN pwd \
