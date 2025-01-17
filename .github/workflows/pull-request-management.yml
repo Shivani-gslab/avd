@@ -97,6 +97,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Set up Docker
+        run: |
+          apt-get update
+          apt-get install -y docker.io
+
       - name: Convert GitHub username to lowercase
         id: lowercase
         run: |
