@@ -87,7 +87,7 @@ jobs:
   container-job-1:
     runs-on: ubuntu-latest
     container: 
-      image: ghcr.io/shivani-gslab/avd-slim-test:0.1
+      image: ubuntu:latest
       options: --cpus 1
 
     outputs:
@@ -96,6 +96,11 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
+      - name: Set up Docker
+        run: |
+          apt-get update
+          apt-get install -y docker.io
 
       - name: Convert GitHub username to lowercase
         id: lowercase
@@ -114,7 +119,8 @@ jobs:
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
           # Base image
-          FROM ghcr.io/shivani-gslab/avd-slim-test:0.1
+          # FROM ghcr.io/shivani-gslab/avd-slim-test:0.1
+          FROM unbuntu:latest
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
           RUN pwd \
@@ -207,7 +213,7 @@ jobs:
           # docker build -t $WHEEL_IMAGE_TAG .
           # docker push $WHEEL_IMAGE_TAG
           # Build the updated image from the current container state
-          ls /avd/python-avd/pyavd/_schema/
+          ls -al /avd/python-avd/pyavd/_schema/
           docker commit $(docker ps -q --filter ancestor=${{ needs.container-job-1.outputs.image_tag }}) $WHEEL_IMAGE_TAG
 
           # Push the updated image to GitHub Container Registry
