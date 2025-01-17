@@ -238,7 +238,7 @@ jobs:
       matrix:
         task:
           - name: Execute Ansible unit tests 3.12
-            command: "pwd && ls -al /avd/python-avd/pyavd/_schema && . /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
+            command: "ls -al /avd/python-avd/pyavd/_schema && find / -type f -name '*.pickle' && . /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
           - name: Execute Ansible integration tests 3.12
             command: "pwd && ls -al /avd/python-avd/pyavd/_schema && . /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
           # - name: Execute Ansible integration tests 3.13
