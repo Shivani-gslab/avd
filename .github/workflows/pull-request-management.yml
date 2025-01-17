@@ -341,6 +341,17 @@ jobs:
           IMAGE_TAG=ghcr.io/shivani-gslab/avd-slim-test:543-2e6b43d3-2
           IMAGE_REPO=$(echo "$IMAGE_TAG" | sed 's|ghcr.io/||' | cut -d':' -f1)
           TAG=$(echo "$IMAGE_TAG" | cut -d':' -f2)
-          echo "Deleting specific tag: $IMAGE_REPO:$TAG"
-          gh api -X DELETE "/user/packages/container/$IMAGE_REPO/versions" \
-            -f name="$TAG" || echo "Failed to delete tag $TAG for $IMAGE_REPO"
+
+          echo "Fetching version ID for tag: $TAG in repository: $IMAGE_REPO"
+          VERSION_ID=$(gh api "/user/packages/container/$IMAGE_REPO/versions" \
+            | jq -r ".[] | select(.metadata.container.tags[] | contains(\"$TAG\")) | .id")
+
+          if [ -n "$VERSION_ID" ]; then
+            echo "Deleting version ID $VERSION_ID for tag $TAG"
+            gh api -X DELETE "/user/packages/container/$IMAGE_REPO/versions/$VERSION_ID" \
+              && echo "Successfully deleted tag $TAG" \
+              || echo "Failed to delete tag $TAG"
+          else
+            echo "Version ID for tag $TAG not found. Skipping deletion."
+          fi
+
