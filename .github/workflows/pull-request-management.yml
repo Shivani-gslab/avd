@@ -266,7 +266,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Task - ${{ matrix.task.name }}
         run: |
-          git config --global --add safe.directory /home/runner/work/avd/avd
-          cd /
-          ls -l
+          git config --global --add safe.directory /_/avd/avd
           ${{ matrix.task.command }}
