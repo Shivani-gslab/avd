@@ -123,11 +123,10 @@ jobs:
           FROM ubuntu:latest
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
-          RUN pwd \
-              ls
+          
           RUN mkdir -p /cache
           WORKDIR /avd
-
+          RUN pwd && ls -l
           RUN apt-get update && apt-get install -y --no-install-recommends \
               openssh-client git make python3-pip python3-dev docker.io && \
               pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
