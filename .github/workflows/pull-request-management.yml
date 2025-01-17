@@ -87,7 +87,7 @@ jobs:
   container-job-1:
     runs-on: ubuntu-latest
     container: 
-      image: ubuntu:latest
+      image: ghcr.io/shivani-gslab/avd-slim-test:0.1
       options: --cpus 1
 
     outputs:
@@ -96,11 +96,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-
-      - name: Set up Docker
-        run: |
-          apt-get update
-          apt-get install -y docker.io
 
       - name: Convert GitHub username to lowercase
         id: lowercase
@@ -119,14 +114,16 @@ jobs:
           echo "Creating Dockerfile..."
           cat <<EOF > Dockerfile
           # Base image
-          # FROM ghcr.io/shivani-gslab/avd-slim-test:0.1
-          FROM ubuntu:latest
+          FROM ghcr.io/shivani-gslab/avd-slim-test:0.1
           ENV PIP_CACHE_DIR=/cache
           ARG PYTHON_VERSIONS="3.10 3.11 3.12 3.13"
-          
+          RUN pwd \
+              ls
           RUN mkdir -p /cache
+          COPY . /avd
+
           WORKDIR /avd
-          RUN pwd && ls -l
+
           RUN apt-get update && apt-get install -y --no-install-recommends \
               openssh-client git make python3-pip python3-dev docker.io && \
               pip install --cache-dir=$PIP_CACHE_DIR uv --break-system-packages && \
@@ -196,7 +193,7 @@ jobs:
         id: wheel-image-tag
         run: |
           cd python-avd
-
+          
           # Build the wheel package
           echo "Building the wheel package..."
           python3 -m pip install --break-system-packages build
@@ -212,7 +209,8 @@ jobs:
           # docker build -t $WHEEL_IMAGE_TAG .
           # docker push $WHEEL_IMAGE_TAG
           # Build the updated image from the current container state
-          ls -al /avd/python-avd/pyavd/_schema/
+          pwd
+          ls -al pyavd/_schema/
           docker commit $(docker ps -q --filter ancestor=${{ needs.container-job-1.outputs.image_tag }}) $WHEEL_IMAGE_TAG
 
           # Push the updated image to GitHub Container Registry
@@ -237,7 +235,7 @@ jobs:
           - name: Execute Ansible unit tests 3.12
             command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
           - name: Execute Ansible integration tests 3.12
-            command: "pwd && ls /avd/python-avd/pyavd/_schema/ && . /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
+            command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
           # - name: Execute Ansible integration tests 3.13
           #   command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
           # - name: Execute Ansible sanity tests 3.13
