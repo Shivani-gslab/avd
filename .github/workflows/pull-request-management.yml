@@ -216,7 +216,8 @@ jobs:
           #   command: ". /UV3.12/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
           # - name: Ansible Lint Tests 3.11
           #   command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r /avd/ansible_collections/arista/avd/collections.yml && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
-          
+    env:
+      AVD_NEVER_RUN_FROM_SOURCE: 1     
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
