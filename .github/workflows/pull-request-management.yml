@@ -206,7 +206,7 @@ jobs:
               bash -c "
               . /UV3.12/bin/activate &&
               cd ansible_collections/arista/avd &&
-              ansible-test integration -vv
+              ansible-test integration -vv --venv-system-site-packages
               "
           # - name: Ansible Integration Tests 3.13
           #   command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
@@ -236,7 +236,6 @@ jobs:
         env:
           AVD_NEVER_RUN_FROM_SOURCE: 1
         run: |
-          echo "$AVD_NEVER_RUN_FROM_SOURCE"
           git config --global --add safe.directory /__w/avd/avd
           ${{ matrix.task.command }}
 
