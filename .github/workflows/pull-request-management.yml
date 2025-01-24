@@ -233,6 +233,8 @@ jobs:
           username: ${{ steps.lowercase.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Task - ${{ matrix.task.name }}
+        env:
+          AVD_NEVER_RUN_FROM_SOURCE: 1
         run: |
           git config --global --add safe.directory /__w/avd/avd
           ${{ matrix.task.command }}
