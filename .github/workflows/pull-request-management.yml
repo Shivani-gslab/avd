@@ -206,7 +206,7 @@ jobs:
               bash -c "
               . /UV3.12/bin/activate &&
               cd ansible_collections/arista/avd &&
-              ANSIBLE_TEST_ANSIBLE_LIB_ROOT=/UV3.12/lib/python3.12/site-packages/ansible ANSIBLE_TEST_PYTHON_INTERPRETER=/UV3.12/bin/python ansible-test integration --venv -vv
+              ansible-test integration --venv -vv
               "
           # - name: Ansible Integration Tests 3.13
           #   command: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
@@ -217,7 +217,7 @@ jobs:
           # - name: Ansible Lint Tests 3.11
           #   command: ". /UV3.11/bin/activate && ansible-galaxy collection install -r /avd/ansible_collections/arista/avd/collections.yml && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
     env:
-      AVD_NEVER_RUN_FROM_SOURCE: 1     
+      PYTHONPATH: $(python -c "import site; print(site.getsitepackages()[0])")     
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
