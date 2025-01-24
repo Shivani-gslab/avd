@@ -236,6 +236,7 @@ jobs:
         env:
           AVD_NEVER_RUN_FROM_SOURCE: 1
         run: |
+          echo "$AVD_NEVER_RUN_FROM_SOURCE"
           git config --global --add safe.directory /__w/avd/avd
           ${{ matrix.task.command }}
 
