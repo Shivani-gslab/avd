@@ -205,6 +205,7 @@ jobs:
             command: >
               bash -c "
               . /UV3.12/bin/activate &&
+              cd ansible_collections/arista/avd &&
               ansible-test integration -vv
               "
           # - name: Ansible Integration Tests 3.13
