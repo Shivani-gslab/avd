@@ -28,8 +28,8 @@ FROM base_run AS build
 LABEL stage=build
 COPY . /avd
 WORKDIR /avd/python-avd
-RUN /UV3.12/bin/python -m pip install --break-system-packages build && \
-    /UV3.12/bin/python -m build --wheel --outdir /tmp/wheels && \
+RUN uv pip install build && \
+    uv -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
       /UV$VERSION/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl; \
     done
