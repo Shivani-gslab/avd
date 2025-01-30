@@ -135,7 +135,7 @@
           uses: docker/setup-buildx-action@v3
   
         - name: Build and push
-          if: steps.check-base-image.outputs.image_exists == 'false'
+          # if: steps.check-base-image.outputs.image_exists == 'false'
           uses: docker/build-push-action@v6
           with:
             file: .github/DockerfileBase
