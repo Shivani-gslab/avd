@@ -17,16 +17,21 @@ RUN uv python install 3.10 3.11 3.12 3.13 && \
       -r /requirements-dev.txt --upgrade; \
     done
 
-FROM ubuntu:latest AS build
-LABEL stage=build
-COPY . /avd
+FROM ubuntu:latest AS base_run
+# Copy Python binaries, libraries, and necessary files
 COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
 COPY --from=base /UV3.13 /UV3.13
+
+FROM base_run AS build
+LABEL stage=build
+COPY . /avd
 WORKDIR /avd/python-avd
-RUN /UV3.12/bin/python -m pip install --break-system-packages build && \
-    /UV3.12/bin/python -m build --wheel --outdir /tmp/wheels && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip python3-dev
+RUN python3 -m pip install --break-system-packages build && \
+    python3 -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
       /UV$VERSION/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl; \
     done
