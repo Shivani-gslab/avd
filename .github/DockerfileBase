@@ -18,7 +18,7 @@ RUN uv python install 3.10 3.11 3.12 3.13 && \
     done
 
 FROM ubuntu:latest AS base_run
-RUN apt-get install -y --no-install-recommends python3-pip python3-dev
+# Copy Python binaries, libraries, and necessary files
 COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
@@ -28,6 +28,9 @@ FROM base_run AS build
 LABEL stage=build
 COPY . /avd
 WORKDIR /avd/python-avd
+COPY --from=base /usr/bin/python3 /usr/bin/python3
+COPY --from=base /usr/lib/python3.*/ /usr/lib/python3.*/
+COPY --from=base /usr/include/python3.*/ /usr/include/python3.*/
 RUN python3 -m pip install --break-system-packages build && \
     python3 -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
