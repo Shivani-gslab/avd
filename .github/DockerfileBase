@@ -28,10 +28,8 @@ FROM base_run AS build
 LABEL stage=build
 COPY . /avd
 WORKDIR /avd/python-avd
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip python3-dev make
-RUN python3 -m pip install --break-system-packages build && \
-    python3 -m build --wheel --outdir /tmp/wheels && \
+RUN /UV3.12/bin/python -m pip install --break-system-packages build && \
+    /UV3.12/bin/python -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
       /UV$VERSION/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl; \
     done
