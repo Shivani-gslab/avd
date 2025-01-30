@@ -28,6 +28,7 @@ FROM base_run AS build
 LABEL stage=build
 COPY . /avd
 WORKDIR /avd/python-avd
+Run apt-get install -y uv
 RUN uv pip install build && \
     uv -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
