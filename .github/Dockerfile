@@ -17,8 +17,20 @@ RUN uv python install 3.10 3.11 3.12 3.13 && \
         -r /requirements-dev.txt --upgrade; \
     done
 
+# Create symlinks to make Python globally accessible
+RUN ln -s /UV3.12/bin/python /usr/local/bin/python3 && \
+    ln -s /UV3.12/bin/pip /usr/local/bin/pip3
+
+
 FROM ubuntu:latest AS base_run
 # Copy Python binaries, libraries, and necessary files
 COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
+
+# Ensure Python is available globally
+RUN ln -s /UV3.12/bin/python /usr/local/bin/python3 && \
+    ln -s /UV3.12/bin/pip /usr/local/bin/pip3
+
+# Verify Python versions
+RUN python3 --version && pip3 --version
