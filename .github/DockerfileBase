@@ -22,11 +22,11 @@ FROM ubuntu:latest AS base_run
 COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
-WORKDIR /
-RUN pwd && ls
 
 FROM base_run AS build
 LABEL stage=build
+WORKDIR /
+RUN pwd && ls
 COPY . /avd
 WORKDIR /avd/python-avd
 RUN /UV3.12/bin/python -m pip install build && \
