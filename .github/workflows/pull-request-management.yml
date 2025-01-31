@@ -138,8 +138,8 @@
           if: steps.check-base-image.outputs.image_exists == 'false'
           uses: docker/build-push-action@v6
           with:
-            file: .github/DockerfileBase
-            target: base
+            file: .github/Dockerfile
+            target: base_run
             push: true
             tags: ${{ steps.set-base-tag.outputs.base_image_tag }}
             cache-from: type=gha
@@ -181,8 +181,8 @@
             tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
             cache-from: type=gha
             cache-to: type=gha,mode=max
-            # build-args: |
-            #   BASE_IMAGE_TAG: ${{ needs.setup-avd.outputs.image_tag }}
+            build-args: |
+              BASE_IMAGE_TAG: ${{ steps.set-build-tag.outputs.build_image_tag }}
     # run-anisble-tests:
     #   name: Run Ansible Tests
     #   needs: [build-pyavd]

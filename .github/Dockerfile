@@ -1,7 +1,24 @@
-FROM ghcr.io/maheshgslab/avd-slim-test1:0.1
+FROM ubuntu:latest AS base
+#LABEL stage=base
+# Install essential packages and UV
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        openssh-client git make python3-pip python3-dev docker.io && \
+    pip install uv --break-system-packages && \
+    apt-get clean && rm -rf /var/lib/apt/lists
+
+# Copy requirements file after installing essential tools
 COPY ansible_collections/arista/avd/requirements-dev.txt /requirements-dev.txt
+# Install Python versions and dependencies in a single step
 RUN uv python install 3.10 3.11 3.12 3.13 && \
-    /UV3.10/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r /requirements-dev.txt --upgrade && \
-    /UV3.11/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r /requirements-dev.txt --upgrade && \
-    /UV3.12/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r /requirements-dev.txt --upgrade && \
-    /UV3.13/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" -r /requirements-dev.txt --upgrade
+    for VERSION in 3.10 3.11 3.12 3.13; do \
+        uv venv --python $VERSION /UV$VERSION && \
+        /UV$VERSION/bin/python -m ensurepip --upgrade && \
+        /UV$VERSION/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
+        -r /requirements-dev.txt --upgrade; \
+    done
+
+FROM ubuntu:latest AS base_run
+# Copy Python binaries, libraries, and necessary files
+COPY --from=base /UV3.10 /UV3.10
+COPY --from=base /UV3.11 /UV3.11
+COPY --from=base /UV3.12 /UV3.12
