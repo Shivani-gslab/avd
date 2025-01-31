@@ -19,15 +19,12 @@ RUN uv python install 3.10 3.11 3.12 3.13 && \
 
 FROM ubuntu:latest AS base_run
 # Copy Python binaries, libraries, and necessary files
-COPY --from=base /usr/lib/libpython3.10.so /usr/lib/
-COPY --from=base /usr/lib/libpython3.11.so /usr/lib/
-COPY --from=base /usr/lib/libpython3.12.so /usr/lib/
-COPY --from=base /usr/lib/libpython3.13.so /usr/lib/
+COPY --from=base /UV3.10 /UV3.10
+COPY --from=base /UV3.11 /UV3.11
+COPY --from=base /UV3.12 /UV3.12
 
 FROM base_run AS build
 LABEL stage=build
-WORKDIR /UV3.11/bin/
-RUN pwd && ls
 COPY . /avd
 WORKDIR /avd/python-avd
 RUN . /UV3.11/bin/activate && python3 --version
