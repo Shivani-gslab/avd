@@ -1,5 +1,5 @@
 ARG BASE_IMAGE_TAG=ubuntu:latest
-FROM ${BASE_IMAGE_TAG} as build
+FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
 COPY . /avd
 WORKDIR /avd/python-avd
