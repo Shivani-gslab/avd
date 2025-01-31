@@ -2,6 +2,7 @@ ARG BASE_IMAGE_TAG=ubuntu:latest
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
 COPY . /avd
+RUN echo ${BASE_IMAGE_TAG}
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client git make python3-pip python3-dev && \
     pip install uv --break-system-packages && \
