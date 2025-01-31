@@ -131,15 +131,13 @@
               echo "::set-output name=image_exists::false"
             fi
         - name: Set up Docker Buildx
-          # if: steps.check-base-image.outputs.image_exists == 'false'
           uses: docker/setup-buildx-action@v3
   
         - name: Build and push
-          #if: steps.check-base-image.outputs.image_exists == 'false'
           uses: docker/build-push-action@v6
           with:
             file: .github/DockerfileBase
-            target: base_run
+            target: base
             push: true
             tags: ${{ steps.set-base-tag.outputs.base_image_tag }}
             cache-from: type=gha
