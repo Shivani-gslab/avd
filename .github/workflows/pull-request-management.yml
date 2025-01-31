@@ -93,8 +93,7 @@
         base_image_tag: ${{ steps.set-base-tag.outputs.base_image_tag }}
       steps:
         - name: Check out repository
-          uses: actions/checkout@v4
-  
+          uses: actions/checkout@v4 
         - name: Calculate Hash of Requirements
           id: hash-reqs
           run: |
