@@ -135,7 +135,7 @@
         - name: Build and push
           uses: docker/build-push-action@v6
           with:
-            file: .github/Dockerfile
+            file: .github/DockerfileBase
             target: base_run
             push: true
             tags: ${{ steps.set-base-tag.outputs.base_image_tag }}
@@ -172,7 +172,7 @@
         - name: Build and push
           uses: docker/build-push-action@v6
           with:
-            file: .github/DockerfileBase
+            file: .github/DockerfileBuild
             push: true
             target: run
             tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
