@@ -26,7 +26,7 @@ COPY --from=base /UV3.12 /UV3.12
 FROM base_run AS build
 LABEL stage=build
 WORKDIR /
-RUN pwd && ls
+RUN pwd && ls -l
 COPY . /avd
 WORKDIR /avd/python-avd
 RUN /UV3.12/bin/python -m pip install build && \
