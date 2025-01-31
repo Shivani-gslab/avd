@@ -23,6 +23,7 @@ COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
 COPY --from=base /UV3.13 /UV3.13
+RUN /UV3.12/bin/python -m pip install build
 
 FROM base_run AS build
 LABEL stage=build
