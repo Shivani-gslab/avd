@@ -29,6 +29,7 @@ WORKDIR /
 RUN pwd && ls -l
 COPY . /avd
 WORKDIR /avd/python-avd
+RUN . /UV3.11/bin/activate && python --version
 RUN /UV3.12/bin/python -m pip install build && \
     /UV3.12/bin/python -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
