@@ -11,7 +11,6 @@ COPY ansible_collections/arista/avd/requirements-dev.txt /requirements-dev.txt
 # Install Python versions and dependencies in a single step
 RUN uv python install 3.10 3.11 3.12 3.13 && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
-        /UV$VERSION/bin/python -c 'import pathlib' \
         uv venv --python $VERSION /UV$VERSION && \
         /UV$VERSION/bin/python -m ensurepip --upgrade && \
         /UV$VERSION/bin/python -m pip install mock pytest pytest-mock pytest-xdist pyyaml "ansible-core<2.19.0" \
