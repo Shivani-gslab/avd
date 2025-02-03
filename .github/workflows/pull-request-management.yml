@@ -390,7 +390,7 @@
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
         - name: "Run ansible-test sanity"
-          run: ". /UV3.13/bin/activate && python --version && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          run: ". /UV3.13/bin/activate && python3 --version && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
   
     ansible_test_units:
       name: Run ansible-test units test cases
