@@ -1,8 +1,6 @@
-ARG BASE_IMAGE_TAG=ubuntu:latest
-FROM ${BASE_IMAGE_TAG} AS build
+FROM ghcr.io/shivani-gslab/avd-base:2ac024829aeecef47018498a31d8ece53037d9424c5264ef95d6b8cb5595426d AS build
 LABEL stage=build
 COPY . /avd
-RUN echo ${BASE_IMAGE_TAG}
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client git make python3-pip python3-dev && \
     pip install uv --break-system-packages && \
