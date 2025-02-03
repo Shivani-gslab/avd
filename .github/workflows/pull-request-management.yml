@@ -393,8 +393,8 @@
           run: "pip install uv && uv python install 3.13"
         - name: Check packages
           run: "ls -l /UV3.13/lib/python3.13/site-packages/"
-        - name: Debug venv binaries
-          run: "ls -l /UV3.13/bin/"
+        - name: Check Library Dependencies
+          run: "ldd /UV3.13/bin/ansible-test"
         - name: "Run ansible-test sanity"
           run: "cd /avd/ansible_collections/arista/avd && /UV3.13/bin/ansible-test sanity --color yes -v"
   
