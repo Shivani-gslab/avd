@@ -183,7 +183,7 @@
             cache-from: type=gha
             cache-to: type=gha,mode=max
             build-args: |
-              BASE_IMAGE_TAG: ghcr.io/shivani-gslab/avd-base:2ac024829aeecef47018498a31d8ece53037d9424c5264ef95d6b8cb5595426d
+              BASE_IMAGE_TAG=ghcr.io/shivani-gslab/avd-base:2ac024829aeecef47018498a31d8ece53037d9424c5264ef95d6b8cb5595426d
     # run-anisble-tests:
     #   name: Run Ansible Tests
     #   needs: [build-pyavd]
