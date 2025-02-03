@@ -399,6 +399,8 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
+        - name: Check packages
+          run: "ls -l /UV3.12/lib/python3.12/site-packages/"
         - name: "Run ansible-test units test cases"
           run: ". /UV3.12/bin/activate && pip list && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
   
