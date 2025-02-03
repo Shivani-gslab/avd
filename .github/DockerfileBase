@@ -25,4 +25,3 @@ COPY --from=base /UV3.10 /UV3.10
 COPY --from=base /UV3.11 /UV3.11
 COPY --from=base /UV3.12 /UV3.12
 COPY --from=base /UV3.13 /UV3.13
-RUN /UV3.10/bin/python --version
