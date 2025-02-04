@@ -393,8 +393,8 @@
           run: "pip install uv && uv python install 3.13"
         - name: Check packages
           run: "ls -l /UV3.13/lib/python3.13/site-packages/"
-        - name: Check Library Dependencies
-          run: "ldd /UV3.13/bin/ansible-test"
+        # - name: Check Library Dependencies
+        #   run: "ldd /UV3.13/bin/ansible-test"
         - name: Activate venv
           run: ". /UV3.13/bin/activate && echo $VIRTUAL_ENV"
         - name: "Run ansible-test sanity"
