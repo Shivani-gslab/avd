@@ -395,6 +395,8 @@
           run: "ls -l /UV3.13/lib/python3.13/site-packages/"
         - name: Check Library Dependencies
           run: "ldd /UV3.13/bin/ansible-test"
+        - name: Activate venv
+          run: ". /UV3.13/bin/activate && echo $VIRTUAL_ENV"
         - name: "Run ansible-test sanity"
           run: "cd /avd/ansible_collections/arista/avd && /UV3.13/bin/ansible-test sanity --color yes -v"
   
