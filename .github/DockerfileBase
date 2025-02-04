@@ -1,7 +1,10 @@
 FROM ubuntu:latest AS base
 #LABEL stage=base
 # Install essential packages and UV
-RUN pip install uv
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        openssh-client git make python3-pip python3-dev && \
+    pip install uv --break-system-packages && \
+    apt-get clean && rm -rf /var/lib/apt/lists
 
 # Copy requirements file after installing essential tools
 COPY ansible_collections/arista/avd/requirements-dev.txt /requirements-dev.txt

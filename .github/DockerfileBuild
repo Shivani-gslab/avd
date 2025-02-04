@@ -8,10 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends make
 #     pip install uv --break-system-packages && \
 #     apt-get clean && rm -rf /var/lib/apt/lists
 WORKDIR /avd/python-avd
-RUN ln -sf /UV$VERSION/bin/python /usr/local/bin/python
-RUN python3 -m pip install --break-system-packages build && \
+RUN . /UV3.10/bin/activate && ln -sf /UV3.10/bin/python /usr/local/bin/python && \
+    python3 -m pip install --break-system-packages build && \
     python3 -m build --wheel --outdir /tmp/wheels && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
+      ln -sf /UV$VERSION/bin/python /usr/local/bin/python
       . /UV$VERSION/bin/activate && pip install --no-cache-dir /tmp/wheels/*.whl; \
     done
 
