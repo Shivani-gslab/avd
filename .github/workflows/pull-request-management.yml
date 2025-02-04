@@ -396,7 +396,7 @@
         # - name: Check Library Dependencies
         #   run: "ldd /UV3.13/bin/ansible-test"
         - name: Activate venv
-          run: ". /UV3.13/bin/activate && echo $VIRTUAL_ENV && which python && uv pip list"
+          run: ". /UV3.13/bin/activate && ln -s /UV3.13/bin/python /UV3.13/bin/python3 && echo $VIRTUAL_ENV && which python && uv pip list"
         - name: "Run ansible-test sanity"
           run: "cd /avd/ansible_collections/arista/avd && /UV3.13/bin/ansible-test sanity --color yes -v"
   
