@@ -389,16 +389,10 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        - name: Install packages
-          run: "pip install uv && uv python install 3.13"
-        - name: Check packages
-          run: "ls -l /UV3.13/lib/python3.13/site-packages/"
-        # - name: Check Library Dependencies
-        #   run: "ldd /UV3.13/bin/ansible-test"
-        - name: Activate venv
-          run: ". /UV3.13/bin/activate && ln -sf /UV3.13/bin/python /usr/local/bin/python && echo $VIRTUAL_ENV && which python && python --version"
+        # - name: Check out repository code
+        #   uses: actions/checkout@v4
         - name: "Run ansible-test sanity"
-          run: "cd /avd/ansible_collections/arista/avd && /UV3.13/bin/ansible-test sanity --color yes -v"
+          run: "cd /avd/ansible_collections/arista/avd && /venvs/UV3.13/bin/python -m ensurepip --upgrade && /venvs/UV3.13/bin/ansible-test sanity --color yes -v"
   
     ansible_test_units:
       name: Run ansible-test units test cases
@@ -407,10 +401,10 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        - name: Check packages
-          run: "ls -l /UV3.12/lib/python3.12/site-packages/"
+        # - name: Check out repository code
+        #   uses: actions/checkout@v4
         - name: "Run ansible-test units test cases"
-          run: ". /UV3.12/bin/activate && python --version && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
+          run: ". /venvs/UV3.12/bin/activate && python --version && pwd && ls && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
   
     ansible_test_integration:
       name: Run ansible-test integration test cases
@@ -419,10 +413,12 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        - name: Check out repository code
-          uses: actions/checkout@v4
+        # - name: Check out repository code
+        #   uses: actions/checkout@v4
+        # - name: Install ssh-keygen
+        #   run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
         - name: "Run ansible-test integration test cases"
-          run: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
+          run: ". /venvs/UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test integration -vv"
   
     ansible_lint:
       name: Run ansible-lint test case
@@ -431,8 +427,10 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
+        # - name: Check out repository code
+        #   uses: actions/checkout@v4
         - name: "Run ansible-test integration test cases"
-          run: ". /UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+          run: ". /venvs/UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
   
     # ----------------------------------- #
     # Galaxy Importer
