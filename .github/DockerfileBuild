@@ -18,7 +18,7 @@ RUN /venvs/UV3.11/bin/python -m ensurepip --upgrade &&\
 FROM ubuntu:latest AS run
 LABEL stage=run
 # Copy virtual environments from the build stage
-COPY --from=build /venvs /venvs
-COPY --from=build /avd /avd
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client
+COPY --from=build /venvs /venvs
+COPY --from=build /avd /avd

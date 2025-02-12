@@ -392,7 +392,7 @@
         # - name: Check out repository code
         #   uses: actions/checkout@v4
         - name: "Run ansible-test sanity"
-          run: "cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
+          run: ". /venvs/UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
   
     ansible_test_units:
       name: Run ansible-test units test cases
