@@ -16,7 +16,7 @@ RUN /venvs/UV3.11/bin/python -m ensurepip --upgrade &&\
       /venvs/UV$VERSION/bin/python -m pip install --no-cache-dir /tmp/wheels/*.whl; \
     done
 
-FROM ${BASE_IMAGE_TAG} AS run
+FROM ubuntu:latest AS run
 LABEL stage=run
 # Copy virtual environments from the build stage
 COPY --from=build /venvs /venvs
