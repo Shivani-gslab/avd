@@ -141,7 +141,9 @@
             target: base_run
             push: true
             tags: ${{ steps.set-base-tag.outputs.base_image_tag }}
-            cache-from: type=gha
+            cache-from: |
+              type=gha
+              type=registry, ref="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest"
             cache-to: type=gha,mode=max
   
     build-pyavd:
@@ -180,7 +182,9 @@
             push: true
             target: run
             tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
-            cache-from: type=gha
+            cache-from: |
+              type=gha
+              type=registry, ref="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest"
             cache-to: type=gha,mode=max
             build-args: |
               BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
