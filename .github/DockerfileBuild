@@ -32,5 +32,4 @@ LABEL stage=run
 # Copy virtual environments from the build stage
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client
-COPY --from=build /venvs /venvs
-COPY --from=build /avd /avd
+COPY --from=build /venvs /venvs /avd /avd
