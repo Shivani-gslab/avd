@@ -184,7 +184,9 @@
             build-args: 
               BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
             cache-from: type=gha
-            cache-to: type=gha,mode=max
+            cache-to: |
+              type=gha,mode=max
+              type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest
             outputs: type=image,push=true
     # run-anisble-tests:
     #   name: Run Ansible Tests
