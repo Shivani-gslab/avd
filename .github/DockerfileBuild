@@ -2,10 +2,6 @@ ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
 COPY . /avd
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#         openssh-client git make python3-pip python3-dev && \
-#     pip install uv --break-system-packages && \
-#     apt-get clean && rm -rf /var/lib/apt/lists
 WORKDIR /avd/python-avd
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
@@ -21,4 +17,4 @@ LABEL stage=run
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client
 COPY --from=build /venvs /venvs 
-COPY --from=build /avd /avd
+# COPY --from=build /avd /avd

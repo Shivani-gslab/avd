@@ -392,8 +392,8 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        # - name: Check out repository code
-        #   uses: actions/checkout@v4
+        - name: Check out repository code
+          uses: actions/checkout@v4
         - name: "Run ansible-test sanity"
           run: ". /venvs/UV3.13/bin/activate && cd /avd/ansible_collections/arista/avd && ansible-test sanity --color yes -v"
   
@@ -404,8 +404,8 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        # - name: Check out repository code
-        #   uses: actions/checkout@v4
+        - name: Check out repository code
+          uses: actions/checkout@v4
         - name: "Run ansible-test units test cases"
           run: ". /venvs/UV3.12/bin/activate && python --version && cd /avd/ansible_collections/arista/avd && ansible-test units -vv"
   
@@ -416,8 +416,8 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        # - name: Check out repository code
-        #   uses: actions/checkout@v4
+        - name: Check out repository code
+          uses: actions/checkout@v4
         # - name: Install ssh-keygen
         #   run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
         - name: "Run ansible-test integration test cases"
@@ -430,8 +430,8 @@
       container:
         image: ${{ needs.build-pyavd.outputs.build_image_tag }}
       steps:
-        # - name: Check out repository code
-        #   uses: actions/checkout@v4
+        - name: Check out repository code
+          uses: actions/checkout@v4
         - name: "Run ansible-test integration test cases"
           run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd /avd/ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
   
