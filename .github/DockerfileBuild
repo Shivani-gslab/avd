@@ -14,5 +14,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends make && \
 FROM ubuntu:latest AS run
 LABEL stage=run
 # Copy virtual environments from the build stage
-# RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /venvs /venvs
