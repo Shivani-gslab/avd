@@ -407,6 +407,9 @@
       steps:
         - name: Check out repository code
           uses: actions/checkout@v4
+        - name: "🥷 Remove unskippable ansible-lint rule added for Galaxy"
+          run: |
+            sed -i 's/- syntax-check/# - syntax-check/g' .ansible-lint
         - name: "Run ansible-test integration test cases"
           run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
   
