@@ -210,7 +210,7 @@ jobs:
           - "eos_cli_config_gen_deprecated_vars"
           - "eos_cli_config_gen_negative_unit_tests"
         ansible_version:
-          - "'ansible-core<2.19.0' --upgrade"
+          - "ansible-core<2.19.0 --upgrade"
         # Also test minimum ansible version for one scenario.
         include:
           - avd_scenario: "eos_cli_config_gen"
@@ -218,10 +218,11 @@ jobs:
     needs: [ build-pyavd ]
     if: needs.file-changes.outputs.config_gen == 'true'
     steps:
+      - uses: actions/checkout@v4
       - name: Install the specified Ansible version
-        run: "/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
+        run: "/venvs/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
       - name: Run molecule action
-        run: " . /UV3.11/bin/activate && cd /avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: " . /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
