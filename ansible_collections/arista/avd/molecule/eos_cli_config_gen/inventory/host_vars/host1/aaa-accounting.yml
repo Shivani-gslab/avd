@@ -31,7 +31,7 @@ aaa_accounting:
         type: start-stop
         logging: false
         group: TACACS1
-      # As type is none hence logging will not render in config as per actual EOS config
+      # As type is none hence logging will not render in config as per actual EOS
       - commands: 2
         type: none
         logging: true
