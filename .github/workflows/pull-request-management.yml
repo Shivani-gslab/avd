@@ -411,7 +411,7 @@
           run: |
             sed -i 's/- syntax-check/# - syntax-check/g' ansible_collections/arista/avd/.ansible-lint
         - name: "Run ansible-test integration test cases"
-          run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+          run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
   
     # ----------------------------------- #
     # Galaxy Importer
