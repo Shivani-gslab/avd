@@ -219,6 +219,8 @@ jobs:
     if: needs.file-changes.outputs.config_gen == 'true'
     steps:
       - uses: actions/checkout@v4
+      - name: Install CA certificate
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
       - name: Install the specified Ansible version
         run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}' --upgrade"
       - name: Run molecule action
