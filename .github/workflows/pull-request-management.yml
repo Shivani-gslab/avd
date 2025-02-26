@@ -246,10 +246,13 @@ jobs:
     needs: [ build-pyavd ]
     if: needs.file-changes.outputs.dhcp == 'true'
     steps:
+      - uses: actions/checkout@v4
+      - name: Install CA certificate
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
       - name: Install the specified Ansible version
-        run: "/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
+        run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}'"
       - name: Run molecule action
-        run: ". /UV3.11/bin/activate && cd /avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: ". /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
@@ -299,10 +302,13 @@ jobs:
     needs: [ build-pyavd ]
     if: needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true'
     steps:
+      - uses: actions/checkout@v4
+      - name: Install CA certificate
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
       - name: Install the specified Ansible version
-        run: "/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
+        run: "/venvs/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
       - name: Run molecule action
-        run: ". /UV3.11/bin/activate && cd /avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: ". /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
@@ -329,10 +335,13 @@ jobs:
     if: needs.file-changes.outputs.cloudvision == 'true' || needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true'
 
     steps:
+      - uses: actions/checkout@v4
+      - name: Install CA certificate
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
       - name: Install the specified Ansible version
-        run: "/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
+        run: "/venvs/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
       - name: Run molecule action
-        run: ". /UV3.11/bin/activate && cd /avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: ". /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
@@ -359,10 +368,13 @@ jobs:
     needs: [ build-pyavd ]
     if: needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.validate_state == 'true'
     steps:
+      - uses: actions/checkout@v4
+      - name: Install CA certificate
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
       - name: Install the specified Ansible version
-        run: "/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
+        run: "/venvs/UV3.11/bin/python -m pip install ${{ matrix.ansible_version }}"
       - name: Run molecule action
-        run: ". /UV3.11/bin/activate && cd /avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: ". /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
 
   # ----------------------------------- #
   # Ansible tests

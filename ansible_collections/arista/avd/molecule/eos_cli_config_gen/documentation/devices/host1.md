@@ -10299,7 +10299,7 @@ ip access-list standard ACL-SSH-VRF
 
 | Sequence | Action |
 | -------- | ------ |
-| 10 | remark ACL to restrict access to switch API to CVP and Ansible etc |
+| 10 | remark ACL to restrict access to switch API to CVP and Ansible |
 | 20 | deny ip host 192.0.2.1 any |
 | 30 | permit ip 192.0.2.0/24 any |
 
@@ -10354,7 +10354,7 @@ ip access-list 4
    30 permit ip 192.0.2.0/24 any
 !
 ip access-list ACL-01
-   10 remark ACL to restrict access to switch API to CVP and Ansible etc
+   10 remark ACL to restrict access to switch API to CVP and Ansible
    20 deny ip host 192.0.2.1 any
    30 permit ip 192.0.2.0/24 any
 !
