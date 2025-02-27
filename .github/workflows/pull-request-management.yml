@@ -326,6 +326,7 @@ jobs:
       - name: Check status
         run: |
           cd /workspace  # Ensure you're in the correct directory
+          git config --global --add safe.directory /workspace
           git init
           git add .
           git commit -m "Initial commit inside container"
