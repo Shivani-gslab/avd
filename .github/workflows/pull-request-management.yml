@@ -300,7 +300,7 @@ jobs:
     name: Validate eos_cli_config_gen
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/shivani-gslab/avd-base:latest
+      image: ghcr.io/shivani-gslab/avd-base:778-946c060
       # options: --volume "${{ github.workspace }}:/workspace"
     strategy:
       fail-fast: true
