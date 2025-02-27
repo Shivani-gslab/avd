@@ -231,6 +231,7 @@ jobs:
             echo "❌ Changes detected! Failing the job..."
             git diff
             exit 1
+          fi
         # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
