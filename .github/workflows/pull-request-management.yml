@@ -341,7 +341,7 @@ jobs:
           # git status  # Shows modified files after running Molecule
           # git diff
           # pwd
-          if [[ -n "$(git status --porcelain)" ]]; then
+          if [ -n "$(git status --porcelain)" ]; then
             echo "❌ Changes detected! Failing the job..."
             git diff
             exit 1
