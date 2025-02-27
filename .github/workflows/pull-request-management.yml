@@ -337,15 +337,15 @@ jobs:
       - name: Check status
         run: |
           cd /workspace
-          git config --global --add safe.directory $(pwd)
-          git status  # Shows modified files after running Molecule
-          git diff
-      #     # pwd
-      #     # if [[ -n "$(git status --porcelain)" ]]; then
-      #     #   echo "❌ Changes detected! Failing the job..."
-      #     #   git diff
-      #     #   exit 1
-      #     # fi
+          # git config --global --add safe.directory $(pwd)
+          # git status  # Shows modified files after running Molecule
+          # git diff
+          # pwd
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "❌ Changes detected! Failing the job..."
+            git diff
+            exit 1
+          fi
         # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
