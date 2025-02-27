@@ -324,7 +324,7 @@ jobs:
       - name: Install the specified Ansible version
         run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}' --upgrade"
       - name: Run molecule action
-        run: " . /venvs/UV3.11/bin/activate && ls- l && cd /workspace/avd/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+        run: " . /venvs/UV3.11/bin/activate && ls -l && cd /workspace/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       - name: Check status
         run: |
           ls -l
