@@ -327,9 +327,9 @@ jobs:
         run: " . /venvs/UV3.11/bin/activate && ls -l && cd /workspace/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       - name: Check status
         run: |
-          ls -l
+          ls -al
           cd /workspace
-          ls -l
+          ls -la /workspace/.git || echo ".git not found!"
           git status
           # pwd
           # if [[ -n "$(git status --porcelain)" ]]; then
