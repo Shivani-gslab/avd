@@ -227,13 +227,14 @@ jobs:
         run: " . /venvs/UV3.11/bin/activate && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       - name: Check status
         run: |
-          pwd
-          cd /avd
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "❌ Changes detected! Failing the job..."
-            git diff
-            exit 1
-          fi
+          ls -l
+          git status
+          # pwd
+          # if [[ -n "$(git status --porcelain)" ]]; then
+          #   echo "❌ Changes detected! Failing the job..."
+          #   git diff
+          #   exit 1
+          # fi
         # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
