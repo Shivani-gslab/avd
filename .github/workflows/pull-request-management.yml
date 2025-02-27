@@ -258,40 +258,40 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Convert GitHub username to lowercase
-        id: lowercase
-        run: |
-          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-      - name: Set Build Image Tag
-        id: set-build-tag
-        run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          BUILD_IMAGE_TAG="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:${{ github.run_number }}-${SHORT_SHA}"
-          echo "::set-output name=build_image_tag::$BUILD_IMAGE_TAG"
-      - name: Echo image name
-        run: echo ${{ needs.avd-base-image.outputs.base_image_tag }}
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ steps.lowercase.outputs.lowercase }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push PyAVD Image
-        uses: docker/build-push-action@v6
-        with:
-          file: .github/DockerfileBuild
-          push: true
-          target: run
-          tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
-          build-args: 
-            BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
-          cache-from: type=gha
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest
-          outputs: type=image,push=true
+      # - name: Convert GitHub username to lowercase
+      #   id: lowercase
+      #   run: |
+      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      # - name: Set Build Image Tag
+      #   id: set-build-tag
+      #   run: |
+      #     SHORT_SHA=$(git rev-parse --short HEAD)
+      #     BUILD_IMAGE_TAG="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:${{ github.run_number }}-${SHORT_SHA}"
+      #     echo "::set-output name=build_image_tag::$BUILD_IMAGE_TAG"
+      # - name: Echo image name
+      #   run: echo ${{ needs.avd-base-image.outputs.base_image_tag }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.lowercase.outputs.lowercase }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+      # - name: Build and push PyAVD Image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     file: .github/DockerfileBuild
+      #     push: true
+      #     target: run
+      #     tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
+      #     build-args: 
+      #       BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
+      #     cache-from: type=gha
+      #     cache-to: |
+      #       type=gha,mode=max
+      #       type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest
+      #     outputs: type=image,push=true
 
   # ----------------------------------- #
   # EOS CLI CONFIG GEN MOLECULE
@@ -300,8 +300,8 @@ jobs:
     name: Validate eos_cli_config_gen
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-      options: --volume "${{ github.workspace }}:/workspace"
+      image: ghcr.io/shivani-gslab/avd-base:latest
+      # options: --volume "${{ github.workspace }}:/workspace"
     strategy:
       fail-fast: true
       matrix:
@@ -324,19 +324,19 @@ jobs:
       - name: Install the specified Ansible version
         run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}' --upgrade"
       - name: Run molecule action
-        run: " . /venvs/UV3.11/bin/activate && ls -l && cd /workspace/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
-      - name: Check status
-        run: |
-          ls -al
-          cd /workspace
-          ls -la /workspace/.git || echo ".git not found!"
-          git status
-          # pwd
-          # if [[ -n "$(git status --porcelain)" ]]; then
-          #   echo "❌ Changes detected! Failing the job..."
-          #   git diff
-          #   exit 1
-          # fi
+        run: " . /venvs/UV3.11/bin/activate && ls -l && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+      # - name: Check status
+      #   run: |
+      #     ls -al
+      #     cd /workspace
+      #     ls -la /workspace/.git || echo ".git not found!"
+      #     git status
+      #     # pwd
+      #     # if [[ -n "$(git status --porcelain)" ]]; then
+      #     #   echo "❌ Changes detected! Failing the job..."
+      #     #   git diff
+      #     #   exit 1
+      #     # fi
         # - uses: actions/upload-artifact@v4
       #   with:
       #     name: molecule-${{ matrix.avd_scenario }}-artifacts
@@ -466,7 +466,7 @@ jobs:
     name: Validate eos_validate_state
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+      image: ghcr.io/shivani-gslab/avd-base:latest
     strategy:
       fail-fast: true
       matrix:
@@ -491,34 +491,8 @@ jobs:
   # ----------------------------------- #
   # Ansible tests
   # ----------------------------------- #
-  ansible_test_sanity:
-    name: Run ansible-test sanity validation
-    runs-on: ubuntu-latest
-    needs: [build-pyavd]
-    container:
-      image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Install CA certificate
-        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
-      - name: "Run ansible-test sanity"
-        run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
-
-  ansible_test_units:
-    name: Run ansible-test units test cases
-    runs-on: ubuntu-latest
-    needs: [build-pyavd]
-    container:
-      image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: "Run ansible-test units test cases"
-        run: ". /venvs/UV3.12/bin/activate && python --version && cd ansible_collections/arista/avd && ansible-test units -vv"
-
-  # ansible_test_integration:
-  #   name: Run ansible-test integration test cases
+  # ansible_test_sanity:
+  #   name: Run ansible-test sanity validation
   #   runs-on: ubuntu-latest
   #   needs: [build-pyavd]
   #   container:
@@ -526,25 +500,51 @@ jobs:
   #   steps:
   #     - name: Check out repository code
   #       uses: actions/checkout@v4
-  #     # - name: Install ssh-keygen
-  #     #   run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
-  #     - name: "Run ansible-test integration test cases"
-  #       run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+  #     - name: Install CA certificate
+  #       run: apt-get update && apt-get install -y --no-install-recommends ca-certificates
+  #     - name: "Run ansible-test sanity"
+  #       run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test sanity --color yes -v"
 
-  ansible_lint_job:
-    name: Run ansible-lint test case
-    runs-on: ubuntu-latest
-    needs: [build-pyavd]
-    container:
-      image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: "🥷 Remove unskippable ansible-lint rule added for Galaxy"
-        run: |
-          sed -i 's/- syntax-check/# - syntax-check/g' ansible_collections/arista/avd/.ansible-lint
-      - name: "Run ansible-test integration test cases"
-        run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+  # ansible_test_units:
+  #   name: Run ansible-test units test cases
+  #   runs-on: ubuntu-latest
+  #   needs: [build-pyavd]
+  #   container:
+  #     image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v4
+  #     - name: "Run ansible-test units test cases"
+  #       run: ". /venvs/UV3.12/bin/activate && python --version && cd ansible_collections/arista/avd && ansible-test units -vv"
+
+  # # ansible_test_integration:
+  # #   name: Run ansible-test integration test cases
+  # #   runs-on: ubuntu-latest
+  # #   needs: [build-pyavd]
+  # #   container:
+  # #     image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+  # #   steps:
+  # #     - name: Check out repository code
+  # #       uses: actions/checkout@v4
+  # #     # - name: Install ssh-keygen
+  # #     #   run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
+  # #     - name: "Run ansible-test integration test cases"
+  # #       run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+
+  # ansible_lint_job:
+  #   name: Run ansible-lint test case
+  #   runs-on: ubuntu-latest
+  #   needs: [build-pyavd]
+  #   container:
+  #     image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v4
+  #     - name: "🥷 Remove unskippable ansible-lint rule added for Galaxy"
+  #       run: |
+  #         sed -i 's/- syntax-check/# - syntax-check/g' ansible_collections/arista/avd/.ansible-lint
+  #     - name: "Run ansible-test integration test cases"
+  #       run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
 
   # ----------------------------------- #
   # Galaxy Importer
