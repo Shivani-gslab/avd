@@ -326,6 +326,8 @@ jobs:
       - name: Check status
         run: |
           cd /workspace  # Ensure you're in the correct directory
+          git config --global user.email "schourasiya-ext@arista.com"
+          git config --global user.name "Shivani chourasiya"
           git config --global --add safe.directory /workspace
           git init
           git add .
