@@ -336,6 +336,8 @@ jobs:
         run: " . /venvs/UV3.11/bin/activate && git init && cd /workspace/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       - name: Check status
         run: |
+          cd /workspace
+          git config --global --add safe.directory $(pwd)
           git status  # Shows modified files after running Molecule
           git diff
       #     # pwd
