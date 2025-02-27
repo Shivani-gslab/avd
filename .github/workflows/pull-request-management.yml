@@ -301,7 +301,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/shivani-gslab/avd-base:778-946c060
-      # options: --volume "${{ github.workspace }}:/workspace"
+      options: --volume "${{ github.workspace }}:/workspace"
     strategy:
       fail-fast: true
       matrix:
@@ -323,14 +323,16 @@ jobs:
         run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
       - name: Install the specified Ansible version
         run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}' --upgrade"
-      - name: Run molecule action
-        run: " . /venvs/UV3.11/bin/activate && git init && cd ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
       - name: Check status
         run: |
           cd /workspace  # Ensure you're in the correct directory
           git init
           git add .
           git commit -m "Initial commit inside container"
+      - name: Run molecule action
+        run: " . /venvs/UV3.11/bin/activate && git init && cd /workspace/ansible_collections/arista/avd && molecule test --scenario-name ${{ matrix.avd_scenario }}"
+      - name: Check status
+        run: |
           git status  # Shows modified files after running Molecule
           git diff
       #     # pwd
