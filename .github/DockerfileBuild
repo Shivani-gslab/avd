@@ -1,8 +1,11 @@
 ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
-# Copy wheel package from CI artifacts to /tmp/wheels
-COPY wheels /avd/wheels 
+
+ARG WHEEL_PATH  # Get the wheel file path from build args
+
+# Copy the wheel package using the provided path
+COPY ${WHEEL_PATH} /avd/wheels/
 
 # Debugging: Check if files exist
 RUN echo "Current directory: $(pwd)" && ls -al /avd/wheels
@@ -10,7 +13,7 @@ WORKDIR /avd/wheels
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
-      /venvs/UV$VERSION/bin/python -m pip install --no-cache-dir /*.whl; \
+      /venvs/UV$VERSION/bin/python -m pip install --no-cache-dir *.whl; \
     done
 
 FROM ubuntu:latest AS run

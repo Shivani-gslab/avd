@@ -330,6 +330,7 @@ jobs:
           tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
           build-args: 
             BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
+            WHEEL_PATH=$WHEELS_PATH
           cache-from: type=gha
           cache-to: |
             type=gha,mode=max
