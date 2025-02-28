@@ -5,7 +5,7 @@ LABEL stage=build
 COPY . /avd/wheels 
 
 # Debugging: Check if files exist
-RUN echo "Current directory: $(pwd)" && ls -al
+RUN echo "Current directory: $(pwd)" && ls -al /avd/wheels
 WORKDIR /avd/wheels
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
