@@ -1,7 +1,7 @@
 ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
-COPY . /avd
+COPY . /tmp/wheels
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
