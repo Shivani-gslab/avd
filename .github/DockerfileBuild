@@ -10,7 +10,7 @@ RUN echo "Current directory: $(pwd)" && ls -al
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
-      /venvs/UV$VERSION/bin/python -m pip install --no-cache-dir /wheels/*.whl; \
+      /venvs/UV$VERSION/bin/python -m pip install --no-cache-dir /*.whl; \
     done
 
 FROM ubuntu:latest AS run
