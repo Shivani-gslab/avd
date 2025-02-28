@@ -2,7 +2,7 @@ ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
 # Copy wheel package from CI artifacts to /tmp/wheels
-COPY /tmp/wheels /tmp/wheels
+COPY /tmp/wheels .
 
 # Debugging: Check if files exist
 RUN ls -l /tmp/wheels && echo "Current directory: $(pwd)"
