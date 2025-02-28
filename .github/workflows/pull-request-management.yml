@@ -248,7 +248,37 @@ jobs:
           tags: ${{ steps.set-base-tag.outputs.base_image_tag }}
           cache-from: type=gha,scope=base-run
           cache-to: type=gha,mode=max,scope=base-run
+  
+  build-pyavd-package:
+    name: Build pyavd
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.12
 
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --no-cache-dir build
+
+      - name: Build PyAVD wheel
+        run: |
+          cd python-avd
+          mkdir -p /tmp/wheels
+          python -m build --wheel --outdir /tmp/wheels
+          ls -l /tmp/wheels  # Verify the wheel is created
+
+      - name: Upload PyAVD wheel as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyavd-wheel
+          path: /tmp/wheels/*.whl
+          retention-days: 7
+          
   build-pyavd:
     name: Install pyavd and Build Image
     needs: [avd-base-image]
@@ -325,7 +355,7 @@ jobs:
         run: "/venvs/UV3.11/bin/python -m pip install '${{ matrix.ansible_version }}' --upgrade"
       - name: Check status
         run: |
-          cd /workspace  # Ensure you're in the correct directory
+          cd /workspace
           git config --global user.email "schourasiya-ext@arista.com"
           git config --global user.name "Shivani chourasiya"
           git config --global --add safe.directory $(pwd)
@@ -337,10 +367,6 @@ jobs:
       - name: Check status
         run: |
           cd /workspace
-          # git config --global --add safe.directory $(pwd)
-          # git status  # Shows modified files after running Molecule
-          # git diff
-          # pwd
           if [ -n "$(git status --porcelain)" ]; then
             echo "❌ Changes detected! Failing the job..."
             git diff
