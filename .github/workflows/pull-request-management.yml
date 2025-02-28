@@ -288,40 +288,45 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      # - name: Convert GitHub username to lowercase
-      #   id: lowercase
-      #   run: |
-      #     echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-      # - name: Set Build Image Tag
-      #   id: set-build-tag
-      #   run: |
-      #     SHORT_SHA=$(git rev-parse --short HEAD)
-      #     BUILD_IMAGE_TAG="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:${{ github.run_number }}-${SHORT_SHA}"
-      #     echo "::set-output name=build_image_tag::$BUILD_IMAGE_TAG"
-      # - name: Echo image name
-      #   run: echo ${{ needs.avd-base-image.outputs.base_image_tag }}
-      # - name: Log in to GitHub Container Registry
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ steps.lowercase.outputs.lowercase }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      # - name: Build and push PyAVD Image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     file: .github/DockerfileBuild
-      #     push: true
-      #     target: run
-      #     tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
-      #     build-args: 
-      #       BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
-      #     cache-from: type=gha
-      #     cache-to: |
-      #       type=gha,mode=max
-      #       type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest
-      #     outputs: type=image,push=true
+      - name: Convert GitHub username to lowercase
+        id: lowercase
+        run: |
+          echo "::set-output name=lowercase::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+      - name: Set Build Image Tag
+        id: set-build-tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          BUILD_IMAGE_TAG="ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:${{ github.run_number }}-${SHORT_SHA}"
+          echo "::set-output name=build_image_tag::$BUILD_IMAGE_TAG"
+      - name: Echo image name
+        run: echo ${{ needs.avd-base-image.outputs.base_image_tag }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ steps.lowercase.outputs.lowercase }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Wheel Package
+        uses: actions/download-artifact@v4
+        with:
+          name: pyavd-wheel
+          path: /tmp/wheels
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push PyAVD Image
+        uses: docker/build-push-action@v6
+        with:
+          file: .github/DockerfileBuild
+          push: true
+          target: run
+          tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
+          build-args: 
+            BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
+          cache-from: type=gha
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.lowercase }}/avd-base:latest
+          outputs: type=image,push=true
 
   # ----------------------------------- #
   # EOS CLI CONFIG GEN MOLECULE
