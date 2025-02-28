@@ -310,7 +310,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: pyavd-wheel
-          path: wheels  # ✅ Store wheels in the repo (inside build context)
+          path: wheels
 
       - name: Verify Wheel Package Exists
         run: ls -l wheels || echo "❌ No wheel package found!"
