@@ -310,7 +310,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: pyavd-wheel
-          path: /tmp/wheels
+          path: ./wheels
       - name: check artifacts
         run: ls -l /tmp/wheels
       - name: Set up Docker Buildx
