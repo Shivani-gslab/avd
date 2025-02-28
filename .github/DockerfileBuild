@@ -5,7 +5,8 @@ LABEL stage=build
 # COPY /tmp/wheels .
 
 # Debugging: Check if files exist
-RUN echo "Current directory: $(pwd)" && ls -al
+RUN echo "Current directory: $(pwd)" && ls -al tmp/
+# WORKDIR /tmp
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
