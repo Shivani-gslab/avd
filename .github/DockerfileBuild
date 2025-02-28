@@ -1,5 +1,5 @@
-ARG BASE_IMAGE_TAG
-FROM ${BASE_IMAGE_TAG} AS build
+# ARG BASE_IMAGE_TAG
+FROM ghcr.io/shivani-gslab/avd-base:778-946c060 AS build
 LABEL stage=build
 
 ARG WHEEL_PATH  # Get the wheel file path from build args
