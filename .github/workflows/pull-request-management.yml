@@ -317,7 +317,8 @@ jobs:
       - name: Get Full Path of Wheels Directory
         run: echo "WHEELS_PATH=$(realpath ./wheels)" >> $GITHUB_ENV
       - name: Use Full Path
-        run: echo "The wheels directory is at: $WHEELS_PATH"
+        run: |
+          echo "The wheels directory is at: $WHEELS_PATH"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push PyAVD Image
