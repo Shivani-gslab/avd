@@ -315,7 +315,7 @@ jobs:
         run: |
           mv /tmp/wheels ./wheels
       - name: Get Full Path of Wheels Directory
-        run: echo "WHEELS_PATH=$(realpath ./wheels)" >> $GITHUB_ENV
+        run: echo "WHEELS_PATH=$(realpath ./wheels/*.whl)" >> $GITHUB_ENV
       - name: Use Full Path
         run: |
           echo "The wheels directory is at: $WHEELS_PATH"
