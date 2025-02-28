@@ -2,10 +2,10 @@ ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_TAG} AS build
 LABEL stage=build
 # Copy wheel package from CI artifacts to /tmp/wheels
-COPY /tmp/wheels .
+# COPY /tmp/wheels .
 
 # Debugging: Check if files exist
-RUN ls -l /tmp/wheels && echo "Current directory: $(pwd)"
+RUN echo "Current directory: $(pwd)" && ls -al
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
