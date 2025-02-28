@@ -315,10 +315,12 @@ jobs:
         run: |
           mv /tmp/wheels ./wheels
       - name: Get Full Path of Wheels Directory
-        run: echo "WHEELS_PATH=$(realpath ./wheels/*.whl)" >> $GITHUB_ENV
-      - name: Use Full Path
         run: |
-          echo "The wheels directory is at: $WHEELS_PATH"
+            WHEELS_PATH=$(realpath ./wheels/*.whl)
+            echo "wheel_path=$WHEELS_PATH" >> $GITHUB_ENV
+      # - name: Use Full Path
+      #   run: |
+      #     echo "The wheels directory is at: $WHEELS_PATH"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push PyAVD Image
@@ -330,7 +332,7 @@ jobs:
           tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
           build-args: |
             BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
-            WHEEL_PATH=$WHEELS_PATH
+            WHEEL_PATH=${{ env.wheel_path }}
           cache-from: type=gha
           cache-to: |
             type=gha,mode=max
