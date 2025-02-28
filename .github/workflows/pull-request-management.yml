@@ -314,13 +314,14 @@ jobs:
       - name: Move Wheel Package to Build Context
         run: |
           mv /tmp/wheels $GITHUB_WORKSPACE
+          ls -l $GITHUB_WORKSPACE
       - name: Get Full Path of Wheels Directory
         run: |
             WHEELS_PATH=$(realpath ./wheels/*.whl)
             echo "wheel_path=$WHEELS_PATH" >> $GITHUB_ENV
-      # - name: Use Full Path
-      #   run: |
-      #     echo "The wheels directory is at: $WHEELS_PATH"
+      - name: Use Full Path
+        run: |
+          echo "The wheels directory is at: $WHEELS_PATH"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push PyAVD Image
