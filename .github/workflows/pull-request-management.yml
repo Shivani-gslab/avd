@@ -315,7 +315,7 @@ jobs:
         run: |
           mv /tmp/wheels ./wheels
       - name: Get Full Path of Wheels Directory
-        run: WHEELS_PATH=$(realpath ./wheels/*.whl)"
+        run: echo "WHEELS_PATH=$(realpath ./wheels/*.whl)" >> $GITHUB_ENV
       - name: Use Full Path
         run: |
           echo "The wheels directory is at: $WHEELS_PATH"
@@ -328,8 +328,8 @@ jobs:
           push: true
           target: run
           tags: ${{ steps.set-build-tag.outputs.build_image_tag }}
-          build-args: 
-            # BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
+          build-args: |
+            BASE_IMAGE_TAG=${{ needs.avd-base-image.outputs.base_image_tag }}
             WHEEL_PATH=$WHEELS_PATH
           cache-from: type=gha
           cache-to: |
