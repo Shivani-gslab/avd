@@ -5,11 +5,11 @@ LABEL stage=build
 ARG WHEEL_PATH  # Get the wheel file path from build args
 
 # Copy the wheel package using the provided path
-COPY ${WHEEL_PATH} /avd/wheels/
+COPY . /avd
 
 # Debugging: Check if files exist
-RUN echo "Current directory: $(pwd)" && ls -al /avd/wheels
-WORKDIR /avd/wheels
+RUN echo "Current directory: $(pwd)" && ls -al /avd
+WORKDIR /avd
 
 RUN apt-get update && apt-get install -y --no-install-recommends make && \
     for VERSION in 3.10 3.11 3.12 3.13; do \
