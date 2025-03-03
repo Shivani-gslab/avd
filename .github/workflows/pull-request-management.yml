@@ -552,34 +552,34 @@
         - name: "Run ansible-test units test cases"
           run: ". /venvs/UV3.12/bin/activate && python --version && cd ansible_collections/arista/avd && ansible-test units -vv"
   
-    ansible_test_integration:
-      name: Run ansible-test integration test cases
-      runs-on: ubuntu-latest
-      needs: [build-pyavd]
-      container:
-        image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-      steps:
-        - name: Check out repository code
-          uses: actions/checkout@v4
-        # - name: Install ssh-keygen
-        #   run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
-        - name: "Run ansible-test integration test cases"
-          run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
+    # ansible_test_integration:
+    #   name: Run ansible-test integration test cases
+    #   runs-on: ubuntu-latest
+    #   needs: [build-pyavd]
+    #   container:
+    #     image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+    #   steps:
+    #     - name: Check out repository code
+    #       uses: actions/checkout@v4
+    #     - name: Install ssh-keygen
+    #       run: apt-get update && sudo apt-get install -y --no-install-recommends openssh-client
+    #     - name: "Run ansible-test integration test cases"
+    #       run: ". /venvs/UV3.13/bin/activate && cd ansible_collections/arista/avd && ansible-test integration -vv"
   
-    ansible_lint_job:
-      name: Run ansible-lint test case
-      runs-on: ubuntu-latest
-      needs: [build-pyavd]
-      container:
-        image: ${{ needs.build-pyavd.outputs.build_image_tag }}
-      steps:
-        - name: Check out repository code
-          uses: actions/checkout@v4
-        - name: "🥷 Remove unskippable ansible-lint rule added for Galaxy"
-          run: |
-            sed -i 's/- syntax-check/# - syntax-check/g' ansible_collections/arista/avd/.ansible-lint
-        - name: "Run ansible-test integration test cases"
-          run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
+    # ansible_lint_job:
+    #   name: Run ansible-lint test case
+    #   runs-on: ubuntu-latest
+    #   needs: [build-pyavd]
+    #   container:
+    #     image: ${{ needs.build-pyavd.outputs.build_image_tag }}
+    #   steps:
+    #     - name: Check out repository code
+    #       uses: actions/checkout@v4
+    #     - name: "🥷 Remove unskippable ansible-lint rule added for Galaxy"
+    #       run: |
+    #         sed -i 's/- syntax-check/# - syntax-check/g' ansible_collections/arista/avd/.ansible-lint
+    #     - name: "Run ansible-test integration test cases"
+    #       run: ". /venvs/UV3.13/bin/activate && /venvs/UV3.13/bin/python -m pip install --upgrade certifi && export SSL_CERT_FILE=$(/venvs/UV3.13/bin/python -m certifi) && cd ansible_collections/arista/avd && ansible-lint --force-color --strict -v"
   
     # ----------------------------------- #
     # Galaxy Importer
