@@ -143,13 +143,13 @@
             pip install build
             cd python-avd
             python -m build --wheel --outdir /tmp/pyavd
-        - name: Compress wheel packages
-          run: tar -czf /tmp/pyavd.tar.gz -C /tmp pyavd
+        # - name: Compress wheel packages
+        #   run: tar -czf /tmp/pyavd.tar.gz -C /tmp pyavd
         - name: Upload pyavd artifact
           uses: actions/upload-artifact@v4
           with:
             name: pyavd
-            path: /tmp/pyavd.tar.gz
+            path: /tmp/pyavd/*.whl
   
     # ----------------------------------- #
     # EOS CLI CONFIG GEN MOLECULE
@@ -178,9 +178,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Molecule
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -217,9 +217,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -283,9 +283,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -327,9 +327,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -371,9 +371,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -411,9 +411,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -448,9 +448,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: "Install pyavd and Ansible requirements"
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
@@ -475,9 +475,9 @@
           uses: actions/download-artifact@v4
           with:
             name: pyavd
-            path: /tmp/
-        - name: Extract pyavd wheel package
-          run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
+            path: /tmp/pyavd/*.whl
+        # - name: Extract pyavd wheel package
+        #   run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: "Install pyavd and ansible requirements"
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
