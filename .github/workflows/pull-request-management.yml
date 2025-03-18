@@ -137,18 +137,15 @@
         - uses: actions/setup-python@v5
           with:
             python-version: |
-              3.10
-              3.11
               3.12
-              3.13
-        - name: Install pyavd dependencies
+        - name: Create wheel packages of pyavd dependencies
           run: |
-            python -m pip install build
+            pip install build
             cd python-avd
             python -m build --wheel --outdir /tmp/pyavd
-        - name: Compress pyavd dependencies
+        - name: Compress wheel packages
           run: tar -czf /tmp/pyavd.tar.gz -C /tmp pyavd
-        - name: Upload pyavd wheel package
+        - name: Upload pyavd artifact
           uses: actions/upload-artifact@v4
           with:
             name: pyavd
@@ -177,16 +174,15 @@
       if: needs.file-changes.outputs.config_gen == 'true'
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Molecule
           run: |
-            pip install --upgrade pip build molecule "molecule-plugins[docker]"
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             python -m pip install --upgrade "${{ matrix.ansible_version }}"
             cd ansible_collections/arista/avd
@@ -217,12 +213,12 @@
       if: needs.file-changes.outputs.dhcp == 'true'
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install pyavd, Ansible Version & Run Tests
           run: |
@@ -283,14 +279,14 @@
       if: needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.config_gen == 'true'
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
-        - name: Install Ansible Version & Run Tests
+        - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             python -m pip install --upgrade "${{ matrix.ansible_version }}"
@@ -327,14 +323,14 @@
   
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
-        - name: Install Ansible Version & Run Tests
+        - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             python -m pip install --upgrade "${{ matrix.ansible_version }}"
@@ -371,14 +367,14 @@
       if: needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.anta_runner == 'true'
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
-        - name: Install Ansible Version & Run Tests
+        - name: Install pyavd, Ansible Version & Run Tests
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             python -m pip install --upgrade "${{ matrix.ansible_version }}"
@@ -411,12 +407,12 @@
       if: needs.file-changes.outputs.eos_design == 'true' || needs.file-changes.outputs.validate_state == 'true'
       steps:
         - uses: actions/checkout@v4
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
         - name: Install Ansible Version & Run Tests
           run: |
@@ -448,14 +444,14 @@
               3.11
               3.12
               3.13
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
-        - name: "Install Ansible requirements"
+        - name: "Install pyavd and Ansible requirements"
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             pip install "ansible-core<2.19.0"
@@ -475,17 +471,19 @@
           with:
             python-version: |
               3.12
-        - name: Download AVD Collection Artifact
+        - name: Download pyavd Artifact
           uses: actions/download-artifact@v4
           with:
             name: pyavd
             path: /tmp/
-        - name: Extract Virtual Environment
+        - name: Extract pyavd wheel package
           run: tar -xzf /tmp/pyavd.tar.gz -C /tmp
-        - name: "Install Ansible requirements"
+        - name: "Install pyavd and ansible requirements"
           run: |
             python -m pip install --no-cache-dir /tmp/pyavd/*.whl
             pip install "ansible-core<2.19.0"
+        - name: "Run ansible-test units"
+          run: |
             cd ansible_collections/arista/avd/
             ansible-test units --coverage --requirements -vv
             ansible-test coverage xml
