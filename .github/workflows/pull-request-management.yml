@@ -228,7 +228,7 @@
             molecule test --scenario-name ${{ matrix.avd_scenario }}
         - name: Check GIT status
           run: |
-            .github/molecule-runner.sh
+            sh .github/molecule-runner.sh
           env:
             INPUT_CHECK_GIT: true
             INPUT_CHECK_GIT_ENFORCED: true
@@ -294,7 +294,7 @@
             molecule test --scenario-name ${{ matrix.avd_scenario }}
         - name: Check GIT status
           run: |
-            .github/molecule-runner.sh
+            sh .github/molecule-runner.sh
           env:
             INPUT_CHECK_GIT: true
             INPUT_CHECK_GIT_ENFORCED: true
@@ -338,7 +338,7 @@
             molecule test --scenario-name ${{ matrix.avd_scenario }}
         - name: Check GIT status
           run: |
-            .github/molecule-runner.sh
+            sh .github/molecule-runner.sh
           env:
             INPUT_CHECK_GIT: true
             INPUT_CHECK_GIT_ENFORCED: true
@@ -382,7 +382,7 @@
             molecule test --scenario-name ${{ matrix.avd_scenario }}
         - name: Check GIT status
           run: |
-            .github/molecule-runner.sh
+            sh .github/molecule-runner.sh
           env:
             INPUT_CHECK_GIT: true
             INPUT_CHECK_GIT_ENFORCED: true
@@ -422,7 +422,7 @@
             molecule test --scenario-name ${{ matrix.avd_scenario }}
         - name: Check GIT status
           run: |
-            .github/molecule-runner.sh
+            sh .github/molecule-runner.sh
           env:
             INPUT_CHECK_GIT: true
             INPUT_CHECK_GIT_ENFORCED: true
