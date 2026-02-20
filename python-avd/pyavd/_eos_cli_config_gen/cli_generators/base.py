@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pyavd._eos_cli_config_gen.schema import EosCliConfigGen
+    from pyavd.api.schemas import EOSConfig
 
 
 class CliGenerator(ABC):
@@ -20,7 +20,7 @@ class CliGenerator(ABC):
     from structured config data.
     """
 
-    def __init__(self, structured_config: EosCliConfigGen | dict) -> None:
+    def __init__(self, structured_config: EOSConfig | dict) -> None:
         """
         Initialize the CLI generator.
 
