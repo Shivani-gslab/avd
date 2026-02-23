@@ -8,9 +8,6 @@ This package contains Python-based CLI configuration generators that replace Jin
 Each generator is a class that inherits from CliGenerator and uses @cli_config_contributor
 decorator to mark methods that generate CLI configuration snippets.
 
-Two patterns are supported:
-1. Return string pattern (old): Methods return CLI strings
-2. Append pattern (new): Methods append to self.cli_config (similar to self.structured_config in eos_designs)
 """
 
 from __future__ import annotations
