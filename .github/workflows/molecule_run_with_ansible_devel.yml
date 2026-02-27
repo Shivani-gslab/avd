@@ -1,0 +1,163 @@
+name: "Daily Molecule Tests (Ansible devel)"
+
+"on":
+  # Added this just for testing CI in this PR, this should be removed before merging and schedule needs to be uncommented
+  pull_request:
+  # schedule:
+  #   # Runs once per day at 2 AM
+  #   - cron: "0 2 * * *"
+  # # Allow for manual trigger on the selected branch in UI
+  workflow_dispatch:
+
+concurrency:
+  # Allow parallel runs for manual triggers, but serialize scheduled runs
+  group: ${{ github.event_name == 'schedule' && 'molecule-ansible-devel-scheduled' || format('molecule-ansible-devel-{0}', github.run_id) }}
+  cancel-in-progress: true
+
+env:
+  ANSIBLE_VERBOSITY: ${{ secrets.ACTIONS_STEP_DEBUG && 3 || 0 }}
+  AVD_NEVER_RUN_FROM_SOURCE: 1
+  PY_COLORS: 1 # allows molecule colors to be passed to GitHub Actions
+  ANSIBLE_FORCE_COLOR: 1 # allows ansible colors to be passed to GitHub Actions
+  AVD_IGNORE_REQUIREMENTS: true
+
+jobs:
+  # -------------------------------------- #
+  # Build PyAVD wheel and upload artifact
+  # -------------------------------------- #
+  build_pyavd:
+    uses: ./.github/workflows/build_pyavd_template.yml
+    with:
+      python_version: "3.13"
+
+  # ----------------------------------- #
+  # EOS CLI CONFIG GEN MOLECULE
+  # ----------------------------------- #
+  molecule_eos_cli_config_gen:
+    name: Validate eos_cli_config_gen
+    runs-on: ubuntu-latest
+    needs: [build_pyavd]
+    strategy:
+      fail-fast: true
+      matrix:
+        avd_scenario:
+          - "eos_cli_config_gen"
+          - "eos_cli_config_gen_deprecated_vars"
+          - "eos_cli_config_gen_negative_unit_tests"
+        ansible_version:
+          - "git+https://github.com/ansible/ansible.git@devel"
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download pyavd Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: pyavd
+          path: /tmp/pyavd/
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install pyavd and Ansible requirements
+        run: |
+          python -m pip install "${{ matrix.ansible_version}}" "${{ needs.build_pyavd.outputs.wheel_file }}[ansible-collection]" --group molecule
+      - name: Run molecule test
+        working-directory: ansible_collections/arista/avd
+        run: |
+          molecule test --scenario-name ${{ matrix.avd_scenario }} -- --extra-vars "avd_ignore_requirements=${AVD_IGNORE_REQUIREMENTS}"
+      - name: Check GIT status
+        run: |
+          sh .github/check-git-status.sh
+
+  # ----------------------------------- #
+  # EOS Design MOLECULE
+  # ----------------------------------- #
+  molecule_eos_designs:
+    name: Validate eos_designs
+    runs-on: ubuntu-latest
+    needs: [build_pyavd]
+    strategy:
+      fail-fast: true
+      matrix:
+        avd_scenario:
+          - "ansible_only"
+          - "digital_twin"
+          - "eos_designs-l2ls"
+          - "eos_designs-mpls-isis-sr-ldp"
+          - "eos_designs-twodc-5stage-clos"
+          - "eos_designs_deprecated_vars"
+          - "eos_designs_negative_unit_tests"
+          - "eos_designs_unit_tests"
+          - "evpn_underlay_ebgp_overlay_ebgp"
+          - "evpn_underlay_isis_overlay_ibgp"
+          - "evpn_underlay_ospf_overlay_ebgp"
+          - "evpn_underlay_rfc5549_overlay_ebgp"
+          - "example-campus-fabric"
+          - "example-cv-pathfinder"
+          - "example-dual-dc-l3ls"
+          - "example-isis-ldp-ipvpn"
+          - "example-l2ls-fabric"
+          - "example-single-dc-l3ls"
+          - "example-single-dc-l3ls-ipv6"
+          - "howto"
+        ansible_version:
+          - "git+https://github.com/ansible/ansible.git@devel"
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download pyavd Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: pyavd
+          path: /tmp/pyavd/
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install pyavd and Ansible requirements
+        run: |
+          python -m pip install "${{ matrix.ansible_version}}" "${{ needs.build_pyavd.outputs.wheel_file }}[ansible-collection]" --group molecule
+      - name: Run molecule test
+        working-directory: ansible_collections/arista/avd
+        run: |
+          molecule test --scenario-name ${{ matrix.avd_scenario }} -- --extra-vars "avd_ignore_requirements=${AVD_IGNORE_REQUIREMENTS}"
+      - name: Check GIT status
+        run: |
+          sh .github/check-git-status.sh
+
+  # ----------------------------------- #
+  # ANTA Runner MOLECULE
+  # ----------------------------------- #
+  molecule_anta_runner:
+    name: Validate anta_runner
+    runs-on: ubuntu-latest
+    needs: [build_pyavd]
+    strategy:
+      fail-fast: true
+      matrix:
+        avd_scenario:
+          - "anta_runner"
+        ansible_version:
+          - "git+https://github.com/ansible/ansible.git@devel"
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download pyavd Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: pyavd
+          path: /tmp/pyavd/
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install pyavd and Ansible requirements
+        run: |
+          python -m pip install "${{ matrix.ansible_version}}" "${{ needs.build_pyavd.outputs.wheel_file }}[ansible-collection]" --group molecule
+      - name: Run molecule test
+        working-directory: ansible_collections/arista/avd
+        run: |
+          molecule test --scenario-name ${{ matrix.avd_scenario }} -- --extra-vars "avd_ignore_requirements=${AVD_IGNORE_REQUIREMENTS}"
+      - name: Check GIT status
+        run: |
+          sh .github/check-git-status.sh
