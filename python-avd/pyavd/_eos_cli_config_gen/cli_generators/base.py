@@ -9,6 +9,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Protocol, overload
 
 from pyavd._eos_cli_config_gen.schema import EosCliConfigGen
+from pyavd._utils.get import get_v2
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -90,6 +91,8 @@ def cli_config_contributor(
         toggle_and_value: Optional (attribute_path, expected_value) tuple for conditional
             execution. Path can be nested like 'vlan_settings.enabled'. Method only runs
             if self.data.{path} == expected_value.
+
+    TODO: Store the functions in a class variable on CliGeneratorProtocol instead of modifying the func.
     """
 
     def decorator(fnc: Callable[[T_CliGeneratorSubclass], None]) -> Callable[[T_CliGeneratorSubclass], None]:
@@ -102,14 +105,7 @@ def cli_config_contributor(
 
         @wraps(fnc)
         def wrapped_func(self: T_CliGeneratorSubclass) -> None:
-            # Navigate nested attributes
-            value = self.data
-            for attr in toggle.split("."):
-                value = getattr(value, attr, None)
-                if value is None:
-                    return None
-
-            if value == toggle_value:
+            if get_v2(self.data, toggle, default=None) == toggle_value:
                 return fnc(self)
 
             return None
@@ -144,8 +140,6 @@ class CliGeneratorProtocol(Protocol):
         Returns:
             CLI configuration text or empty string if not applicable.
         """
-        self.cli_config.clear()
-
         for method in self.cli_config_methods():
             method(self)
 
@@ -154,16 +148,11 @@ class CliGeneratorProtocol(Protocol):
     @classmethod
     def cli_config_methods(cls) -> list[Callable[[Self], None]]:
         """Return methods decorated with @cli_config_contributor."""
-        methods: list[Callable[[Self], None]] = []
-        for key in cls._keys():
-            method = getattr(cls, key)
-            if getattr(method, "_is_cli_config_contributor", False):
-                methods.append(method)
-        return methods
+        return [method for key in cls._keys() if getattr(method := getattr(cls, key), "_is_cli_config_contributor", False)]
 
     @classmethod
     def _keys(cls) -> list[str]:
-        """Return all attribute names of the class."""
+        """Return all attribute names. Override to customize contributor execution order."""
         return dir(cls)
 
 
@@ -188,32 +177,3 @@ class CliGenerator(CliGeneratorProtocol):
             self.data = structured_config
 
         self.cli_config = CliConfig()
-
-    def render(self) -> str:
-        """
-        Execute all contributor methods and return generated config.
-
-        Returns:
-            CLI configuration text or empty string if not applicable.
-        """
-        self.cli_config.clear()
-
-        for method in self.cli_config_methods():
-            method(self)
-
-        return self.cli_config.get_config()
-
-    @classmethod
-    def cli_config_methods(cls) -> list[Callable[[Self], None]]:
-        """Return methods decorated with @cli_config_contributor."""
-        methods: list[Callable[[Self], None]] = []
-        for key in cls._keys():
-            method = getattr(cls, key)
-            if getattr(method, "_is_cli_config_contributor", False):
-                methods.append(method)
-        return methods
-
-    @classmethod
-    def _keys(cls) -> list[str]:
-        """Return all attribute names. Override to customize contributor execution order."""
-        return dir(cls)

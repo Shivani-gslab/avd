@@ -68,16 +68,17 @@ def event_monitor(self) -> None:
 The decorator sets `_is_cli_config_contributor = True` on the method.
 The `toggle_and_value` variant wraps the method to skip it unless the condition is met.
 
-### 3. `CliGenerator` — Base Class
+### 3. `CliGeneratorProtocol` + `CliGenerator`
+
+Two separate classes following the same pattern as `StructuredConfigGenerator` in `_eos_designs`:
+
+- **`CliGeneratorProtocol`** — Python `Protocol` (structural type for type checkers). Defines `data`, `cli_config`, `render()`, `cli_config_methods()`, `_keys()`.
+- **`CliGenerator`** — Concrete base class. Inherits from the Protocol. Only adds `__init__` — everything else is inherited.
 
 ```python
-class CliGenerator:
-    def __init__(self, structured_config: EosCliConfigGen | dict) -> None:
-        if isinstance(structured_config, dict):
-            self.data = EosCliConfigGen(**structured_config)
-        else:
-            self.data = structured_config
-        self.cli_config = CliConfig()
+class CliGeneratorProtocol(Protocol):
+    data: EosCliConfigGen
+    cli_config: CliConfig
 
     def render(self) -> str:
         for method in self.cli_config_methods():
@@ -86,12 +87,37 @@ class CliGenerator:
 
     @classmethod
     def cli_config_methods(cls) -> list:
-        """Discover all methods marked with @cli_config_contributor via reflection."""
-        return [
-            getattr(cls, key)
-            for key in dir(cls)
-            if getattr(getattr(cls, key), "_is_cli_config_contributor", False)
-        ]
+        return [method for key in cls._keys()
+                if getattr(method := getattr(cls, key), "_is_cli_config_contributor", False)]
+
+    @classmethod
+    def _keys(cls) -> list[str]:
+        return dir(cls)
+
+
+class CliGenerator(CliGeneratorProtocol):
+    def __init__(self, structured_config: EosCliConfigGen | dict) -> None:
+        if isinstance(structured_config, dict):
+            self.data = EosCliConfigGen(**structured_config)
+        else:
+            self.data = structured_config
+        self.cli_config = CliConfig()
+    # render(), cli_config_methods(), _keys() → all inherited from CliGeneratorProtocol
+```
+
+The `toggle_and_value` path in the decorator now uses `get_v2()` (consistent with `StructuredConfigGenerator`):
+
+```python
+# Before: manual getattr loop
+value = self.data
+for attr in toggle.split("."):
+    value = getattr(value, attr, None)
+    if value is None:
+        return None
+
+# After: get_v2() — clean, consistent with reference
+if get_v2(self.data, toggle, default=None) == toggle_value:
+    return fnc(self)
 ```
 
 ---
@@ -197,20 +223,17 @@ class [Feature]Generator(CliGenerator):
 
 ## Enhancement Points
 
-### 1. `cli_config.clear()` is unnecessary
-`render()` contains `self.cli_config.clear()` but each generator is instantiated and called once — `_lines` is always `[]` when `render()` runs. It's dead code that adds confusion.
+### 1. Generator discovery is manual
+Generators must be manually imported in `__init__.py` and added to `__all__`. This could be automated via a plugin/registry pattern as the number of generators grows.
 
-### 2. Generator discovery is manual
-Currently generators must be manually imported in `__init__.py`. This could be automated via a plugin/registry pattern.
-
-### 3. `get_v2()` vs direct model access
+### 2. `get_v2()` vs direct model access in generator methods
 `get_v2(self.data, "boot.secret.key")` works but bypasses Pydantic's type system.
 Direct access (`self.data.boot.secret.key`) gives IDE autocomplete and type checking — preferred where possible.
 
-### 4. Method execution order depends on `dir()`
+### 3. Method execution order depends on `dir()`
 `dir()` returns names alphabetically. Execution order of contributor methods is implicit. A `_keys()` override or explicit ordering mechanism would make this explicit.
 
-### 5. Config section order breaks during mid-migration (Critical)
+### 4. Config section order breaks during mid-migration (Critical)
 
 **The Problem:**
 
