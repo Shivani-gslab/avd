@@ -105,21 +105,6 @@ class CliGenerator(CliGeneratorProtocol):
     # render(), cli_config_methods(), _keys() → all inherited from CliGeneratorProtocol
 ```
 
-The `toggle_and_value` path in the decorator now uses `get_v2()` (consistent with `StructuredConfigGenerator`):
-
-```python
-# Before: manual getattr loop
-value = self.data
-for attr in toggle.split("."):
-    value = getattr(value, attr, None)
-    if value is None:
-        return None
-
-# After: get_v2() — clean, consistent with reference
-if get_v2(self.data, toggle, default=None) == toggle_value:
-    return fnc(self)
-```
-
 ---
 
 ## Execution Flow
@@ -230,10 +215,7 @@ Generators must be manually imported in `__init__.py` and added to `__all__`. Th
 `get_v2(self.data, "boot.secret.key")` works but bypasses Pydantic's type system.
 Direct access (`self.data.boot.secret.key`) gives IDE autocomplete and type checking — preferred where possible.
 
-### 3. Method execution order depends on `dir()`
-`dir()` returns names alphabetically. Execution order of contributor methods is implicit. A `_keys()` override or explicit ordering mechanism would make this explicit.
-
-### 4. Config section order breaks during mid-migration (Critical)
+### 3. Config section order breaks during mid-migration (Critical)
 
 **The Problem:**
 
