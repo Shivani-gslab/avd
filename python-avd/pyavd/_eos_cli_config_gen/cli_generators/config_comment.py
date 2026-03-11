@@ -21,6 +21,6 @@ class ConfigCommentGenerator(CliGenerator):
         if not self.data.config_comment:
             return
 
-        self.cli_config.append("!")
+        self.cli_config.config_comment.append("!")
         for comment_line in self.data.config_comment.split("\n"):
-            self.cli_config.append(f"!{comment_line}")
+            self.cli_config.config_comment.append(f"!{comment_line}")

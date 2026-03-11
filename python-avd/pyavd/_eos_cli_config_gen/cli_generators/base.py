@@ -20,24 +20,18 @@ if TYPE_CHECKING:
     T_CliGeneratorSubclass = TypeVar("T_CliGeneratorSubclass", bound="CliGeneratorProtocol")
 
 
-class CliConfig:
+class CliConfigSection:
     """
-    Accumulator for building CLI configuration strings.
+    Accumulator for a single named section of CLI configuration.
 
-    Allows incremental building of config by appending lines. Multi-line strings
-    are automatically split on newlines.
+    Multi-line strings are automatically split on newlines. None values are ignored.
     """
 
     def __init__(self) -> None:
-        """Initialize empty accumulator."""
         self._lines: list[str] = []
 
     def append(self, line: str | None) -> None:
-        """
-        Append a CLI line or multi-line string.
-
-        Multi-line strings are split on newlines. None values are ignored.
-        """
+        """Append a CLI line or multi-line string."""
         if line:
             if "\n" in line:
                 self._lines.extend(line.split("\n"))
@@ -45,7 +39,7 @@ class CliConfig:
                 self._lines.append(line)
 
     def extend(self, lines: list[str] | None) -> None:
-        """Extend with multiple CLI lines. None values are ignored."""
+        """Extend with multiple CLI lines."""
         if lines:
             self._lines.extend(lines)
 
@@ -53,17 +47,43 @@ class CliConfig:
         """Return accumulated lines joined with newlines."""
         return "\n".join(self._lines)
 
-    def clear(self) -> None:
-        """Clear all accumulated config."""
-        self._lines.clear()
+    def __bool__(self) -> bool:
+        return bool(self._lines)
 
     def __str__(self) -> str:
-        """Return accumulated config as string."""
         return self.get_config()
 
+
+class CliConfig:
+    """
+    Container of named CLI config sections rendered in declaration order.
+
+    Each section is a :class:`CliConfigSection` accessible as an attribute::
+
+        self.cli_config.boot.append("!")
+        self.cli_config.config_comment.append("!comment")
+    """
+
+    def __init__(self) -> None:
+        # Sections are declared in EOS config output order.
+        self.config_comment = CliConfigSection()
+        self.boot = CliConfigSection()
+
+    def get_config(self) -> str:
+        """Return all non-empty sections joined with newlines, in declaration order."""
+        return "\n".join(section.get_config() for section in self.__dict__.values() if isinstance(section, CliConfigSection) and section)
+
+    def clear(self) -> None:
+        """Reset all sections to empty."""
+        for section in self.__dict__.values():
+            if isinstance(section, CliConfigSection):
+                section._lines.clear()
+
     def __bool__(self) -> bool:
-        """Return True if any config has been accumulated."""
-        return bool(self._lines)
+        return any(isinstance(v, CliConfigSection) and bool(v) for v in self.__dict__.values())
+
+    def __str__(self) -> str:
+        return self.get_config()
 
 
 # Overload when assigned with args.
@@ -172,7 +192,7 @@ class CliGenerator(CliGeneratorProtocol):
             structured_config: Dict or EosCliConfigGen model. Dicts are converted to the model.
         """
         if isinstance(structured_config, dict):
-            self.data = EosCliConfigGen(**structured_config)
+            self.data = EosCliConfigGen._from_dict(structured_config)
         else:
             self.data = structured_config
 
