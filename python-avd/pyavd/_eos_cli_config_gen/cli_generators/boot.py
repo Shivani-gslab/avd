@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from pyavd._utils.get import get_v2
 from pyavd.j2filters import hide_passwords
 
 from .base import CliGenerator, cli_config_contributor
@@ -27,19 +26,13 @@ class BootGenerator(CliGenerator):
         - Boot secret with hash algorithm (md5 -> 5, default -> sha512)
         - Password hiding support via eos_cli_config_gen_configuration.hide_passwords
         """
-        if not get_v2(self.data, "boot.secret.key"):
+        secret = self.data.boot.secret
+        if not secret.key:
             return
 
-        # Determine hide_passwords setting
-        hide_passwords_enabled = get_v2(self.data, "eos_cli_config_gen_configuration.hide_passwords", default=False)
-
-        # Determine hash algorithm
-        hash_algorithm = "sha512"  # Default
-        if get_v2(self.data, "boot.secret.hash_algorithm") == "md5":
-            hash_algorithm = "5"
-
-        # Hide password if needed
-        key = hide_passwords(get_v2(self.data, "boot.secret.key"), hide_passwords_enabled)
+        # EOS CLI uses "5" for md5; schema default handles "sha512"
+        hash_algorithm = "5" if secret.hash_algorithm == "md5" else secret.hash_algorithm
+        key = hide_passwords(secret.key, self.data.eos_cli_config_gen_configuration.hide_passwords)
 
         self.cli_config.append("!")
         self.cli_config.append(f"boot secret {hash_algorithm} {key}")
