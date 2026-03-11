@@ -210,6 +210,79 @@ Direct access (`self.data.boot.secret.key`) gives IDE autocomplete and type chec
 ### 4. Method execution order depends on `dir()`
 `dir()` returns names alphabetically. Execution order of contributor methods is implicit. A `_keys()` override or explicit ordering mechanism would make this explicit.
 
+### 5. Config section order breaks during mid-migration (Critical)
+
+**The Problem:**
+
+The current orchestrator in `get_device_config_python.py` works in two hard blocks:
+
+```
+BLOCK 1: ALL Python generators  (ConfigCommentGenerator, BootGenerator, ...)
+BLOCK 2: ALL Jinja2 templates   (eos-intended-config.j2 → 209 includes in order)
+```
+
+`eos-intended-config.j2` is the **source of truth** for the canonical EOS config section order. For example:
+
+```
+Position  1: enable-password.j2
+Position  2: aaa-root.j2
+...
+Position 50: ip-dhcp-snooping.j2     ← if migrated to Python today
+...
+Position 115: hostname.j2            ← if migrated to Python today
+...
+Position 209: end.j2
+```
+
+If a developer migrates `hostname.j2` (position 115) to `HostnameGenerator`, the output becomes:
+
+```
+[Python block]
+  HostnameGenerator output          ← appears at TOP, wrong!
+
+[J2 block]
+  enable-password output
+  aaa-root output
+  ...                               ← positions 1-114, 116-209
+```
+
+The `hostname` config now appears BEFORE `enable-password` — breaking EOS config order.
+
+**The Fix:**
+
+Build a single unified ordered list from `eos-intended-config.j2`, then for each module check: Python generator available → use it, otherwise → render J2 template. Config order is preserved throughout the entire migration.
+
+```
+Unified ordered pipeline (based on eos-intended-config.j2):
+
+Position  1: enable-password  → no Python generator → render enable-password.j2
+Position  2: aaa-root         → no Python generator → render aaa-root.j2
+...
+Position 50: ip-dhcp-snooping → IpDhcpSnoopingGenerator exists → generator.render()
+...
+Position115: hostname         → HostnameGenerator exists       → generator.render()
+...
+Position209: end              → no Python generator → render end.j2
+```
+
+Each module's output lands in its **correct position** — the final config order is always identical to the J2-only order, regardless of which modules have been migrated.
+
+**In code terms**, the orchestrator changes from:
+
+```python
+# CURRENT: two hard blocks — order breaks mid-migration
+for generator in python_generators:          # block 1: ALL python first
+    sections.append(generator.render())
+sections.append(get_device_config(...))      # block 2: ALL j2 after
+
+# PROPOSED: one ordered pipeline — order always preserved
+for module in ordered_module_list:           # driven by eos-intended-config.j2 order
+    if module in python_generator_registry:
+        sections.append(python_generator_registry[module](config).render())
+    else:
+        sections.append(render_j2_template(module, config))
+```
+
 ---
 
 ## Key Files
@@ -220,6 +293,9 @@ Direct access (`self.data.boot.secret.key`) gives IDE autocomplete and type chec
 | `cli_generators/boot.py` | Example: boot secret generator |
 | `cli_generators/config_comment.py` | Example: config comment generator |
 | `j2templates/eos/boot.j2` | Legacy template (reference for migration) |
+| `j2templates/eos-intended-config.j2` | **Canonical config section order** — 209 includes, source of truth |
+| `pyavd/get_device_config_python.py` | Orchestrator: currently renders Python block first, then J2 block |
+| `pyavd/get_device_config.py` | J2 renderer: renders full `eos-intended-config.j2` |
 | `pyavd/_utils/get.py` | `get_v2()` — safe nested attribute access |
 | `pyavd/j2filters/hide_passwords.py` | Password hiding utility (reused in Python generators) |
 | `schema/__init__.py` | Pydantic models (`EosCliConfigGen`) — structured config data |
