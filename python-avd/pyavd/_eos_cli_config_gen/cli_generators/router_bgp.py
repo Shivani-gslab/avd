@@ -286,7 +286,8 @@ class RouterBgpGenerator(CliGenerator):
 
     def _render_timers(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'timers bgp keepalive hold [min-hold-time X] [send-failure hold-time Y]'."""
-        if bgp.timers is None:
+        t = bgp.timers
+        if t.keepalive_time is None and t.hold_time is None and t.min_hold_time is None and t.send_failure_hold_time is None:
             return
         timers_cli = "timers bgp"
         if bgp.timers.keepalive_time is not None and bgp.timers.hold_time is not None:
