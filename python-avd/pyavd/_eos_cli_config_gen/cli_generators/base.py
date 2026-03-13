@@ -25,7 +25,14 @@ class CliConfigSection:
     Accumulator for a single named section of CLI configuration.
 
     Multi-line strings are automatically split on newlines. None values are ignored.
+    Use ``append_l1`` … ``append_l4`` to prepend indentation automatically.
     """
+
+    _STEP: str = "   "
+    _L1: str = _STEP
+    _L2: str = _STEP * 2
+    _L3: str = _STEP * 3
+    _L4: str = _STEP * 4
 
     def __init__(self) -> None:
         self._lines: list[str] = []
@@ -37,6 +44,22 @@ class CliConfigSection:
                 self._lines.extend(line.split("\n"))
             else:
                 self._lines.append(line)
+
+    def append_l1(self, line: str | None) -> None:
+        """Append *line* with L1 indentation (3 spaces)."""
+        self.append(f"{self._L1}{line}" if line else None)
+
+    def append_l2(self, line: str | None) -> None:
+        """Append *line* with L2 indentation (6 spaces)."""
+        self.append(f"{self._L2}{line}" if line else None)
+
+    def append_l3(self, line: str | None) -> None:
+        """Append *line* with L3 indentation (9 spaces)."""
+        self.append(f"{self._L3}{line}" if line else None)
+
+    def append_l4(self, line: str | None) -> None:
+        """Append *line* with L4 indentation (12 spaces)."""
+        self.append(f"{self._L4}{line}" if line else None)
 
     def extend(self, lines: list[str] | None) -> None:
         """Extend with multiple CLI lines."""

@@ -66,12 +66,7 @@ def get_device_config_python(structured_config: EOSConfig | dict) -> str:
     from ._eos_cli_config_gen import cli_generators  # noqa: PLC0415
     from .get_device_config import get_device_config  # noqa: PLC0415
 
-    # Render all Python generators up-front.
-    python_outputs: dict[str, str] = {}
-    for class_name in cli_generators.__all__:
-        generator = getattr(cli_generators, class_name)(structured_config)
-        if output := generator.render():
-            python_outputs[class_name] = output
+    python_outputs: dict[str, str] = {class_name: getattr(cli_generators, class_name)(structured_config).render() for class_name in cli_generators.__all__}
 
     j2_output = get_device_config(structured_config)
 
@@ -79,8 +74,10 @@ def get_device_config_python(structured_config: EOSConfig | dict) -> str:
     for class_name, output in python_outputs.items():
         placeholder = f"{_PLACEHOLDER_PREFIX}{class_name}{_PLACEHOLDER_SUFFIX}"
         if placeholder in j2_output:
-            j2_output = j2_output.replace(placeholder, output)
-        else:
+            # Replace the placeholder (and its trailing newline) with the output.
+            # When output is empty the whole placeholder line is removed cleanly.
+            j2_output = j2_output.replace(placeholder + "\n", (output + "\n") if output else "")
+        elif output:
             prepend_sections.append(output)
 
     all_sections = [*prepend_sections, j2_output]

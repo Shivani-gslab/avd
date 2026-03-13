@@ -59,16 +59,15 @@ class RouterBgpGenerator(CliGenerator):
         Simple flags are inlined; multi-line concepts delegate to sub-helpers.
         """
         cfg = self.cli_config.router_bgp
-        ind = self._L1
 
         if bgp.as_notation is not None:
-            cfg.append(f"{ind}bgp asn notation {bgp.as_notation}")
+            cfg.append_l1(f"bgp asn notation {bgp.as_notation}")
         if bgp.router_id is not None:
-            cfg.append(f"{ind}router-id {bgp.router_id}")
+            cfg.append_l1(f"router-id {bgp.router_id}")
         if bgp.updates.wait_for_convergence is True:
-            cfg.append(f"{ind}update wait-for-convergence")
+            cfg.append_l1("update wait-for-convergence")
         if bgp.updates.wait_install is True:
-            cfg.append(f"{ind}update wait-install")
+            cfg.append_l1("update wait-install")
 
         self._render_bgp_default_flags(bgp)
         self._render_timers(bgp)
@@ -76,25 +75,25 @@ class RouterBgpGenerator(CliGenerator):
         self._render_graceful_restart(bgp)
 
         if bgp.bgp_cluster_id is not None:
-            cfg.append(f"{ind}bgp cluster-id {bgp.bgp_cluster_id}")
+            cfg.append_l1(f"bgp cluster-id {bgp.bgp_cluster_id}")
 
         self._render_graceful_restart_helper(bgp)
         self._render_route_reflector_preserve(bgp)
         self._render_maximum_paths_global(bgp)
 
         for bgp_default in bgp.bgp_defaults or []:
-            cfg.append(f"{ind}{bgp_default}")
+            cfg.append_l1(bgp_default)
 
         self._render_additional_paths(bgp)
         self._render_listen_ranges(bgp)
 
         if bgp.bgp.bestpath.d_path is True:
-            cfg.append(f"{ind}bgp bestpath d-path")
+            cfg.append_l1("bgp bestpath d-path")
 
         if bgp.neighbor_default.send_community == "all":
-            cfg.append(f"{ind}neighbor default send-community")
+            cfg.append_l1("neighbor default send-community")
         elif bgp.neighbor_default.send_community is not None:
-            cfg.append(f"{ind}neighbor default send-community {bgp.neighbor_default.send_community}")
+            cfg.append_l1(f"neighbor default send-community {bgp.neighbor_default.send_community}")
 
     def _render_peer_groups(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render all peer-group entries sorted by name (J2 lines 135-307)."""
@@ -104,47 +103,46 @@ class RouterBgpGenerator(CliGenerator):
     def _render_peer_group(self, peer_group: EosCliConfigGen.RouterBgp.PeerGroupsItem) -> None:
         """Render a single peer-group block in EOS output order."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         name = peer_group.name
 
-        cfg.append(f"{ind}neighbor {name} peer group")
+        cfg.append_l1(f"neighbor {name} peer group")
 
         if peer_group.remote_as is not None:
-            cfg.append(f"{ind}neighbor {name} remote-as {peer_group.remote_as}")
+            cfg.append_l1(f"neighbor {name} remote-as {peer_group.remote_as}")
         if peer_group.shutdown is True:
-            cfg.append(f"{ind}neighbor {name} shutdown")
+            cfg.append_l1(f"neighbor {name} shutdown")
 
         self._render_next_hop(name, peer_group.next_hop_self, peer_group.next_hop_peer, peer_group.next_hop_unchanged)
         self._render_remove_private_as(name, peer_group.remove_private_as)
         self._render_as_path(name, peer_group.as_path)
 
         if peer_group.local_as is not None:
-            cfg.append(f"{ind}neighbor {name} local-as {peer_group.local_as} no-prepend replace-as")
+            cfg.append_l1(f"neighbor {name} local-as {peer_group.local_as} no-prepend replace-as")
         if peer_group.weight is not None:
-            cfg.append(f"{ind}neighbor {name} weight {peer_group.weight}")
+            cfg.append_l1(f"neighbor {name} weight {peer_group.weight}")
         if peer_group.passive is True:
-            cfg.append(f"{ind}neighbor {name} passive")
+            cfg.append_l1(f"neighbor {name} passive")
         if peer_group.update_source is not None:
-            cfg.append(f"{ind}neighbor {name} update-source {peer_group.update_source}")
+            cfg.append_l1(f"neighbor {name} update-source {peer_group.update_source}")
 
         self._render_bfd(name, peer_group.bfd, peer_group.bfd_timers)
 
         if peer_group.description is not None:
-            cfg.append(f"{ind}neighbor {name} description {peer_group.description}")
+            cfg.append_l1(f"neighbor {name} description {peer_group.description}")
 
         self._render_allowas_in(name, peer_group.allowas_in)
         self._render_rib_in_pre_policy_retain(name, peer_group.rib_in_pre_policy_retain)
 
         if peer_group.ebgp_multihop is not None:
-            cfg.append(f"{ind}neighbor {name} ebgp-multihop {peer_group.ebgp_multihop}")
+            cfg.append_l1(f"neighbor {name} ebgp-multihop {peer_group.ebgp_multihop}")
         if peer_group.ttl_maximum_hops is not None:
-            cfg.append(f"{ind}neighbor {name} ttl maximum-hops {peer_group.ttl_maximum_hops}")
+            cfg.append_l1(f"neighbor {name} ttl maximum-hops {peer_group.ttl_maximum_hops}")
         if peer_group.route_reflector_client is True:
-            cfg.append(f"{ind}neighbor {name} route-reflector-client")
+            cfg.append_l1(f"neighbor {name} route-reflector-client")
         if peer_group.session_tracker is not None:
-            cfg.append(f"{ind}neighbor {name} session tracker {peer_group.session_tracker}")
+            cfg.append_l1(f"neighbor {name} session tracker {peer_group.session_tracker}")
         if peer_group.timers is not None:
-            cfg.append(f"{ind}neighbor {name} timers {peer_group.timers}")
+            cfg.append_l1(f"neighbor {name} timers {peer_group.timers}")
 
         self._render_route_maps(name, peer_group.route_map_in, peer_group.route_map_out)
 
@@ -178,53 +176,52 @@ class RouterBgpGenerator(CliGenerator):
         - shared-secret is rendered before password key (J2 ordering)
         """
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         ip = neighbor.ip_address
 
         if neighbor.peer_group is not None:
-            cfg.append(f"{ind}neighbor {ip} peer group {neighbor.peer_group}")
+            cfg.append_l1(f"neighbor {ip} peer group {neighbor.peer_group}")
         if neighbor.remote_as is not None:
-            cfg.append(f"{ind}neighbor {ip} remote-as {neighbor.remote_as}")
+            cfg.append_l1(f"neighbor {ip} remote-as {neighbor.remote_as}")
         if neighbor.shutdown is True:
-            cfg.append(f"{ind}neighbor {ip} shutdown")
+            cfg.append_l1(f"neighbor {ip} shutdown")
 
         self._render_next_hop(ip, neighbor.next_hop_self, neighbor.next_hop_peer)
         self._render_remove_private_as(ip, neighbor.remove_private_as)
         self._render_as_path(ip, neighbor.as_path)
 
         if neighbor.local_as is not None:
-            cfg.append(f"{ind}neighbor {ip} local-as {neighbor.local_as} no-prepend replace-as")
+            cfg.append_l1(f"neighbor {ip} local-as {neighbor.local_as} no-prepend replace-as")
         if neighbor.weight is not None:
-            cfg.append(f"{ind}neighbor {ip} weight {neighbor.weight}")
+            cfg.append_l1(f"neighbor {ip} weight {neighbor.weight}")
         if neighbor.passive is True:
-            cfg.append(f"{ind}neighbor {ip} passive")
+            cfg.append_l1(f"neighbor {ip} passive")
         if neighbor.update_source is not None:
-            cfg.append(f"{ind}neighbor {ip} update-source {neighbor.update_source}")
+            cfg.append_l1(f"neighbor {ip} update-source {neighbor.update_source}")
 
         # Neighbors can disable bfd inherited from a peer-group; peer-groups cannot.
         self._render_bfd(ip, neighbor.bfd, neighbor.bfd_timers, allow_negation=neighbor.peer_group is not None)
 
         if neighbor.description is not None:
-            cfg.append(f"{ind}neighbor {ip} description {neighbor.description}")
+            cfg.append_l1(f"neighbor {ip} description {neighbor.description}")
 
         self._render_allowas_in(ip, neighbor.allowas_in)
         self._render_rib_in_pre_policy_retain(ip, neighbor.rib_in_pre_policy_retain)
 
         if neighbor.ebgp_multihop is not None:
-            cfg.append(f"{ind}neighbor {ip} ebgp-multihop {neighbor.ebgp_multihop}")
+            cfg.append_l1(f"neighbor {ip} ebgp-multihop {neighbor.ebgp_multihop}")
         if neighbor.ttl_maximum_hops is not None:
-            cfg.append(f"{ind}neighbor {ip} ttl maximum-hops {neighbor.ttl_maximum_hops}")
+            cfg.append_l1(f"neighbor {ip} ttl maximum-hops {neighbor.ttl_maximum_hops}")
 
         # Neighbors support negation for route-reflector-client; peer-groups do not.
         if neighbor.route_reflector_client is True:
-            cfg.append(f"{ind}neighbor {ip} route-reflector-client")
+            cfg.append_l1(f"neighbor {ip} route-reflector-client")
         elif neighbor.route_reflector_client is False:
-            cfg.append(f"{ind}no neighbor {ip} route-reflector-client")
+            cfg.append_l1(f"no neighbor {ip} route-reflector-client")
 
         if neighbor.session_tracker is not None:
-            cfg.append(f"{ind}neighbor {ip} session tracker {neighbor.session_tracker}")
+            cfg.append_l1(f"neighbor {ip} session tracker {neighbor.session_tracker}")
         if neighbor.timers is not None:
-            cfg.append(f"{ind}neighbor {ip} timers {neighbor.timers}")
+            cfg.append_l1(f"neighbor {ip} timers {neighbor.timers}")
 
         self._render_route_maps(ip, neighbor.route_map_in, neighbor.route_map_out)
 
@@ -246,16 +243,14 @@ class RouterBgpGenerator(CliGenerator):
     def _render_redistribute_internal(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp redistribute-internal' or its negation (J2 lines 484-488)."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if bgp.bgp.redistribute_internal is True:
-            cfg.append(f"{ind}bgp redistribute-internal")
+            cfg.append_l1("bgp redistribute-internal")
         elif bgp.bgp.redistribute_internal is False:
-            cfg.append(f"{ind}no bgp redistribute-internal")
+            cfg.append_l1("no bgp redistribute-internal")
 
     def _render_aggregate_addresses(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render aggregate-address entries sorted by prefix (J2 lines 489-510)."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         for agg in natural_sort(bgp.aggregate_addresses or [], sort_key="prefix"):
             agg_cli = f"aggregate-address {agg.prefix}"
             if agg.as_set is True:
@@ -270,7 +265,7 @@ class RouterBgpGenerator(CliGenerator):
                 agg_cli += f" match-map {agg.match_map}"
             if agg.advertise_only is True:
                 agg_cli += " advertise-only"
-            cfg.append(f"{ind}{agg_cli}")
+            cfg.append_l1(agg_cli)
 
     # ------------------------------------------------------------------
     # Global-settings sub-helpers
@@ -279,16 +274,15 @@ class RouterBgpGenerator(CliGenerator):
     def _render_bgp_default_flags(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp default ipv4-unicast' and 'bgp default ipv4-unicast transport ipv6' flags."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if bgp.bgp.default.ipv4_unicast is True:
-            cfg.append(f"{ind}bgp default ipv4-unicast")
+            cfg.append_l1("bgp default ipv4-unicast")
         elif bgp.bgp.default.ipv4_unicast is False:
-            cfg.append(f"{ind}no bgp default ipv4-unicast")
+            cfg.append_l1("no bgp default ipv4-unicast")
 
         if bgp.bgp.default.ipv4_unicast_transport_ipv6 is True:
-            cfg.append(f"{ind}bgp default ipv4-unicast transport ipv6")
+            cfg.append_l1("bgp default ipv4-unicast transport ipv6")
         elif bgp.bgp.default.ipv4_unicast_transport_ipv6 is False:
-            cfg.append(f"{ind}no bgp default ipv4-unicast transport ipv6")
+            cfg.append_l1("no bgp default ipv4-unicast transport ipv6")
 
     def _render_timers(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'timers bgp keepalive hold [min-hold-time X] [send-failure hold-time Y]'."""
@@ -301,7 +295,7 @@ class RouterBgpGenerator(CliGenerator):
             timers_cli += f" min-hold-time {bgp.timers.min_hold_time}"
         if bgp.timers.send_failure_hold_time is not None:
             timers_cli += f" send-failure hold-time {bgp.timers.send_failure_hold_time}"
-        self.cli_config.router_bgp.append(f"{self._L1}{timers_cli}")
+        self.cli_config.router_bgp.append_l1(timers_cli)
 
     def _render_distance(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'distance bgp external [internal local]'."""
@@ -310,7 +304,7 @@ class RouterBgpGenerator(CliGenerator):
         distance_cli = f"distance bgp {bgp.distance.external_routes}"
         if bgp.distance.internal_routes is not None and bgp.distance.local_routes is not None:
             distance_cli += f" {bgp.distance.internal_routes} {bgp.distance.local_routes}"
-        self.cli_config.router_bgp.append(f"{self._L1}{distance_cli}")
+        self.cli_config.router_bgp.append_l1(distance_cli)
 
     def _render_graceful_restart(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """
@@ -321,24 +315,22 @@ class RouterBgpGenerator(CliGenerator):
         if bgp.graceful_restart.enabled is not True:
             return
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if bgp.graceful_restart.restart_time is not None:
-            cfg.append(f"{ind}graceful-restart restart-time {bgp.graceful_restart.restart_time}")
+            cfg.append_l1(f"graceful-restart restart-time {bgp.graceful_restart.restart_time}")
         if bgp.graceful_restart.stalepath_time is not None:
-            cfg.append(f"{ind}graceful-restart stalepath-time {bgp.graceful_restart.stalepath_time}")
-        cfg.append(f"{ind}graceful-restart")
+            cfg.append_l1(f"graceful-restart stalepath-time {bgp.graceful_restart.stalepath_time}")
+        cfg.append_l1("graceful-restart")
 
     def _render_graceful_restart_helper(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'graceful-restart-helper' settings or its negation."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if bgp.graceful_restart_helper.enabled is False:
-            cfg.append(f"{ind}no graceful-restart-helper")
+            cfg.append_l1("no graceful-restart-helper")
         elif bgp.graceful_restart_helper.enabled is True:
             if bgp.graceful_restart_helper.restart_time is not None:
-                cfg.append(f"{ind}graceful-restart-helper restart-time {bgp.graceful_restart_helper.restart_time}")
+                cfg.append_l1(f"graceful-restart-helper restart-time {bgp.graceful_restart_helper.restart_time}")
             elif bgp.graceful_restart_helper.long_lived is True:
-                cfg.append(f"{ind}graceful-restart-helper long-lived")
+                cfg.append_l1("graceful-restart-helper long-lived")
 
     def _render_route_reflector_preserve(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp route-reflector preserve-attributes [always]'."""
@@ -347,7 +339,7 @@ class RouterBgpGenerator(CliGenerator):
         rr_cli = "bgp route-reflector preserve-attributes"
         if bgp.bgp.route_reflector_preserve_attributes.always is True:
             rr_cli += " always"
-        self.cli_config.router_bgp.append(f"{self._L1}{rr_cli}")
+        self.cli_config.router_bgp.append_l1(rr_cli)
 
     def _render_maximum_paths_global(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'maximum-paths X [ecmp Y]'."""
@@ -356,35 +348,33 @@ class RouterBgpGenerator(CliGenerator):
         paths_cli = f"maximum-paths {bgp.maximum_paths.paths}"
         if bgp.maximum_paths.ecmp is not None:
             paths_cli += f" ecmp {bgp.maximum_paths.ecmp}"
-        self.cli_config.router_bgp.append(f"{self._L1}{paths_cli}")
+        self.cli_config.router_bgp.append_l1(paths_cli)
 
     def _render_additional_paths(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp additional-paths receive' and 'bgp additional-paths send ...'."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
 
         if bgp.bgp.additional_paths.receive is True:
-            cfg.append(f"{ind}bgp additional-paths receive")
+            cfg.append_l1("bgp additional-paths receive")
         elif bgp.bgp.additional_paths.receive is False:
-            cfg.append(f"{ind}no bgp additional-paths receive")
+            cfg.append_l1("no bgp additional-paths receive")
 
         send = bgp.bgp.additional_paths.send
         send_limit = bgp.bgp.additional_paths.send_limit
         if send is None:
             return
         if send == "disabled":
-            cfg.append(f"{ind}no bgp additional-paths send")
+            cfg.append_l1("no bgp additional-paths send")
         elif send == "ecmp" and send_limit is not None:
-            cfg.append(f"{ind}bgp additional-paths send ecmp limit {send_limit}")
+            cfg.append_l1(f"bgp additional-paths send ecmp limit {send_limit}")
         elif send == "limit" and send_limit is not None:
-            cfg.append(f"{ind}bgp additional-paths send limit {send_limit}")
+            cfg.append_l1(f"bgp additional-paths send limit {send_limit}")
         else:
-            cfg.append(f"{ind}bgp additional-paths send {send}")
+            cfg.append_l1(f"bgp additional-paths send {send}")
 
     def _render_listen_ranges(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp listen range' entries sorted by peer-group."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         for listen_range in natural_sort(bgp.listen_ranges or [], sort_key="peer_group"):
             if listen_range.peer_group is None or listen_range.prefix is None:
                 continue
@@ -398,7 +388,7 @@ class RouterBgpGenerator(CliGenerator):
                 lr_cli += f" peer-filter {listen_range.peer_filter}"
             elif listen_range.remote_as is not None:
                 lr_cli += f" remote-as {listen_range.remote_as}"
-            cfg.append(f"{ind}{lr_cli}")
+            cfg.append_l1(lr_cli)
 
     # ------------------------------------------------------------------
     # Shared peer-group / neighbor attribute helpers
@@ -413,22 +403,20 @@ class RouterBgpGenerator(CliGenerator):
     ) -> None:
         """Render next-hop-self, next-hop-peer, and (peer-groups only) next-hop-unchanged."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if next_hop_self is True:
-            cfg.append(f"{ind}neighbor {entity_id} next-hop-self")
+            cfg.append_l1(f"neighbor {entity_id} next-hop-self")
         if next_hop_peer is True:
-            cfg.append(f"{ind}neighbor {entity_id} next-hop-peer")
+            cfg.append_l1(f"neighbor {entity_id} next-hop-peer")
         if next_hop_unchanged is True:
-            cfg.append(f"{ind}neighbor {entity_id} next-hop-unchanged")
+            cfg.append_l1(f"neighbor {entity_id} next-hop-unchanged")
 
     def _render_as_path(self, entity_id: str, as_path: Any) -> None:
         """Render 'as-path prepend-own disabled' and 'as-path remote-as replace out'."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if as_path.prepend_own_disabled is True:
-            cfg.append(f"{ind}neighbor {entity_id} as-path prepend-own disabled")
+            cfg.append_l1(f"neighbor {entity_id} as-path prepend-own disabled")
         if as_path.remote_as_replace_out is True:
-            cfg.append(f"{ind}neighbor {entity_id} as-path remote-as replace out")
+            cfg.append_l1(f"neighbor {entity_id} as-path remote-as replace out")
 
     def _render_bfd(self, entity_id: str, bfd: bool | None, bfd_timers: Any, *, allow_negation: bool = False) -> None:
         """
@@ -438,22 +426,20 @@ class RouterBgpGenerator(CliGenerator):
         when bfd is explicitly False, to override a peer-group's bfd=True.
         """
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if bfd is True:
-            cfg.append(f"{ind}neighbor {entity_id} bfd")
+            cfg.append_l1(f"neighbor {entity_id} bfd")
             if bfd_timers.interval is not None and bfd_timers.min_rx is not None and bfd_timers.multiplier is not None:
-                cfg.append(f"{ind}neighbor {entity_id} bfd interval {bfd_timers.interval} min-rx {bfd_timers.min_rx} multiplier {bfd_timers.multiplier}")
+                cfg.append_l1(f"neighbor {entity_id} bfd interval {bfd_timers.interval} min-rx {bfd_timers.min_rx} multiplier {bfd_timers.multiplier}")
         elif bfd is False and allow_negation:
-            cfg.append(f"{ind}no neighbor {entity_id} bfd")
+            cfg.append_l1(f"no neighbor {entity_id} bfd")
 
     def _render_route_maps(self, entity_id: str, route_map_in: str | None, route_map_out: str | None) -> None:
         """Render inbound and outbound route-map assignments."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if route_map_in is not None:
-            cfg.append(f"{ind}neighbor {entity_id} route-map {route_map_in} in")
+            cfg.append_l1(f"neighbor {entity_id} route-map {route_map_in} in")
         if route_map_out is not None:
-            cfg.append(f"{ind}neighbor {entity_id} route-map {route_map_out} out")
+            cfg.append_l1(f"neighbor {entity_id} route-map {route_map_out} out")
 
     def _render_password_key(self, entity_id: str, password: str | None, password_type: str | None) -> None:
         """Render 'neighbor X password [type] key' (type defaults to 7)."""
@@ -461,52 +447,47 @@ class RouterBgpGenerator(CliGenerator):
             return
         pw_type = password_type if password_type is not None else "7"
         pw = hide_passwords(password, self.data.eos_cli_config_gen_configuration.hide_passwords)
-        self.cli_config.router_bgp.append(f"{self._L1}neighbor {entity_id} password {pw_type} {pw}")
+        self.cli_config.router_bgp.append_l1(f"neighbor {entity_id} password {pw_type} {pw}")
 
     def _render_shared_secret(self, entity_id: str, shared_secret: Any) -> None:
         """Render 'neighbor X password shared-secret profile P algorithm A'."""
         if shared_secret.profile is None or shared_secret.hash_algorithm is None:
             return
-        self.cli_config.router_bgp.append(
-            f"{self._L1}neighbor {entity_id} password shared-secret"
-            f" profile {shared_secret.profile}"
-            f" algorithm {shared_secret.hash_algorithm}"
+        self.cli_config.router_bgp.append_l1(
+            f"neighbor {entity_id} password shared-secret profile {shared_secret.profile} algorithm {shared_secret.hash_algorithm}"
         )
 
     def _render_peer_tags(self, entity_id: str, peer_tag_in: str | None, peer_tag_out_discard: str | None) -> None:
         """Render 'peer-tag in' and 'peer-tag out discard'."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if peer_tag_in is not None:
-            cfg.append(f"{ind}neighbor {entity_id} peer-tag in {peer_tag_in}")
+            cfg.append_l1(f"neighbor {entity_id} peer-tag in {peer_tag_in}")
         if peer_tag_out_discard is not None:
-            cfg.append(f"{ind}neighbor {entity_id} peer-tag out discard {peer_tag_out_discard}")
+            cfg.append_l1(f"neighbor {entity_id} peer-tag out discard {peer_tag_out_discard}")
 
     def _render_remove_private_as(self, entity_id: str, remove_private_as: Any) -> None:
         """Render 'remove-private-as [all [replace-as]]' or its negation."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if remove_private_as.enabled is True:
             rpa_cli = f"neighbor {entity_id} remove-private-as"
             if remove_private_as.all is True:
                 rpa_cli += " all"
                 if remove_private_as.replace_as is True:
                     rpa_cli += " replace-as"
-            cfg.append(f"{ind}{rpa_cli}")
+            cfg.append_l1(rpa_cli)
         elif remove_private_as.enabled is False:
-            cfg.append(f"{ind}no neighbor {entity_id} remove-private-as")
+            cfg.append_l1(f"no neighbor {entity_id} remove-private-as")
 
     def _render_remove_private_as_ingress(self, entity_id: str, remove_private_as_ingress: Any) -> None:
         """Render 'remove-private-as ingress [replace-as]' or its negation."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if remove_private_as_ingress.enabled is True:
             rpai_cli = f"neighbor {entity_id} remove-private-as ingress"
             if remove_private_as_ingress.replace_as is True:
                 rpai_cli += " replace-as"
-            cfg.append(f"{ind}{rpai_cli}")
+            cfg.append_l1(rpai_cli)
         elif remove_private_as_ingress.enabled is False:
-            cfg.append(f"{ind}no neighbor {entity_id} remove-private-as ingress")
+            cfg.append_l1(f"no neighbor {entity_id} remove-private-as ingress")
 
     def _render_allowas_in(self, entity_id: str, allowas_in: Any) -> None:
         """Render 'allowas-in [N]'."""
@@ -515,19 +496,18 @@ class RouterBgpGenerator(CliGenerator):
         allowas_cli = f"neighbor {entity_id} allowas-in"
         if allowas_in.times is not None:
             allowas_cli += f" {allowas_in.times}"
-        self.cli_config.router_bgp.append(f"{self._L1}{allowas_cli}")
+        self.cli_config.router_bgp.append_l1(allowas_cli)
 
     def _render_rib_in_pre_policy_retain(self, entity_id: str, rib_in: Any) -> None:
         """Render 'rib-in pre-policy retain [all]' or its negation."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if rib_in.enabled is True:
             rib_cli = f"neighbor {entity_id} rib-in pre-policy retain"
             if rib_in.all is True:
                 rib_cli += " all"
-            cfg.append(f"{ind}{rib_cli}")
+            cfg.append_l1(rib_cli)
         elif rib_in.enabled is False:
-            cfg.append(f"{ind}no neighbor {entity_id} rib-in pre-policy retain")
+            cfg.append_l1(f"no neighbor {entity_id} rib-in pre-policy retain")
 
     def _render_default_originate(self, entity_id: str, default_originate: Any) -> None:
         """Render 'default-originate [route-map X] [always]'."""
@@ -538,22 +518,21 @@ class RouterBgpGenerator(CliGenerator):
             do_cli += f" route-map {default_originate.route_map}"
         if default_originate.always is True:
             do_cli += " always"
-        self.cli_config.router_bgp.append(f"{self._L1}{do_cli}")
+        self.cli_config.router_bgp.append_l1(do_cli)
 
     def _render_send_community(self, entity_id: str, send_community: str | None) -> None:
         """Render 'send-community [extended|large|...]' ('all' omits the keyword)."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         if send_community == "all":
-            cfg.append(f"{ind}neighbor {entity_id} send-community")
+            cfg.append_l1(f"neighbor {entity_id} send-community")
         elif send_community is not None:
-            cfg.append(f"{ind}neighbor {entity_id} send-community {send_community}")
+            cfg.append_l1(f"neighbor {entity_id} send-community {send_community}")
 
     def _render_maximum_routes(
         self,
         entity_id: str,
         maximum_routes: int | None,
-        warning_limit: int | None,
+        warning_limit: int | str | None,
         warning_only: bool | None,
     ) -> None:
         """Render 'maximum-routes N [warning-limit M] [warning-only]'."""
@@ -564,12 +543,11 @@ class RouterBgpGenerator(CliGenerator):
             mr_cli += f" warning-limit {warning_limit}"
         if warning_only is True:
             mr_cli += " warning-only"
-        self.cli_config.router_bgp.append(f"{self._L1}{mr_cli}")
+        self.cli_config.router_bgp.append_l1(mr_cli)
 
     def _render_missing_policy(self, entity_id: str, missing_policy: Any) -> None:
         """Render 'missing-policy address-family all [include ...] direction {in|out} action X'."""
         cfg = self.cli_config.router_bgp
-        ind = self._L1
         for direction in ("in", "out"):
             policy = getattr(missing_policy, f"direction_{direction}", None)
             if policy is None or policy.action is None:
@@ -585,7 +563,7 @@ class RouterBgpGenerator(CliGenerator):
             if includes:
                 mp_cli += " include " + " ".join(includes)
             mp_cli += f" direction {direction} action {policy.action}"
-            cfg.append(f"{ind}{mp_cli}")
+            cfg.append_l1(mp_cli)
 
     def _render_link_bandwidth(self, entity_id: str, link_bandwidth: Any) -> None:
         """Render 'link-bandwidth [default X]'."""
@@ -594,4 +572,4 @@ class RouterBgpGenerator(CliGenerator):
         lb_cli = f"neighbor {entity_id} link-bandwidth"
         if link_bandwidth.default is not None:
             lb_cli += f" default {link_bandwidth.default}"
-        self.cli_config.router_bgp.append(f"{self._L1}{lb_cli}")
+        self.cli_config.router_bgp.append_l1(lb_cli)
