@@ -1,3 +1,9 @@
+<!--
+  ~ Copyright (c) 2026 Arista Networks, Inc.
+  ~ Use of this source code is governed by the Apache License 2.0
+  ~ that can be found in the LICENSE file.
+  -->
+
 # CLI Generators: Migrating from Jinja2 to Python
 
 ## Context
@@ -209,9 +215,11 @@ class [Feature]Generator(CliGenerator):
 ## Enhancement Points
 
 ### 1. Generator discovery is manual
+
 Generators must be manually imported in `__init__.py` and added to `__all__`. This could be automated via a plugin/registry pattern as the number of generators grows.
 
 ### 2. `get_v2()` vs direct model access in generator methods
+
 `get_v2(self.data, "boot.secret.key")` works but bypasses Pydantic's type system.
 Direct access (`self.data.boot.secret.key`) gives IDE autocomplete and type checking — preferred where possible.
 

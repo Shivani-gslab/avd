@@ -68,6 +68,7 @@ class CliConfig:
         # Sections are declared in EOS config output order.
         self.config_comment = CliConfigSection()
         self.boot = CliConfigSection()
+        self.router_bgp = CliConfigSection()
 
     def get_config(self) -> str:
         """Return all non-empty sections joined with newlines, in declaration order."""
@@ -183,6 +184,16 @@ class CliGenerator(CliGeneratorProtocol):
     Subclasses define methods decorated with @cli_config_contributor that append
     config to self.cli_config, then call render() to get the final output.
     """
+
+    _STEP: str = "   "  # single indent step (3 spaces)
+    _SEP: str = "!"  # top-level section separator
+    _L1: str = _STEP  # "   "
+    _L2: str = _STEP * 2  # "      "
+    _L3: str = _STEP * 3  # "         "
+    _L4: str = _STEP * 4  # "            "
+    _SEP_L1: str = _STEP + "!"  # "   !"
+    _SEP_L2: str = _STEP * 2 + "!"  # "      !"
+    _SEP_L3: str = _STEP * 3 + "!"  # "         !"
 
     def __init__(self, structured_config: EosCliConfigGen | dict) -> None:
         """

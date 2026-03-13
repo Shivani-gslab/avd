@@ -6,6 +6,10 @@
 {# Device Configuration #}
 {# context used to hide password and keys #}
 {% set hide_passwords = eos_cli_config_gen_configuration.hide_passwords | arista.avd.default(false) %}
+{# config comment - rendered by Python ConfigCommentGenerator #}
+__PYTHON_GENERATOR__ConfigCommentGenerator__
+{# System Boot Configuration - rendered by Python BootGenerator #}
+__PYTHON_GENERATOR__BootGenerator__
 {# enable password #}
 {% include 'eos/enable-password.j2' %}
 {# aaa root #}
@@ -353,8 +357,8 @@
 {% include 'eos/peer-filters.j2' %}
 {# router bfd #}
 {% include 'eos/router-bfd.j2' %}
-{# router bgp configuration #}
-{% include 'eos/router-bgp.j2' %}
+{# router bgp configuration - rendered by Python RouterBgpGenerator #}
+__PYTHON_GENERATOR__RouterBgpGenerator__
 {# router general configuration #}
 {% include 'eos/router-general.j2' %}
 {# router traffic-engineering configuration #}

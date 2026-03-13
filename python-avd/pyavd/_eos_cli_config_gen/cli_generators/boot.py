@@ -34,5 +34,5 @@ class BootGenerator(CliGenerator):
         hash_algorithm = "5" if secret.hash_algorithm == "md5" else secret.hash_algorithm
         key = hide_passwords(secret.key, self.data.eos_cli_config_gen_configuration.hide_passwords)
 
-        self.cli_config.boot.append("!")
+        self.cli_config.boot.append(self._SEP)
         self.cli_config.boot.append(f"boot secret {hash_algorithm} {key}")
