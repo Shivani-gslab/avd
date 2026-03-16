@@ -1164,7 +1164,7 @@ class RouterBgpGenerator(CliGenerator):
             cfg.append_l2(f"neighbor {ip} prefix-list {neighbor.prefix_list_in} in")
         if neighbor.prefix_list_out is not None:
             cfg.append_l2(f"neighbor {ip} prefix-list {neighbor.prefix_list_out} out")
-        if neighbor.default_originate is not None:
+        if neighbor.default_originate:
             do_cli = f"neighbor {ip} default-originate"
             if neighbor.default_originate.route_map is not None:
                 do_cli += f" route-map {neighbor.default_originate.route_map}"
