@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from pyavd._utils import Undefined
 from pyavd._utils.get import get_v2
 from pyavd.j2filters import hide_passwords, natural_sort
 
@@ -1123,7 +1124,7 @@ class RouterBgpGenerator(CliGenerator):
             cfg.append_l2(f"neighbor {name} prefix-list {pg.prefix_list_in} in")
         if pg.prefix_list_out is not None:
             cfg.append_l2(f"neighbor {name} prefix-list {pg.prefix_list_out} out")
-        if pg.default_originate is not None:
+        if pg.default_originate:
             do_cli = f"neighbor {name} default-originate"
             if pg.default_originate.route_map is not None:
                 do_cli += f" route-map {pg.default_originate.route_map}"
@@ -2104,14 +2105,16 @@ class RouterBgpGenerator(CliGenerator):
                 cfg.append_l2(f"neighbor {pg.name} activate")
             elif pg.activate is False:
                 cfg.append_l2(f"no neighbor {pg.name} activate")
-            # default_route_target: object-presence check (not enabled flag).
-            if pg.default_route_target:
-                if pg.default_route_target.only is True:
+            # default_route_target: key-presence check (null value is valid, means plain "default-route-target").
+            if pg._get_defined_attr("default_route_target") is not Undefined:
+                drt = pg.default_route_target
+                if drt is not None and drt.only is True:
                     cfg.append_l2(f"neighbor {pg.name} default-route-target only")
                 else:
                     cfg.append_l2(f"neighbor {pg.name} default-route-target")
-            if pg.default_route_target.encoding_origin_as_omit:
-                cfg.append_l2(f"neighbor {pg.name} default-route-target encoding origin-as omit")
+                # encoding_origin_as_omit is type str; YAML null means key is present → render command.
+                if drt is not None and drt._get_defined_attr("encoding_origin_as_omit") is not Undefined:
+                    cfg.append_l2(f"neighbor {pg.name} default-route-target encoding origin-as omit")
 
     def _render_address_family_vpn_ipv4(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family vpn-ipv4' block (J2 lines 2503-2584)."""
