@@ -1325,8 +1325,7 @@ class RouterBgpGenerator(CliGenerator):
                 continue
             cli = prefix
             if policy.include_community_list is True or policy.include_prefix_list is True or policy.include_sub_route_map is True:
-                # TODO: Fix the extra space in include
-                cli += "  include"
+                cli += " include"
                 if policy.include_community_list is True:
                     cli += " community-list"
                 if policy.include_prefix_list is True:
