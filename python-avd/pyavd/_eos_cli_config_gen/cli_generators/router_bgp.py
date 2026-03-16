@@ -284,136 +284,136 @@ class RouterBgpGenerator(CliGenerator):
     def _render_redistribute(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render global 'redistribute' entries (J2 lines 511-673)."""
         cfg = self.cli_config.router_bgp
-        r = bgp.redistribute
+        redist = bgp.redistribute
 
-        if r.connected.enabled is True:
+        if redist.connected.enabled is True:
             cli = "redistribute connected"
-            if r.connected.include_leaked is True:
+            if redist.connected.include_leaked is True:
                 cli += " include leaked"
-            if r.connected.route_map is not None:
-                cli += f" route-map {r.connected.route_map}"
-            elif r.connected.rcf is not None:
-                cli += f" rcf {r.connected.rcf}"
+            if redist.connected.route_map is not None:
+                cli += f" route-map {redist.connected.route_map}"
+            elif redist.connected.rcf is not None:
+                cli += f" rcf {redist.connected.rcf}"
             cfg.append_l1(cli)
 
-        if r.isis.enabled is True:
+        if redist.isis.enabled is True:
             cli = "redistribute isis"
-            if r.isis.isis_level is not None:
-                cli += f" {r.isis.isis_level}"
-            if r.isis.include_leaked is True:
+            if redist.isis.isis_level is not None:
+                cli += f" {redist.isis.isis_level}"
+            if redist.isis.include_leaked is True:
                 cli += " include leaked"
-            if r.isis.route_map is not None:
-                cli += f" route-map {r.isis.route_map}"
-            elif r.isis.rcf is not None:
-                cli += f" rcf {r.isis.rcf}"
+            if redist.isis.route_map is not None:
+                cli += f" route-map {redist.isis.route_map}"
+            elif redist.isis.rcf is not None:
+                cli += f" rcf {redist.isis.rcf}"
             cfg.append_l1(cli)
 
-        if r.ospf.enabled is True:
+        if redist.ospf.enabled is True:
             cli = "redistribute ospf"
-            if r.ospf.include_leaked is True:
+            if redist.ospf.include_leaked is True:
                 cli += " include leaked"
-            if r.ospf.route_map is not None:
-                cli += f" route-map {r.ospf.route_map}"
+            if redist.ospf.route_map is not None:
+                cli += f" route-map {redist.ospf.route_map}"
             cfg.append_l1(cli)
-        elif r.ospf.match_internal.enabled is True:
+        elif redist.ospf.match_internal.enabled is True:
             cli = "redistribute ospf match internal"
-            if r.ospf.match_internal.include_leaked is True:
+            if redist.ospf.match_internal.include_leaked is True:
                 cli += " include leaked"
-            if r.ospf.match_internal.route_map is not None:
-                cli += f" route-map {r.ospf.match_internal.route_map}"
+            if redist.ospf.match_internal.route_map is not None:
+                cli += f" route-map {redist.ospf.match_internal.route_map}"
             cfg.append_l1(cli)
 
-        if r.ospf.match_external.enabled is True:
+        if redist.ospf.match_external.enabled is True:
             cli = "redistribute ospf match external"
-            if r.ospf.match_external.include_leaked is True:
+            if redist.ospf.match_external.include_leaked is True:
                 cli += " include leaked"
-            if r.ospf.match_external.route_map is not None:
-                cli += f" route-map {r.ospf.match_external.route_map}"
+            if redist.ospf.match_external.route_map is not None:
+                cli += f" route-map {redist.ospf.match_external.route_map}"
             cfg.append_l1(cli)
 
-        if r.ospf.match_nssa_external.enabled is True:
+        if redist.ospf.match_nssa_external.enabled is True:
             cli = "redistribute ospf match nssa-external"
-            if r.ospf.match_nssa_external.nssa_type is not None:
-                cli += f" {r.ospf.match_nssa_external.nssa_type}"
-            if r.ospf.match_nssa_external.include_leaked is True:
+            if redist.ospf.match_nssa_external.nssa_type is not None:
+                cli += f" {redist.ospf.match_nssa_external.nssa_type}"
+            if redist.ospf.match_nssa_external.include_leaked is True:
                 cli += " include leaked"
-            if r.ospf.match_nssa_external.route_map is not None:
-                cli += f" route-map {r.ospf.match_nssa_external.route_map}"
+            if redist.ospf.match_nssa_external.route_map is not None:
+                cli += f" route-map {redist.ospf.match_nssa_external.route_map}"
             cfg.append_l1(cli)
 
-        if r.ospfv3.enabled is True:
+        if redist.ospfv3.enabled is True:
             cli = "redistribute ospfv3"
-            if r.ospfv3.include_leaked is True:
+            if redist.ospfv3.include_leaked is True:
                 cli += " include leaked"
-            if r.ospfv3.route_map is not None:
-                cli += f" route-map {r.ospfv3.route_map}"
+            if redist.ospfv3.route_map is not None:
+                cli += f" route-map {redist.ospfv3.route_map}"
             cfg.append_l1(cli)
-        elif r.ospfv3.match_internal.enabled is True:
+        elif redist.ospfv3.match_internal.enabled is True:
             cli = "redistribute ospfv3 match internal"
-            if r.ospfv3.match_internal.include_leaked is True:
+            if redist.ospfv3.match_internal.include_leaked is True:
                 cli += " include leaked"
-            if r.ospfv3.match_internal.route_map is not None:
-                cli += f" route-map {r.ospfv3.match_internal.route_map}"
+            if redist.ospfv3.match_internal.route_map is not None:
+                cli += f" route-map {redist.ospfv3.match_internal.route_map}"
             cfg.append_l1(cli)
 
-        if r.ospfv3.match_external.enabled is True:
+        if redist.ospfv3.match_external.enabled is True:
             cli = "redistribute ospfv3 match external"
-            if r.ospfv3.match_external.include_leaked is True:
+            if redist.ospfv3.match_external.include_leaked is True:
                 cli += " include leaked"
-            if r.ospfv3.match_external.route_map is not None:
-                cli += f" route-map {r.ospfv3.match_external.route_map}"
+            if redist.ospfv3.match_external.route_map is not None:
+                cli += f" route-map {redist.ospfv3.match_external.route_map}"
             cfg.append_l1(cli)
 
-        if r.ospfv3.match_nssa_external.enabled is True:
+        if redist.ospfv3.match_nssa_external.enabled is True:
             cli = "redistribute ospfv3 match nssa-external"
-            if r.ospfv3.match_nssa_external.nssa_type is not None:
-                cli += f" {r.ospfv3.match_nssa_external.nssa_type}"
-            if r.ospfv3.match_nssa_external.include_leaked is True:
+            if redist.ospfv3.match_nssa_external.nssa_type is not None:
+                cli += f" {redist.ospfv3.match_nssa_external.nssa_type}"
+            if redist.ospfv3.match_nssa_external.include_leaked is True:
                 cli += " include leaked"
-            if r.ospfv3.match_nssa_external.route_map is not None:
-                cli += f" route-map {r.ospfv3.match_nssa_external.route_map}"
+            if redist.ospfv3.match_nssa_external.route_map is not None:
+                cli += f" route-map {redist.ospfv3.match_nssa_external.route_map}"
             cfg.append_l1(cli)
 
-        if r.static.enabled is True:
+        if redist.static.enabled is True:
             cli = "redistribute static"
-            if r.static.include_leaked is True:
+            if redist.static.include_leaked is True:
                 cli += " include leaked"
-            if r.static.route_map is not None:
-                cli += f" route-map {r.static.route_map}"
-            elif r.static.rcf is not None:
-                cli += f" rcf {r.static.rcf}"
+            if redist.static.route_map is not None:
+                cli += f" route-map {redist.static.route_map}"
+            elif redist.static.rcf is not None:
+                cli += f" rcf {redist.static.rcf}"
             cfg.append_l1(cli)
 
-        if r.rip.enabled is True:
+        if redist.rip.enabled is True:
             cli = "redistribute rip"
-            if r.rip.route_map is not None:
-                cli += f" route-map {r.rip.route_map}"
+            if redist.rip.route_map is not None:
+                cli += f" route-map {redist.rip.route_map}"
             cfg.append_l1(cli)
 
-        if r.attached_host.enabled is True:
+        if redist.attached_host.enabled is True:
             cli = "redistribute attached-host"
-            if r.attached_host.route_map is not None:
-                cli += f" route-map {r.attached_host.route_map}"
+            if redist.attached_host.route_map is not None:
+                cli += f" route-map {redist.attached_host.route_map}"
             cfg.append_l1(cli)
 
-        if r.dynamic.enabled is True:
+        if redist.dynamic.enabled is True:
             cli = "redistribute dynamic"
-            if r.dynamic.route_map is not None:
-                cli += f" route-map {r.dynamic.route_map}"
-            elif r.dynamic.rcf is not None:
-                cli += f" rcf {r.dynamic.rcf}"
+            if redist.dynamic.route_map is not None:
+                cli += f" route-map {redist.dynamic.route_map}"
+            elif redist.dynamic.rcf is not None:
+                cli += f" rcf {redist.dynamic.rcf}"
             cfg.append_l1(cli)
 
-        if r.bgp.enabled is True:
+        if redist.bgp.enabled is True:
             cli = "redistribute bgp leaked"
-            if r.bgp.route_map is not None:
-                cli += f" route-map {r.bgp.route_map}"
+            if redist.bgp.route_map is not None:
+                cli += f" route-map {redist.bgp.route_map}"
             cfg.append_l1(cli)
 
-        if r.user.enabled is True:
+        if redist.user.enabled is True:
             cli = "redistribute user"
-            if r.user.rcf is not None:
-                cli += f" rcf {r.user.rcf}"
+            if redist.user.rcf is not None:
+                cli += f" rcf {redist.user.rcf}"
             cfg.append_l1(cli)
 
     def _render_neighbor_interfaces(self, bgp: EosCliConfigGen.RouterBgp) -> None:
@@ -514,7 +514,7 @@ class RouterBgpGenerator(CliGenerator):
     def _render_address_family_evpn(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family evpn' block (J2 lines 793-1018)."""
         af = bgp.address_family_evpn
-        if af is None:
+        if not af:
             return
         cfg = self.cli_config.router_bgp
         cfg.append_l1("!")
@@ -535,16 +535,16 @@ class RouterBgpGenerator(CliGenerator):
                 enc_cli += f" next-hop-self source-interface {af.neighbor_default.next_hop_self_source_interface}"
             cfg.append_l2(enc_cli)
 
-        ribs: list[str] = []
+        rib_tokens: list[str] = []
         for rib in af.next_hop_mpls_resolution_ribs or []:
             if rib.rib_type == "tunnel-rib-colored":
-                ribs.append("tunnel-rib colored system-colored-tunnel-rib")
+                rib_tokens.append("tunnel-rib colored system-colored-tunnel-rib")
             elif rib.rib_type == "tunnel-rib" and rib.rib_name is not None:
-                ribs.append(f"tunnel-rib {rib.rib_name}")
+                rib_tokens.append(f"tunnel-rib {rib.rib_name}")
             elif rib.rib_type is not None:
-                ribs.append(rib.rib_type)
-        if ribs:
-            cfg.append_l2(f"next-hop mpls resolution ribs {' '.join(ribs)}")
+                rib_tokens.append(rib.rib_type)
+        if rib_tokens:
+            cfg.append_l2(f"next-hop mpls resolution ribs {' '.join(rib_tokens)}")
 
         for pg in natural_sort(af.peer_groups or [], sort_key="name"):
             self._render_af_evpn_peer_group(pg)
@@ -568,15 +568,15 @@ class RouterBgpGenerator(CliGenerator):
         if af.evpn_hostflap_detection.enabled is False:
             cfg.append_l2("no host-flap detection")
         elif af.evpn_hostflap_detection.enabled is True:
-            hfd_parts = ""
+            hfd_suffix = ""
             if af.evpn_hostflap_detection.window is not None:
-                hfd_parts += f" window {af.evpn_hostflap_detection.window}"
+                hfd_suffix += f" window {af.evpn_hostflap_detection.window}"
             if af.evpn_hostflap_detection.threshold is not None:
-                hfd_parts += f" threshold {af.evpn_hostflap_detection.threshold}"
+                hfd_suffix += f" threshold {af.evpn_hostflap_detection.threshold}"
             if af.evpn_hostflap_detection.expiry_timeout is not None:
-                hfd_parts += f" expiry timeout {af.evpn_hostflap_detection.expiry_timeout} seconds"
-            if hfd_parts:
-                cfg.append_l2(f"host-flap detection{hfd_parts}")
+                hfd_suffix += f" expiry timeout {af.evpn_hostflap_detection.expiry_timeout} seconds"
+            if hfd_suffix:
+                cfg.append_l2(f"host-flap detection{hfd_suffix}")
 
         if af.layer_2_fec_in_place_update.enabled is True:
             l2_cli = "layer-2 fec in-place update"
@@ -597,33 +597,19 @@ class RouterBgpGenerator(CliGenerator):
 
     def _render_address_family_flow_spec_ipv4(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family flow-spec ipv4' block (J2 lines 1019-1041)."""
-        af = bgp.address_family_flow_spec_ipv4
-        if not af:
-            return
-        cfg = self.cli_config.router_bgp
-        cfg.append_l1("!")
-        cfg.append_l1("address-family flow-spec ipv4")
-        if af.bgp.missing_policy.direction_in_action is not None:
-            cfg.append_l2(f"bgp missing-policy direction in action {af.bgp.missing_policy.direction_in_action}")
-        if af.bgp.missing_policy.direction_out_action is not None:
-            cfg.append_l2(f"bgp missing-policy direction out action {af.bgp.missing_policy.direction_out_action}")
-        for pg in natural_sort(af.peer_groups or [], sort_key="name"):
-            if pg.activate is True:
-                cfg.append_l2(f"neighbor {pg.name} activate")
-            elif pg.activate is False:
-                cfg.append_l2(f"no neighbor {pg.name} activate")
-        for neighbor in natural_sort(af.neighbors or [], sort_key="ip_address"):
-            if neighbor.activate is True:
-                cfg.append_l2(f"neighbor {neighbor.ip_address} activate")
+        self._render_address_family_flow_spec(bgp.address_family_flow_spec_ipv4, "ipv4")
 
     def _render_address_family_flow_spec_ipv6(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family flow-spec ipv6' block (J2 lines 1042-1064)."""
-        af = bgp.address_family_flow_spec_ipv6
+        self._render_address_family_flow_spec(bgp.address_family_flow_spec_ipv6, "ipv6")
+
+    def _render_address_family_flow_spec(self, af: Any, ip_version: str) -> None:
+        """Shared renderer for 'address-family flow-spec {ipv4|ipv6}' blocks."""
         if not af:
             return
         cfg = self.cli_config.router_bgp
         cfg.append_l1("!")
-        cfg.append_l1("address-family flow-spec ipv6")
+        cfg.append_l1(f"address-family flow-spec {ip_version}")
         if af.bgp.missing_policy.direction_in_action is not None:
             cfg.append_l2(f"bgp missing-policy direction in action {af.bgp.missing_policy.direction_in_action}")
         if af.bgp.missing_policy.direction_out_action is not None:
@@ -690,14 +676,14 @@ class RouterBgpGenerator(CliGenerator):
         t = bgp.timers
         if t.keepalive_time is None and t.hold_time is None and t.min_hold_time is None and t.send_failure_hold_time is None:
             return
-        timers_cli = "timers bgp"
-        if bgp.timers.keepalive_time is not None and bgp.timers.hold_time is not None:
-            timers_cli += f" {bgp.timers.keepalive_time} {bgp.timers.hold_time}"
-        if bgp.timers.min_hold_time is not None:
-            timers_cli += f" min-hold-time {bgp.timers.min_hold_time}"
-        if bgp.timers.send_failure_hold_time is not None:
-            timers_cli += f" send-failure hold-time {bgp.timers.send_failure_hold_time}"
-        self.cli_config.router_bgp.append_l1(timers_cli)
+        cmd = "timers bgp"
+        if t.keepalive_time is not None and t.hold_time is not None:
+            cmd += f" {t.keepalive_time} {t.hold_time}"
+        if t.min_hold_time is not None:
+            cmd += f" min-hold-time {t.min_hold_time}"
+        if t.send_failure_hold_time is not None:
+            cmd += f" send-failure hold-time {t.send_failure_hold_time}"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_distance(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'distance bgp external [internal local]'."""
@@ -738,19 +724,19 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'bgp route-reflector preserve-attributes [always]'."""
         if bgp.bgp.route_reflector_preserve_attributes.enabled is not True:
             return
-        rr_cli = "bgp route-reflector preserve-attributes"
+        cmd = "bgp route-reflector preserve-attributes"
         if bgp.bgp.route_reflector_preserve_attributes.always is True:
-            rr_cli += " always"
-        self.cli_config.router_bgp.append_l1(rr_cli)
+            cmd += " always"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_maximum_paths_global(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'maximum-paths X [ecmp Y]'."""
         if bgp.maximum_paths.paths is None:
             return
-        paths_cli = f"maximum-paths {bgp.maximum_paths.paths}"
+        cmd = f"maximum-paths {bgp.maximum_paths.paths}"
         if bgp.maximum_paths.ecmp is not None:
-            paths_cli += f" ecmp {bgp.maximum_paths.ecmp}"
-        self.cli_config.router_bgp.append_l1(paths_cli)
+            cmd += f" ecmp {bgp.maximum_paths.ecmp}"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_additional_paths(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'bgp additional-paths receive' and 'bgp additional-paths send ...'."""
@@ -782,15 +768,15 @@ class RouterBgpGenerator(CliGenerator):
                 continue
             if listen_range.peer_filter is None and listen_range.remote_as is None:
                 continue
-            lr_cli = f"bgp listen range {listen_range.prefix}"
+            cmd = f"bgp listen range {listen_range.prefix}"
             if listen_range.peer_id_include_router_id is True:
-                lr_cli += " peer-id include router-id"
-            lr_cli += f" peer-group {listen_range.peer_group}"
+                cmd += " peer-id include router-id"
+            cmd += f" peer-group {listen_range.peer_group}"
             if listen_range.peer_filter is not None:
-                lr_cli += f" peer-filter {listen_range.peer_filter}"
+                cmd += f" peer-filter {listen_range.peer_filter}"
             elif listen_range.remote_as is not None:
-                lr_cli += f" remote-as {listen_range.remote_as}"
-            cfg.append_l1(lr_cli)
+                cmd += f" remote-as {listen_range.remote_as}"
+            cfg.append_l1(cmd)
 
     def _render_next_hop(
         self,
@@ -867,12 +853,12 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'remove-private-as [all [replace-as]]' or its negation."""
         cfg = self.cli_config.router_bgp
         if remove_private_as.enabled is True:
-            rpa_cli = f"neighbor {entity_id} remove-private-as"
+            cmd = f"neighbor {entity_id} remove-private-as"
             if remove_private_as.all is True:
-                rpa_cli += " all"
+                cmd += " all"
                 if remove_private_as.replace_as is True:
-                    rpa_cli += " replace-as"
-            cfg.append_l1(rpa_cli)
+                    cmd += " replace-as"
+            cfg.append_l1(cmd)
         elif remove_private_as.enabled is False:
             cfg.append_l1(f"no neighbor {entity_id} remove-private-as")
 
@@ -880,10 +866,10 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'remove-private-as ingress [replace-as]' or its negation."""
         cfg = self.cli_config.router_bgp
         if remove_private_as_ingress.enabled is True:
-            rpai_cli = f"neighbor {entity_id} remove-private-as ingress"
+            cmd = f"neighbor {entity_id} remove-private-as ingress"
             if remove_private_as_ingress.replace_as is True:
-                rpai_cli += " replace-as"
-            cfg.append_l1(rpai_cli)
+                cmd += " replace-as"
+            cfg.append_l1(cmd)
         elif remove_private_as_ingress.enabled is False:
             cfg.append_l1(f"no neighbor {entity_id} remove-private-as ingress")
 
@@ -891,19 +877,19 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'allowas-in [N]'."""
         if allowas_in.enabled is not True:
             return
-        allowas_cli = f"neighbor {entity_id} allowas-in"
+        cmd = f"neighbor {entity_id} allowas-in"
         if allowas_in.times is not None:
-            allowas_cli += f" {allowas_in.times}"
-        self.cli_config.router_bgp.append_l1(allowas_cli)
+            cmd += f" {allowas_in.times}"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_rib_in_pre_policy_retain(self, entity_id: str, rib_in: Any) -> None:
         """Render 'rib-in pre-policy retain [all]' or its negation."""
         cfg = self.cli_config.router_bgp
         if rib_in.enabled is True:
-            rib_cli = f"neighbor {entity_id} rib-in pre-policy retain"
+            cmd = f"neighbor {entity_id} rib-in pre-policy retain"
             if rib_in.all is True:
-                rib_cli += " all"
-            cfg.append_l1(rib_cli)
+                cmd += " all"
+            cfg.append_l1(cmd)
         elif rib_in.enabled is False:
             cfg.append_l1(f"no neighbor {entity_id} rib-in pre-policy retain")
 
@@ -911,12 +897,12 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'default-originate [route-map X] [always]'."""
         if default_originate.enabled is not True:
             return
-        do_cli = f"neighbor {entity_id} default-originate"
+        cmd = f"neighbor {entity_id} default-originate"
         if default_originate.route_map is not None:
-            do_cli += f" route-map {default_originate.route_map}"
+            cmd += f" route-map {default_originate.route_map}"
         if default_originate.always is True:
-            do_cli += " always"
-        self.cli_config.router_bgp.append_l1(do_cli)
+            cmd += " always"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_send_community(self, entity_id: str, send_community: str | None) -> None:
         """Render 'send-community [extended|large|...]' ('all' omits the keyword)."""
@@ -936,12 +922,12 @@ class RouterBgpGenerator(CliGenerator):
         """Render 'maximum-routes N [warning-limit M] [warning-only]'."""
         if maximum_routes is None:
             return
-        mr_cli = f"neighbor {entity_id} maximum-routes {maximum_routes}"
+        cmd = f"neighbor {entity_id} maximum-routes {maximum_routes}"
         if warning_limit is not None:
-            mr_cli += f" warning-limit {warning_limit}"
+            cmd += f" warning-limit {warning_limit}"
         if warning_only is True:
-            mr_cli += " warning-only"
-        self.cli_config.router_bgp.append_l1(mr_cli)
+            cmd += " warning-only"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_missing_policy(self, entity_id: str, missing_policy: Any) -> None:
         """Render 'missing-policy address-family all [include ...] direction {in|out} action X'."""
@@ -950,7 +936,7 @@ class RouterBgpGenerator(CliGenerator):
             policy = getattr(missing_policy, f"direction_{direction}", None)
             if policy is None or policy.action is None:
                 continue
-            mp_cli = f"neighbor {entity_id} missing-policy address-family all"
+            cmd = f"neighbor {entity_id} missing-policy address-family all"
             includes: list[str] = []
             if policy.include_community_list is True:
                 includes.append("community-list")
@@ -959,18 +945,18 @@ class RouterBgpGenerator(CliGenerator):
             if policy.include_sub_route_map is True:
                 includes.append("sub-route-map")
             if includes:
-                mp_cli += " include " + " ".join(includes)
-            mp_cli += f" direction {direction} action {policy.action}"
-            cfg.append_l1(mp_cli)
+                cmd += " include " + " ".join(includes)
+            cmd += f" direction {direction} action {policy.action}"
+            cfg.append_l1(cmd)
 
     def _render_link_bandwidth(self, entity_id: str, link_bandwidth: Any) -> None:
         """Render 'link-bandwidth [default X]'."""
         if link_bandwidth.enabled is not True:
             return
-        lb_cli = f"neighbor {entity_id} link-bandwidth"
+        cmd = f"neighbor {entity_id} link-bandwidth"
         if link_bandwidth.default is not None:
-            lb_cli += f" default {link_bandwidth.default}"
-        self.cli_config.router_bgp.append_l1(lb_cli)
+            cmd += f" default {link_bandwidth.default}"
+        self.cli_config.router_bgp.append_l1(cmd)
 
     def _render_af_bgp_additional_paths_send(self, additional_paths: Any) -> None:
         """Render 'bgp additional-paths send ...' at L2 for an address-family block."""
@@ -999,8 +985,9 @@ class RouterBgpGenerator(CliGenerator):
             cfg.append_l2(f"no neighbor {entity_id} additional-paths send")
         elif send == "ecmp" and send_limit is not None:
             cfg.append_l2(f"neighbor {entity_id} additional-paths send ecmp limit {send_limit}")
-        elif send == "limit" and send_limit is not None:
-            cfg.append_l2(f"neighbor {entity_id} additional-paths send limit {send_limit}")
+        elif send == "limit":
+            if send_limit is not None:
+                cfg.append_l2(f"neighbor {entity_id} additional-paths send limit {send_limit}")
         else:
             cfg.append_l2(f"neighbor {entity_id} additional-paths send {send}")
 
@@ -1089,18 +1076,18 @@ class RouterBgpGenerator(CliGenerator):
         if send == "disabled":
             cfg.append_l2(f"no neighbor {entity_id} additional-paths send")
             return
-        add_path_cli = None
+        cmd = None
         if send == "ecmp" and send_limit is not None:
-            add_path_cli = f"neighbor {entity_id} additional-paths send ecmp limit {send_limit}"
+            cmd = f"neighbor {entity_id} additional-paths send ecmp limit {send_limit}"
         elif send == "limit":
             if send_limit is not None:
-                add_path_cli = f"neighbor {entity_id} additional-paths send limit {send_limit}"
+                cmd = f"neighbor {entity_id} additional-paths send limit {send_limit}"
         else:
-            add_path_cli = f"neighbor {entity_id} additional-paths send {send}"
-        if add_path_cli is not None:
+            cmd = f"neighbor {entity_id} additional-paths send {send}"
+        if cmd is not None:
             if prefix_list is not None:
-                add_path_cli += f" prefix-list {prefix_list}"
-            cfg.append_l2(add_path_cli)
+                cmd += f" prefix-list {prefix_list}"
+            cfg.append_l2(cmd)
 
     def _render_af_ipv4_peer_group(self, pg: Any) -> None:
         """Render address-family ipv4 commands for a peer group at L2 (J2 lines 1090-1161)."""
@@ -1338,7 +1325,8 @@ class RouterBgpGenerator(CliGenerator):
                 continue
             cli = prefix
             if policy.include_community_list is True or policy.include_prefix_list is True or policy.include_sub_route_map is True:
-                cli += " include"
+                # TODO: Fix the extra space in include
+                cli += "  include"
                 if policy.include_community_list is True:
                     cli += " community-list"
                 if policy.include_prefix_list is True:
@@ -1376,19 +1364,19 @@ class RouterBgpGenerator(CliGenerator):
         if af.neighbor_default.next_hop_self is True:
             cfg.append_l2("neighbor default next-hop-self")
 
-        ribs = af.next_hop_resolution_ribs
-        if ribs:
-            rib_parts: list[str] = []
-            for rib in ribs:
+        next_hop_ribs = af.next_hop_resolution_ribs
+        if next_hop_ribs:
+            rib_tokens: list[str] = []
+            for rib in next_hop_ribs:
                 if rib.rib_type == "tunnel-rib-colored":
-                    rib_parts.append("tunnel-rib colored system-colored-tunnel-rib")
+                    rib_tokens.append("tunnel-rib colored system-colored-tunnel-rib")
                 elif rib.rib_type == "tunnel-rib":
                     if rib.rib_name is not None:
-                        rib_parts.append(f"tunnel-rib {rib.rib_name}")
+                        rib_tokens.append(f"tunnel-rib {rib.rib_name}")
                 elif rib.rib_type is not None:
-                    rib_parts.append(rib.rib_type)
-            if rib_parts:
-                cfg.append_l2(f"next-hop resolution ribs {' '.join(rib_parts)}")
+                    rib_tokens.append(rib.rib_type)
+            if rib_tokens:
+                cfg.append_l2(f"next-hop resolution ribs {' '.join(rib_tokens)}")
 
         for pg in natural_sort(af.peer_groups or [], sort_key="name"):
             self._render_af_lu_entity(pg.name, pg)
@@ -1633,13 +1621,13 @@ class RouterBgpGenerator(CliGenerator):
         cfg.append_l1("address-family ipv4 sr-te")
 
         for pg in natural_sort(af.peer_groups or [], sort_key="name"):
-            self._render_af_ipv4_sr_te_entity(pg.name, pg)
+            self._render_af_sr_te_entity(pg.name, pg)
 
         for neighbor in natural_sort(af.neighbors or [], sort_key="ip_address"):
-            self._render_af_ipv4_sr_te_entity(neighbor.ip_address, neighbor)
+            self._render_af_sr_te_entity(neighbor.ip_address, neighbor)
 
-    def _render_af_ipv4_sr_te_entity(self, entity_id: str, entity: Any) -> None:
-        """Render AF IPv4/IPv6 SR-TE commands for a peer-group or neighbor at L2."""
+    def _render_af_sr_te_entity(self, entity_id: str, entity: Any) -> None:
+        """Render AF SR-TE commands for a peer-group or neighbor at L2 (shared by ipv4 and ipv6 sr-te)."""
         cfg = self.cli_config.router_bgp
         if entity.activate is True:
             cfg.append_l2(f"neighbor {entity_id} activate")
@@ -1737,18 +1725,18 @@ class RouterBgpGenerator(CliGenerator):
             if send == "disabled":
                 cfg.append_l2(f"no neighbor {entity_id} additional-paths send")
             else:
-                add_path_cli: str | None = None
+                cmd: str | None = None
                 if send == "ecmp" and send_limit is not None:
-                    add_path_cli = f"neighbor {entity_id} additional-paths send ecmp limit {send_limit}"
+                    cmd = f"neighbor {entity_id} additional-paths send ecmp limit {send_limit}"
                 elif send == "limit":
                     if send_limit is not None:
-                        add_path_cli = f"neighbor {entity_id} additional-paths send limit {send_limit}"
+                        cmd = f"neighbor {entity_id} additional-paths send limit {send_limit}"
                 else:
-                    add_path_cli = f"neighbor {entity_id} additional-paths send {send}"
-                if add_path_cli is not None:
+                    cmd = f"neighbor {entity_id} additional-paths send {send}"
+                if cmd is not None:
                     if bg_prefix_list is not None:
-                        add_path_cli += f" prefix-list {bg_prefix_list}"
-                    cfg.append_l2(add_path_cli)
+                        cmd += f" prefix-list {bg_prefix_list}"
+                    cfg.append_l2(cmd)
 
         if entity.peer_tag_in is not None:
             cfg.append_l2(f"neighbor {entity_id} peer-tag in {entity.peer_tag_in}")
@@ -1995,10 +1983,10 @@ class RouterBgpGenerator(CliGenerator):
         cfg.append_l1("address-family ipv6 sr-te")
 
         for pg in natural_sort(af.peer_groups or [], sort_key="name"):
-            self._render_af_ipv4_sr_te_entity(pg.name, pg)
+            self._render_af_sr_te_entity(pg.name, pg)
 
         for neighbor in natural_sort(af.neighbors or [], sort_key="ip_address"):
-            self._render_af_ipv4_sr_te_entity(neighbor.ip_address, neighbor)
+            self._render_af_sr_te_entity(neighbor.ip_address, neighbor)
 
     def _render_address_family_link_state(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family link-state' block (J2 lines 2364-2413)."""
@@ -2107,13 +2095,13 @@ class RouterBgpGenerator(CliGenerator):
                 cfg.append_l2(f"no neighbor {pg.name} activate")
             # default_route_target: key-presence check (null value is valid, means plain "default-route-target").
             if pg._get_defined_attr("default_route_target") is not Undefined:
-                drt = pg.default_route_target
-                if drt is not None and drt.only is True:
+                default_rt = pg.default_route_target
+                if default_rt is not None and default_rt.only is True:
                     cfg.append_l2(f"neighbor {pg.name} default-route-target only")
                 else:
                     cfg.append_l2(f"neighbor {pg.name} default-route-target")
                 # encoding_origin_as_omit is type str; YAML null means key is present → render command.
-                if drt is not None and drt._get_defined_attr("encoding_origin_as_omit") is not Undefined:
+                if default_rt is not None and default_rt._get_defined_attr("encoding_origin_as_omit") is not Undefined:
                     cfg.append_l2(f"neighbor {pg.name} default-route-target encoding origin-as omit")
 
     def _render_address_family_vpn_ipv4(self, bgp: EosCliConfigGen.RouterBgp) -> None:
@@ -2330,9 +2318,9 @@ class RouterBgpGenerator(CliGenerator):
 
         if neighbor.bfd is True:
             cfg.append_l2(f"neighbor {ip} bfd")
-            bt = neighbor.bfd_timers
-            if bt.interval is not None and bt.min_rx is not None and bt.multiplier is not None:
-                cfg.append_l2(f"neighbor {ip} bfd interval {bt.interval} min-rx {bt.min_rx} multiplier {bt.multiplier}")
+            bfd_timers = neighbor.bfd_timers
+            if bfd_timers.interval is not None and bfd_timers.min_rx is not None and bfd_timers.multiplier is not None:
+                cfg.append_l2(f"neighbor {ip} bfd interval {bfd_timers.interval} min-rx {bfd_timers.min_rx} multiplier {bfd_timers.multiplier}")
         elif neighbor.bfd is False and neighbor.peer_group is not None:
             cfg.append_l2(f"no neighbor {ip} bfd")
 
@@ -2379,12 +2367,12 @@ class RouterBgpGenerator(CliGenerator):
             cfg.append_l2(f"neighbor {ip} password {pw_type} {pw}")
 
         # default_originate: object-presence check (no enabled flag required).
-        do = neighbor.default_originate
-        if do:
+        default_originate = neighbor.default_originate
+        if default_originate:
             cli = f"neighbor {ip} default-originate"
-            if do.route_map is not None:
-                cli += f" route-map {do.route_map}"
-            if do.always is True:
+            if default_originate.route_map is not None:
+                cli += f" route-map {default_originate.route_map}"
+            if default_originate.always is True:
                 cli += " always"
             cfg.append_l2(cli)
 
@@ -2675,23 +2663,23 @@ class RouterBgpGenerator(CliGenerator):
             if neighbor.prefix_list_out is not None:
                 cfg.append_l3(f"neighbor {ip} prefix-list {neighbor.prefix_list_out} out")
             # additional-paths send at L3 (standard EVPN pattern, no prefix_list).
-            n_send = neighbor.additional_paths.send
-            n_send_limit = neighbor.additional_paths.send_limit
-            if n_send is not None:
-                if n_send == "disabled":
+            neighbor_send = neighbor.additional_paths.send
+            neighbor_send_limit = neighbor.additional_paths.send_limit
+            if neighbor_send is not None:
+                if neighbor_send == "disabled":
                     cfg.append_l3(f"no neighbor {ip} additional-paths send")
-                elif n_send == "ecmp" and n_send_limit is not None:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send ecmp limit {n_send_limit}")
-                elif n_send == "limit" and n_send_limit is not None:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send limit {n_send_limit}")
+                elif neighbor_send == "ecmp" and neighbor_send_limit is not None:
+                    cfg.append_l3(f"neighbor {ip} additional-paths send ecmp limit {neighbor_send_limit}")
+                elif neighbor_send == "limit" and neighbor_send_limit is not None:
+                    cfg.append_l3(f"neighbor {ip} additional-paths send limit {neighbor_send_limit}")
                 else:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send {n_send}")
+                    cfg.append_l3(f"neighbor {ip} additional-paths send {neighbor_send}")
             # next-hop address-family ipv6.
-            nhv6 = neighbor.next_hop.address_family_ipv6
-            if nhv6.enabled is not None:
-                if nhv6.enabled:
+            next_hop_ipv6 = neighbor.next_hop.address_family_ipv6
+            if next_hop_ipv6.enabled is not None:
+                if next_hop_ipv6.enabled:
                     cli = f"neighbor {ip} next-hop address-family ipv6"
-                    if nhv6.originate is True:
+                    if next_hop_ipv6.originate is True:
                         cli += " originate"
                     cfg.append_l3(cli)
                 else:
@@ -3026,17 +3014,17 @@ class RouterBgpGenerator(CliGenerator):
             if neighbor.prefix_list_out is not None:
                 cfg.append_l3(f"neighbor {ip} prefix-list {neighbor.prefix_list_out} out")
             # additional-paths send per-neighbor (standard EVPN pattern).
-            n_send = neighbor.additional_paths.send
-            n_send_limit = neighbor.additional_paths.send_limit
-            if n_send is not None:
-                if n_send == "disabled":
+            neighbor_send = neighbor.additional_paths.send
+            neighbor_send_limit = neighbor.additional_paths.send_limit
+            if neighbor_send is not None:
+                if neighbor_send == "disabled":
                     cfg.append_l3(f"no neighbor {ip} additional-paths send")
-                elif n_send == "ecmp" and n_send_limit is not None:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send ecmp limit {n_send_limit}")
-                elif n_send == "limit" and n_send_limit is not None:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send limit {n_send_limit}")
+                elif neighbor_send == "ecmp" and neighbor_send_limit is not None:
+                    cfg.append_l3(f"neighbor {ip} additional-paths send ecmp limit {neighbor_send_limit}")
+                elif neighbor_send == "limit" and neighbor_send_limit is not None:
+                    cfg.append_l3(f"neighbor {ip} additional-paths send limit {neighbor_send_limit}")
                 else:
-                    cfg.append_l3(f"neighbor {ip} additional-paths send {n_send}")
+                    cfg.append_l3(f"neighbor {ip} additional-paths send {neighbor_send}")
             if neighbor.peer_tag_in is not None:
                 cfg.append_l3(f"neighbor {ip} peer-tag in {neighbor.peer_tag_in}")
             if neighbor.peer_tag_out_discard is not None:
