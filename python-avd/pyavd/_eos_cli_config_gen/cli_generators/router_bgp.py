@@ -385,7 +385,8 @@ class RouterBgpGenerator(CliGenerator):
                 cfg.append_l2(f"no redistribute {r}")
             if vlan.eos_cli is not None:
                 cfg.append_l2("!")
-                cfg.append_l2(vlan.eos_cli)
+                for line in vlan.eos_cli.split("\n"):
+                    cfg.append_l2(line) if line else cfg._lines.append("")
 
     def _render_vpws(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render VPWS BGP service entries sorted by name (J2 lines 722-752)."""
@@ -439,7 +440,8 @@ class RouterBgpGenerator(CliGenerator):
                 cfg.append_l2(f"vlan {bundle.vlan}")
             if bundle.eos_cli is not None:
                 cfg.append_l2("!")
-                cfg.append_l2(bundle.eos_cli)
+                for line in bundle.eos_cli.split("\n"):
+                    cfg.append_l2(line) if line else cfg._lines.append("")
 
     def _render_address_family_evpn(self, bgp: EosCliConfigGen.RouterBgp) -> None:
         """Render 'address-family evpn' block (J2 lines 793-1018)."""
@@ -2062,8 +2064,8 @@ class RouterBgpGenerator(CliGenerator):
         self._render_vrf_evpn_multicast(vrf)
         if vrf.eos_cli is not None:
             cfg.append_l2(self._SEP)
-            for line in vrf.eos_cli.splitlines():
-                cfg.append_l2(line)
+            for line in vrf.eos_cli.split("\n"):
+                cfg.append_l2(line) if line else cfg._lines.append("")
 
     def _render_vrf_redistribute(self, r: Any) -> None:
         """Render VRF-level redistribute commands at L2 (J2 lines 2982-3144)."""
@@ -2616,5 +2618,5 @@ class RouterBgpGenerator(CliGenerator):
             return
         cfg = self.cli_config.router_bgp
         cfg.append_l1(self._SEP)
-        for line in bgp.eos_cli.splitlines():
-            cfg.append_l1(line)
+        for line in bgp.eos_cli.split("\n"):
+            cfg.append_l1(line) if line else cfg._lines.append("")
