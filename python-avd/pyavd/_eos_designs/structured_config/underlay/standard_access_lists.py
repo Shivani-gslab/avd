@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from pyavd._eos_cli_config_gen.schema import EosCliConfigGen
 from pyavd._eos_designs.structured_config.structured_config_generator import structured_config_contributor
 
 if TYPE_CHECKING:
@@ -28,11 +27,4 @@ class StandardAccessListsMixin(Protocol):
         """
         if not self.shared_utils.underlay_multicast_pim_sm_enabled or not self.inputs.underlay_multicast_rps:
             return
-
-        for rp_entry in self.inputs.underlay_multicast_rps:
-            if not rp_entry.groups or not rp_entry.access_list_name:
-                continue
-            standard_access_list = EosCliConfigGen.StandardAccessListsItem(name=rp_entry.access_list_name)
-            for index, group in enumerate(rp_entry.groups):
-                standard_access_list.entries.append_new(sequence=(index + 1) * 10, action="permit", source=group)
-            self.structured_config.standard_access_lists.append(standard_access_list)
+        self.structured_config_utils.set_once_standard_access_list_for_underlay_multicast_rps()

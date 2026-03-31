@@ -10,6 +10,8 @@ from pyavd._eos_designs.structured_config.structured_config_generator import str
 from pyavd._errors import AristaAvdInvalidInputsError
 
 if TYPE_CHECKING:
+    from pyavd._eos_designs.schema import EosDesigns
+
     from . import AvdStructuredConfigUnderlayProtocol
 
 
@@ -19,6 +21,10 @@ class RouterPimSparseModeMixin(Protocol):
 
     Class should only be used as Mixin to a AvdStructuredConfig class.
     """
+
+    def _is_anycast_rp_pim_node(self: AvdStructuredConfigUnderlayProtocol, rp_entry: EosDesigns.UnderlayMulticastRpsItem) -> bool:
+        """Return True if this node is part of an anycast RP group configured for PIM mode."""
+        return len(rp_entry.nodes) >= 2 and self.shared_utils.hostname in rp_entry.nodes and self.inputs.underlay_multicast_anycast_rp.mode == "pim"
 
     @structured_config_contributor
     def router_pim_sparse_mode(self: AvdStructuredConfigUnderlayProtocol) -> None:
@@ -35,12 +41,14 @@ class RouterPimSparseModeMixin(Protocol):
             if rp_entry.groups:
                 if rp_entry.access_list_name:
                     rp_address.access_lists.append(rp_entry.access_list_name)
+                    # Ensure the ACL exists in structured_config (safe to call multiple times)
+                    self.structured_config_utils.set_once_standard_access_list_for_underlay_multicast_rps()
                 else:
                     rp_address.groups.extend(rp_entry.groups)
 
             self.structured_config.router_pim_sparse_mode.ipv4.rp_addresses.append(rp_address)
 
-            if len(rp_entry.nodes) < 2 or self.shared_utils.hostname not in rp_entry.nodes or self.inputs.underlay_multicast_anycast_rp.mode != "pim":
+            if not self._is_anycast_rp_pim_node(rp_entry):
                 continue
 
             # Anycast-RP using PIM (default)
