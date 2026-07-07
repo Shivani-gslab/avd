@@ -54,7 +54,9 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            new_key: prefix
+            new_key: ipv6_static_routes.prefix
+            migration_type: simple
+            migration_required: true
         gateway:
           type: str
           deprecation:
