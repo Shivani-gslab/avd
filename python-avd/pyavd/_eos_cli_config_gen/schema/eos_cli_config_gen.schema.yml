@@ -6002,6 +6002,8 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan
+            migration_type: simple
+            migration_required: true
         native_vlan_tag:
           type: bool
           description: If setting both native_vlan and native_vlan_tag, native_vlan_tag
