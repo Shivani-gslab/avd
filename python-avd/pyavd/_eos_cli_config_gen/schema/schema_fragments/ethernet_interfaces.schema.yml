@@ -294,6 +294,8 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    migration_type: custom
+                    migration_required: true
                     new_key: encapsulation
                   type: dict
                 unmatched:
@@ -302,6 +304,8 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    migration_required: true
+                    migration_type: custom
                     new_key: encapsulation
             network:
               type: dict
@@ -354,6 +358,8 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
+                    migration_type: custom
+                    migration_required: true
                   type: dict
                 client:
                   type: bool
@@ -362,6 +368,8 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
+                    migration_required: true
+                    migration_type: custom
         vlan_id:
           description: |-
             This setting can only be applied to sub-interfaces on EOS.
@@ -2401,6 +2409,8 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            migration_type: custom
+            migration_required: true
             new_key: switchport.access_vlan or switchport.trunk.allowed_vlan
         native_vlan:
           type: int
@@ -2419,6 +2429,8 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan_tag
+            migration_type: simple
+            migration_required: true
         mode:
           type: str
           valid_values: ["access", "dot1q-tunnel", "trunk", "trunk phone"]
@@ -2449,6 +2461,8 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            migration_type: custom
+            migration_required: true
             url: https://avd.arista.com/5.x/docs/porting-guides/5.x.x.html#removal-of-type-key-dependency-for-rendering-ethernetport-channel-interfaces-configuration-and-documentation
           valid_values:
             ["routed", "switched", "l3dot1q", "l2dot1q", "port-channel-member"]
@@ -2471,6 +2485,8 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
+            migration_type: custom
+            migration_required: true
             new_key: isis_authentication.both.mode or isis_authentication.level_1.mode or isis_authentication.level_2.mode
           valid_values: ["text", "md5"]
         isis_authentication_key:
@@ -2480,6 +2496,8 @@ keys:
             removed: true
             remove_in_version: v6.0.0
             new_key: isis_authentication.both.key or isis_authentication.level_1.key or isis_authentication.level_2.key
+            migration_required: true
+            migration_type: custom
           description: Type-7 encrypted password.
         trunk_private_vlan_secondary:
           type: bool
@@ -2504,6 +2522,8 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
+            migration_type: custom
+            migration_required: true
           type: list
         monitor_link_flap_profiles:
           type: list

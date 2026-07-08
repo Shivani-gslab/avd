@@ -408,8 +408,18 @@
           "type": "boolean",
           "description": "Allow the deprecated key to be used in parallel with the new key without raising a conflict error",
           "default": false
+        },
+        "migration_type": {
+          "type": "string",
+          "description": "Type of migration required (e.g., 'simple', 'complex')"
+        },
+        "migration_required": {
+          "type": "boolean",
+          "description": "Whether a migration is required for this deprecated key",
+          "default": true
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
   "title": "Arista AVD Schema",
