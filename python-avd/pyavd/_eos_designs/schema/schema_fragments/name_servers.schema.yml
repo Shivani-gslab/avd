@@ -17,3 +17,4 @@ keys:
       new_key: dns_settings.servers
       migration_required: true
       migration_type: custom
+      custom_transform_handler: name_servers.transform

@@ -78,6 +78,8 @@ class AvdSchemaBaseModel(BaseModel, ABC):
         """Type of migration required (e.g., 'simple', 'complex')."""
         migration_required: bool | None = True
         """Whether a migration is required for this deprecated key."""
+        custom_transform_handler: str | None = None
+        """Optional custom transform handler in the form module.function or function name."""
 
     class DocumentationOptions(BaseModel):
         """Schema field options used for controlling documentation generation."""

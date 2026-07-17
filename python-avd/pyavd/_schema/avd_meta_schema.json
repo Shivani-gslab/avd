@@ -418,6 +418,10 @@
           "type": "boolean",
           "description": "Whether a migration is required for this deprecated key",
           "default": true
+        },
+        "custom_transform_handler": {
+          "type": "string",
+          "description": "Optional custom transform handler in the form module.function or function name"
         }
       },
       "additionalProperties": false
