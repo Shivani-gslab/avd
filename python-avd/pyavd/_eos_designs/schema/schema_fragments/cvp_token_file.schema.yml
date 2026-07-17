@@ -17,3 +17,4 @@ keys:
       remove_in_version: 6.0.0
       migration_required: true
       migration_type: custom
+      custom_transform_handler: cvp_token_file.transform
