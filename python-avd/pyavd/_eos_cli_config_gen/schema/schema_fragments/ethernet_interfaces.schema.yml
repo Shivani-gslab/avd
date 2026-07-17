@@ -2532,8 +2532,9 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
-            migration_type: simple
+            migration_type: custom
             migration_required: true
+            custom_transform_handler: ethernet_interfaces.transform_vlan_translations
           type: list
         monitor_link_flap_profiles:
           type: list
