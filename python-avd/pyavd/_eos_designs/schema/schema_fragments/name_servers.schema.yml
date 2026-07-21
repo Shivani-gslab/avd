@@ -15,6 +15,4 @@ keys:
       removed: true
       remove_in_version: 6.0.0
       new_key: dns_settings.servers
-      migration_required: true
-      migration_type: custom
-      custom_transform_handler: name_servers.transform
+      upgrade_handler: name_servers

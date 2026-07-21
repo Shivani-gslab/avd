@@ -148,9 +148,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: port_channel_interfaces.transform_encapsulation_vlan_client_dot1q
+                    upgrade_handler: encapsulation_vlan_client_dot1q
                   type: dict
                 unmatched:
                   type: bool
@@ -158,9 +156,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: port_channel_interfaces.transform_encapsulation_vlan_client_unmatched
+                    upgrade_handler: encapsulation_vlan_client_unmatched
             network:
               type: dict
               description: Network encapsulation are all optional, and skipped if using client unmatched.
@@ -211,9 +207,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: port_channel_interfaces.transform_encapsulation_vlan_network_dot1q
+                    upgrade_handler: encapsulation_vlan_network_dot1q
                   type: dict
                 client:
                   type: bool
@@ -221,9 +215,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: port_channel_interfaces.transform_encapsulation_vlan_network_client
+                    upgrade_handler: encapsulation_vlan_network_client
         vlan_id:
           description: |-
             This setting can only be applied to sub-interfaces on EOS.
@@ -1408,9 +1400,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: port_channel_interfaces.transform_vlans
+            upgrade_handler: switchport_vlans
             new_key: switchport.access_vlan or switchport.trunk.allowed_vlan
         type:
           type: str
@@ -1418,9 +1408,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: port_channel_interfaces.transform_type
+            upgrade_handler: switchport_mode
         encapsulation_dot1q_vlan:
           type: int
           deprecation:
@@ -1428,8 +1416,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
-            migration_required: true
-            migration_type: simple
+            upgrade_handler: simple
         mode:
           type: str
           deprecation:
@@ -1487,9 +1474,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: port_channel_interfaces.transform_vlan_translations
+            upgrade_handler: vlan_translations
           type: list
           items:
             type: dict
@@ -1499,9 +1484,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: port_channel_interfaces.transform_isis_authentication_mode
+            upgrade_handler: isis_authentication_mode
             new_key: port_channel_interfaces[].isis_authentication.both.mode or port_channel_interfaces[].isis_authentication.level_1.mode or port_channel_interfaces[].isis_authentication.level_2.mode
         isis_authentication_key:
           type: str
@@ -1509,9 +1492,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: port_channel_interfaces.transform_isis_authentication_key
+            upgrade_handler: isis_authentication_key
             new_key: port_channel_interfaces[].isis_authentication.both.key or port_channel_interfaces[].isis_authentication.level_1.key or port_channel_interfaces[].isis_authentication.level_2.key
         eos_cli:
           type: str

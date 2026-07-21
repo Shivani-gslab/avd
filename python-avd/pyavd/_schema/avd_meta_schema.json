@@ -409,19 +409,9 @@
           "description": "Allow the deprecated key to be used in parallel with the new key without raising a conflict error",
           "default": false
         },
-        "migration_type": {
+        "upgrade_handler": {
           "type": "string",
-          "description": "Type of migration required (e.g., 'simple', 'complex')",
-          "default": "simple"
-        },
-        "migration_required": {
-          "type": "boolean",
-          "description": "Whether a migration is required for this deprecated key",
-          "default": true
-        },
-        "custom_transform_handler": {
-          "type": "string",
-          "description": "Optional custom transform handler in the form module.function or function name"
+          "description": "Upgrade handler used to migrate deprecated data"
         }
       },
       "additionalProperties": false

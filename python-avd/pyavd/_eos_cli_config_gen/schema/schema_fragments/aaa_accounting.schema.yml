@@ -30,8 +30,7 @@ keys:
                   warning: true
                   new_key: methods.group
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_exec_console_group
+                  upgrade_handler: aaa_accounting_exec_console_group
               logging:
                 type: bool
                 deprecation:
@@ -39,8 +38,7 @@ keys:
                   warning: true
                   new_key: methods.method
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_exec_console_logging
+                  upgrade_handler: aaa_accounting_exec_console_logging
           default:
             type: dict
             keys:
@@ -59,8 +57,7 @@ keys:
                   warning: true
                   new_key: methods.group
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_exec_default_group
+                  upgrade_handler: aaa_accounting_exec_default_group
               logging:
                 type: bool
                 deprecation:
@@ -68,8 +65,7 @@ keys:
                   warning: true
                   new_key: methods.method
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_exec_default_logging
+                  upgrade_handler: aaa_accounting_exec_default_logging
       system:
         type: dict
         keys:
@@ -91,8 +87,7 @@ keys:
                   warning: true
                   new_key: methods.group
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_system_default_group
+                  upgrade_handler: aaa_accounting_system_default_group
       dot1x:
         type: dict
         keys:
@@ -123,8 +118,7 @@ keys:
                   warning: true
                   new_key: methods.group
                   remove_in_version: 6.0.0
-                  migration_type: custom
-                  custom_transform_handler: aaa_accounting.transform_dot1x_default_group
+                  upgrade_handler: aaa_accounting_dot1x_default_group
       commands:
         type: dict
         keys:
@@ -153,8 +147,7 @@ keys:
                     warning: true
                     new_key: methods.group
                     remove_in_version: 6.0.0
-                    migration_type: custom
-                    custom_transform_handler: aaa_accounting.transform_commands_console_group
+                    upgrade_handler: aaa_accounting_commands_console_group
                 logging:
                   type: bool
                   deprecation:
@@ -162,8 +155,7 @@ keys:
                     warning: true
                     new_key: methods.method
                     remove_in_version: 6.0.0
-                    migration_type: custom
-                    custom_transform_handler: aaa_accounting.transform_commands_console_logging
+                    upgrade_handler: aaa_accounting_commands_console_logging
           default:
             type: list
             items:
@@ -189,8 +181,7 @@ keys:
                     warning: true
                     new_key: methods.group
                     remove_in_version: 6.0.0
-                    migration_type: custom
-                    custom_transform_handler: aaa_accounting.transform_commands_default_group
+                    upgrade_handler: aaa_accounting_commands_default_group
                 logging:
                   type: bool
                   deprecation:
@@ -198,5 +189,4 @@ keys:
                     warning: true
                     new_key: methods.method
                     remove_in_version: 6.0.0
-                    migration_type: custom
-                    custom_transform_handler: aaa_accounting.transform_commands_default_logging
+                    upgrade_handler: aaa_accounting_commands_default_logging

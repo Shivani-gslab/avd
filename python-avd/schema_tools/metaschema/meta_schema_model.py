@@ -74,12 +74,8 @@ class AvdSchemaBaseModel(BaseModel, ABC):
         """URL detailing the deprecation and migration guidelines."""
         allow_with_new_key: bool | None = False
         """Allow the deprecated key to be used in parallel with the new key without raising a conflict error."""
-        migration_type: str | None = "simple"
-        """Type of migration required (e.g., 'simple', 'complex')."""
-        migration_required: bool | None = True
-        """Whether a migration is required for this deprecated key."""
-        custom_transform_handler: str | None = None
-        """Optional custom transform handler in the form module.function or function name."""
+        upgrade_handler: str | None = None
+        """Upgrade handler used to migrate deprecated data."""
 
     class DocumentationOptions(BaseModel):
         """Schema field options used for controlling documentation generation."""

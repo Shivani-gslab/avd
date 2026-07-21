@@ -294,9 +294,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_type: custom
-                    custom_transform_handler: ethernet_interfaces.transform_encapsulation_vlan_client_dot1q
-                    migration_required: true
+                    upgrade_handler: encapsulation_vlan_client_dot1q
                     new_key: encapsulation
                   type: dict
                 unmatched:
@@ -305,9 +303,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: ethernet_interfaces.transform_encapsulation_vlan_client_unmatched
+                    upgrade_handler: encapsulation_vlan_client_unmatched
                     new_key: encapsulation
             network:
               type: dict
@@ -360,9 +356,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
-                    migration_type: custom
-                    custom_transform_handler: ethernet_interfaces.transform_encapsulation_vlan_network_dot1q
-                    migration_required: true
+                    upgrade_handler: encapsulation_vlan_network_dot1q
                   type: dict
                 client:
                   type: bool
@@ -371,9 +365,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
-                    migration_required: true
-                    migration_type: custom
-                    custom_transform_handler: ethernet_interfaces.transform_encapsulation_vlan_network_client
+                    upgrade_handler: encapsulation_vlan_network_client
         vlan_id:
           description: |-
             This setting can only be applied to sub-interfaces on EOS.
@@ -2413,9 +2405,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            migration_type: custom
-            custom_transform_handler: ethernet_interfaces.transform_vlans
-            migration_required: true
+            upgrade_handler: switchport_vlans
             new_key: switchport.access_vlan or switchport.trunk.allowed_vlan
         native_vlan:
           type: int
@@ -2426,8 +2416,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan
-            migration_type: simple
-            migration_required: true
+            upgrade_handler: simple
         native_vlan_tag:
           type: bool
           description: If setting both native_vlan and native_vlan_tag, native_vlan_tag takes precedence.
@@ -2436,8 +2425,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan_tag
-            migration_type: simple
-            migration_required: true
+            upgrade_handler: simple
         mode:
           type: str
           valid_values: ["access", "dot1q-tunnel", "trunk", "trunk phone"]
@@ -2468,9 +2456,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            migration_type: custom
-            custom_transform_handler: ethernet_interfaces.transform_type
-            migration_required: true
+            upgrade_handler: switchport_mode
             url: https://avd.arista.com/5.x/docs/porting-guides/5.x.x.html#removal-of-type-key-dependency-for-rendering-ethernetport-channel-interfaces-configuration-and-documentation
           valid_values:
             ["routed", "switched", "l3dot1q", "l2dot1q", "port-channel-member"]
@@ -2493,9 +2479,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
-            migration_type: custom
-            custom_transform_handler: ethernet_interfaces.transform_isis_authentication_mode
-            migration_required: true
+            upgrade_handler: isis_authentication_mode
             new_key: isis_authentication.both.mode or isis_authentication.level_1.mode or isis_authentication.level_2.mode
           valid_values: ["text", "md5"]
         isis_authentication_key:
@@ -2505,9 +2489,7 @@ keys:
             removed: true
             remove_in_version: v6.0.0
             new_key: isis_authentication.both.key or isis_authentication.level_1.key or isis_authentication.level_2.key
-            migration_required: true
-            migration_type: custom
-            custom_transform_handler: ethernet_interfaces.transform_isis_authentication_key
+            upgrade_handler: isis_authentication_key
           description: Type-7 encrypted password.
         trunk_private_vlan_secondary:
           type: bool
@@ -2532,9 +2514,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
-            migration_type: custom
-            migration_required: true
-            custom_transform_handler: ethernet_interfaces.transform_vlan_translations
+            upgrade_handler: vlan_translations
           type: list
         monitor_link_flap_profiles:
           type: list

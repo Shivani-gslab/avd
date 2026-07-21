@@ -55,8 +55,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: ipv6_static_routes[].prefix
-            migration_type: simple
-            migration_required: true
+            upgrade_handler: simple
         gateway:
           type: str
           deprecation:
