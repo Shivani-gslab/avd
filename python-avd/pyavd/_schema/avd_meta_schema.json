@@ -411,7 +411,8 @@
         },
         "upgrade_handler": {
           "type": "string",
-          "description": "Upgrade handler used to migrate deprecated data"
+          "description": "Upgrade handler used to migrate deprecated data",
+          "default": "simple"
         }
       },
       "additionalProperties": false
