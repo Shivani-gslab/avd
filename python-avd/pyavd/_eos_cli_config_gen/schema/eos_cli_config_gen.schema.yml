@@ -4158,6 +4158,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: ipv4
+                upgrade_handler: simple
             ipv6_segment_size:
               type: int
               convert_types:
@@ -4169,6 +4170,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: ipv6
+                upgrade_handler: simple
         channel_group:
           type: dict
           keys:
@@ -5979,6 +5981,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: srlgs
+                upgrade_handler: simple
               convert_types:
               - int
         vlans:
@@ -6030,12 +6033,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.mode
+            upgrade_handler: simple
         phone:
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.phone
+            upgrade_handler: simple
           type: dict
         trunk_groups:
           type: list
@@ -6046,6 +6051,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.groups
+            upgrade_handler: simple
         type:
           type: str
           deprecation:
@@ -6076,6 +6082,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
+            upgrade_handler: simple
         isis_authentication_mode:
           type: str
           deprecation:
@@ -6105,6 +6112,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.private_vlan_secondary
+            upgrade_handler: simple
         pvlan_mapping:
           type: str
           convert_types:
@@ -6115,6 +6123,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.pvlan_mapping
+            upgrade_handler: simple
         vlan_translations:
           deprecation:
             warning: true
@@ -15031,6 +15040,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: srlgs
+                upgrade_handler: simple
         vlans:
           type: str
           deprecation:
@@ -15061,6 +15071,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.mode
+            upgrade_handler: simple
         native_vlan:
           type: int
           deprecation:
@@ -15068,6 +15079,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan
+            upgrade_handler: simple
         native_vlan_tag:
           type: bool
           deprecation:
@@ -15075,6 +15087,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan_tag
+            upgrade_handler: simple
         phone:
           type: dict
           deprecation:
@@ -15082,6 +15095,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.phone
+            upgrade_handler: simple
         trunk_groups:
           type: list
           items:
@@ -15091,6 +15105,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.groups
+            upgrade_handler: simple
         trunk_private_vlan_secondary:
           type: bool
           deprecation:
@@ -15098,6 +15113,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.private_vlan_secondary
+            upgrade_handler: simple
         pvlan_mapping:
           type: str
           deprecation:
@@ -15105,6 +15121,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.pvlan_mapping
+            upgrade_handler: simple
         vlan_translations:
           deprecation:
             warning: true
