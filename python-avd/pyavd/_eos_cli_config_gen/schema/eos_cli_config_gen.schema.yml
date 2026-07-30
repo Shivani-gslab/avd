@@ -10718,6 +10718,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: ip_access_group_in or vrfs.ip_access_group_in
+          upgrade_handler: management_ssh.transform_access_groups
       ipv6_access_groups:
         type: list
         deprecation:
@@ -10725,6 +10726,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: ipv6_access_group_in or vrfs.ipv6_access_group_in
+          upgrade_handler: management_ssh.transform_ipv6_access_groups
   management_tech_support:
     type: dict
     keys:
@@ -18453,6 +18455,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: bgp.additional_paths
+              upgrade_handler: router_bgp.transform_address_family_evpn_bgp_additional_paths
       address_family_rtc:
         type: dict
         keys:
