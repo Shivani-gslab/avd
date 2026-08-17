@@ -5342,6 +5342,7 @@ keys:
                       warning: true
                       removed: true
                       remove_in_version: 6.0.0
+                      upgrade_handler: simple
                       new_key: addresses
               peer_authentication:
                 type: dict
@@ -12756,6 +12757,7 @@ keys:
                 warning: true
                 removed: true
                 remove_in_version: 6.0.0
+                upgrade_handler: simple
                 new_key: ntp.vrf
       vrf:
         type: str
@@ -13866,7 +13868,6 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    upgrade_handler: encapsulation_vlan_network_client
         vlan_id:
           description: This setting can only be applied to sub-interfaces on EOS.
           type: int
@@ -27602,6 +27603,7 @@ keys:
                       removed: true
                       remove_in_version: 6.0.0
                       new_key: addresses
+                      upgrade_handler: simple
               peer_authentication:
                 type: dict
                 $ref: eos_cli_config_gen#/keys/ethernet_interfaces/items/keys/vrrp_ids/items/keys/peer_authentication

@@ -215,7 +215,6 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
-                    upgrade_handler: encapsulation_vlan_network_client
         vlan_id:
           description: |-
             This setting can only be applied to sub-interfaces on EOS.
