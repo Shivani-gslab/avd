@@ -5584,6 +5584,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: redistribute
+          upgrade_handler: router_bgp.transform_redistribute_routes
       eos_cli:
         type: str
         description: |-
