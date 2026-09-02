@@ -294,6 +294,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    upgrade_handler: encapsulation_vlan_client_dot1q
                     new_key: encapsulation
                   type: dict
                 unmatched:
@@ -302,6 +303,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    upgrade_handler: encapsulation_vlan_client_unmatched
                     new_key: encapsulation
             network:
               type: dict
@@ -354,6 +356,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
+                    upgrade_handler: encapsulation_vlan_network_dot1q
                   type: dict
                 client:
                   type: bool
@@ -362,6 +365,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: encapsulation
+                    upgrade_handler: encapsulation_vlan_network_client
         vlan_id:
           description: |-
             This setting can only be applied to sub-interfaces on EOS.
@@ -694,6 +698,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: ipv4
+                upgrade_handler: simple
             ipv6_segment_size:
               type: int
               convert_types:
@@ -705,6 +710,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: ipv6
+                upgrade_handler: simple
         channel_group:
           type: dict
           keys:
@@ -1733,6 +1739,7 @@ keys:
                       warning: true
                       removed: true
                       remove_in_version: 6.0.0
+                      upgrade_handler: simple
                       new_key: addresses
               peer_authentication:
                 type: dict
@@ -2394,6 +2401,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: srlgs
+                upgrade_handler: simple
               convert_types:
                 - int
         vlans:
@@ -2408,6 +2416,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            upgrade_handler: switchport_vlans
             new_key: switchport.access_vlan or switchport.trunk.allowed_vlan
         native_vlan:
           type: int
@@ -2418,6 +2427,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan
+            upgrade_handler: simple
         native_vlan_tag:
           type: bool
           description: If setting both native_vlan and native_vlan_tag, native_vlan_tag takes precedence.
@@ -2426,6 +2436,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan_tag
+            upgrade_handler: simple
         mode:
           type: str
           valid_values: ["access", "dot1q-tunnel", "trunk", "trunk phone"]
@@ -2434,12 +2445,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.mode
+            upgrade_handler: simple
         phone:
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.phone
+            upgrade_handler: simple
           type: dict
         trunk_groups:
           type: list
@@ -2450,12 +2463,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.groups
+            upgrade_handler: simple
         type:
           type: str
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            upgrade_handler: switchport_mode
             url: https://avd.arista.com/5.x/docs/porting-guides/5.x.x.html#removal-of-type-key-dependency-for-rendering-ethernetport-channel-interfaces-configuration-and-documentation
           valid_values:
             ["routed", "switched", "l3dot1q", "l2dot1q", "port-channel-member"]
@@ -2472,12 +2487,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
+            upgrade_handler: simple
         isis_authentication_mode:
           type: str
           deprecation:
             warning: true
             removed: true
             remove_in_version: v6.0.0
+            upgrade_handler: isis_authentication_mode
             new_key: isis_authentication.both.mode or isis_authentication.level_1.mode or isis_authentication.level_2.mode
           valid_values: ["text", "md5"]
         isis_authentication_key:
@@ -2487,6 +2504,7 @@ keys:
             removed: true
             remove_in_version: v6.0.0
             new_key: isis_authentication.both.key or isis_authentication.level_1.key or isis_authentication.level_2.key
+            upgrade_handler: isis_authentication_key
           description: Type-7 encrypted password.
         trunk_private_vlan_secondary:
           type: bool
@@ -2495,6 +2513,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.private_vlan_secondary
+            upgrade_handler: simple
         pvlan_mapping:
           type: str
           convert_types:
@@ -2505,12 +2524,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.pvlan_mapping
+            upgrade_handler: simple
         vlan_translations:
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
+            upgrade_handler: vlan_translations
           type: list
         monitor_link_flap_profiles:
           type: list

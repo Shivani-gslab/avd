@@ -1636,6 +1636,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: bgp.additional_paths
+              upgrade_handler: router_bgp.transform_address_family_evpn_bgp_additional_paths
       address_family_rtc:
         type: dict
         keys:
@@ -2057,6 +2058,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: redistribute
+              upgrade_handler: router_bgp.transform_redistribute_routes
       address_family_ipv4_labeled_unicast:
         type: dict
         keys:
@@ -2651,6 +2653,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: redistribute
+              upgrade_handler: router_bgp.transform_redistribute_routes
       address_family_ipv4_sr_te:
         type: dict
         keys:
@@ -3028,6 +3031,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: redistribute
+              upgrade_handler: router_bgp.transform_redistribute_routes
       address_family_ipv6_multicast:
         type: dict
         keys:
@@ -3245,6 +3249,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: redistribute
+              upgrade_handler: router_bgp.transform_redistribute_routes
       address_family_ipv6_sr_te:
         type: dict
         keys:
@@ -4800,6 +4805,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: redistribute
+                    upgrade_handler: router_bgp.transform_redistribute_routes
             address_family_ipv6:
               type: dict
               keys:
@@ -5065,6 +5071,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: redistribute
+                    upgrade_handler: router_bgp.transform_redistribute_routes
             address_family_ipv4_multicast:
               type: dict
               keys:
@@ -5286,6 +5293,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: redistribute
+                    upgrade_handler: router_bgp.transform_redistribute_routes
             address_family_ipv6_multicast:
               type: dict
               keys:
@@ -5487,6 +5495,7 @@ keys:
                     removed: true
                     remove_in_version: 6.0.0
                     new_key: redistribute
+                    upgrade_handler: router_bgp.transform_redistribute_routes
             address_family_flow_spec_ipv4:
               type: dict
               keys:
@@ -5556,6 +5565,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: redistribute
+                upgrade_handler: router_bgp.transform_redistribute_routes
             eos_cli:
               type: str
               description: |
@@ -5583,6 +5593,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: redistribute
+          upgrade_handler: router_bgp.transform_redistribute_routes
       eos_cli:
         type: str
         description: |-
