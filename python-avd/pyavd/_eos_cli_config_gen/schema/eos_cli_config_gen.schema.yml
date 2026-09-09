@@ -1369,6 +1369,7 @@ keys:
       removed: true
       remove_in_version: 6.0.0
       new_key: ip_community_lists
+      upgrade_handler: community_lists
   config_comment:
     type: str
     description: 'Add a comment to provide information about the configuration.
@@ -6516,6 +6517,7 @@ keys:
       removed: true
       remove_in_version: 6.0.0
       url: https://avd.arista.com/5.x/docs/porting-guides/5.x.x.html#default-eos-configuration-is-no-longer-automatically-generated
+      upgrade_handler: generate_default_config
   generate_device_documentation:
     type: bool
     documentation_options:
