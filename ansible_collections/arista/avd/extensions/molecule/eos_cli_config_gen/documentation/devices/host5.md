@@ -51,9 +51,9 @@ interface Management1
 
 #### TerminAttr Daemon Summary
 
-| CV Compression | CloudVision Servers | VRF | Authentication | Smash Excludes | Ingest Exclude | Bypass AAA |
-| -------------- | ------------------- | --- | -------------- | -------------- | -------------- | ---------- |
-| gzip | 192.0.2.1:9910,192.0.2.2:9910,192.0.2.3:9910 | mgt | token,/tmp/token | ale,flexCounter,hardware,kni,pulse,strata | /Sysdb/cell/1/agent,/Sysdb/cell/2/agent | False |
+| CV Compression | CloudVision Servers | VRF | Authentication | Smash Excludes | Sysdb Excludes | Ingest Exclude | Bypass AAA |
+| -------------- | ------------------- | --- | -------------- | -------------- | -------------- | -------------- | ---------- |
+| gzip | 192.0.2.1:9910,192.0.2.2:9910,192.0.2.3:9910 | mgt | token,/tmp/token | ale,flexCounter,hardware,kni,pulse,strata | /Sysdb/cell/1/agent,/Sysdb/cell/2/agent | - | False |
 
 #### TerminAttr Daemon Device Configuration
 
@@ -74,7 +74,7 @@ daemon TerminAttr
 | --- | --------------- |
 | default | False |
 | FUTURE_IPV6_INTERFACES | True (ipv6 interfaces) |
-| IPv6_ROUTING_ENABLED_VRF | - |
+| IPv6_ROUTING_ENABLED_VRF | False |
 
 #### IP Routing Device Configuration
 
@@ -90,8 +90,8 @@ ip routing ipv6 interfaces vrf FUTURE_IPV6_INTERFACES
 | VRF | Routing Enabled |
 | --- | --------------- |
 | default | True |
-| FUTURE_IPV6_INTERFACES | false |
-| IPv6_ROUTING_ENABLED_VRF | true |
+| FUTURE_IPV6_INTERFACES | False |
+| IPv6_ROUTING_ENABLED_VRF | True |
 
 #### IPv6 Routing Device Configuration
 

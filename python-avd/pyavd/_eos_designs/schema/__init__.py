@@ -14,7 +14,7 @@ from pyavd._schema.models.avd_model import AvdModel
 from pyavd._schema.models.eos_designs_root_model import EosDesignsRootModel
 
 if TYPE_CHECKING:
-    from pyavd._utils import Undefined, UndefinedType
+    from pyavd._utils.undefined import Undefined, UndefinedType
 
 
 class EosDesigns(EosDesignsRootModel):
@@ -819,15 +819,15 @@ class EosDesigns(EosDesignsRootModel):
     class AddressLockingSettings(AvdModel):
         """Subclass of AvdModel."""
 
-        class DhcpServersIpv4(AvdList[str]):
-            """Subclass of AvdList with `str` items."""
-
-        DhcpServersIpv4._item_type = str
-
         class DhcpServerInterfaces(AvdList[str]):
             """Subclass of AvdList with `str` items."""
 
         DhcpServerInterfaces._item_type = str
+
+        class DhcpServersIpv4(AvdList[str]):
+            """Subclass of AvdList with `str` items."""
+
+        DhcpServersIpv4._item_type = str
 
         class LeasesItem(AvdModel):
             """Subclass of AvdModel."""
@@ -896,14 +896,14 @@ class EosDesigns(EosDesignsRootModel):
                     """
 
         _fields: ClassVar[dict] = {
-            "local_interface": {"type": str, "default": "use_default_mgmt_method_interface"},
-            "dhcp_servers_ipv4": {"type": DhcpServersIpv4},
+            "local_interface": {"type": str},
             "dhcp_server_interfaces": {"type": DhcpServerInterfaces},
+            "dhcp_servers_ipv4": {"type": DhcpServersIpv4},
             "disabled": {"type": bool},
             "leases": {"type": Leases},
             "locked_address": {"type": LockedAddress},
         }
-        local_interface: str
+        local_interface: str | None
         """
         The value will be interpreted according to these rules:
           - `use_mgmt_interface` will configure the
@@ -914,19 +914,24 @@ class EosDesigns(EosDesignsRootModel):
         configure `mgmt_interface` or `inband_mgmt_interface` as the local interface depending on the value
         of `default_mgmt_method`.
           - Any other string will be used directly as the local interface.
-
-        Default value: `"use_default_mgmt_method_interface"`
+        When
+        `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually
+        exclusive with `dhcp_server_interfaces`.
         """
-        dhcp_servers_ipv4: DhcpServersIpv4
-        """Subclass of AvdList with `str` items."""
         dhcp_server_interfaces: DhcpServerInterfaces
         """
         The list of interfaces connected to the DHCP server.
-        Requires EOS version 4.36 or later.
+        Requires
+        `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
+        ignored.
+        When enabled, this setting is mutually exclusive with `local_interface`.
+        Requires EOS
+        version 4.36 or later.
 
-        Subclass
-        of AvdList with `str` items.
+        Subclass of AvdList with `str` items.
         """
+        dhcp_servers_ipv4: DhcpServersIpv4
+        """Subclass of AvdList with `str` items."""
         disabled: bool | None
         """Disable IP locking on configured ports."""
         leases: Leases
@@ -939,9 +944,9 @@ class EosDesigns(EosDesignsRootModel):
             def __init__(
                 self,
                 *,
-                local_interface: str | UndefinedType = Undefined,
-                dhcp_servers_ipv4: DhcpServersIpv4 | UndefinedType = Undefined,
+                local_interface: str | UndefinedType | None = Undefined,
                 dhcp_server_interfaces: DhcpServerInterfaces | UndefinedType = Undefined,
+                dhcp_servers_ipv4: DhcpServersIpv4 | UndefinedType = Undefined,
                 disabled: bool | UndefinedType | None = Undefined,
                 leases: Leases | UndefinedType = Undefined,
                 locked_address: LockedAddress | UndefinedType = Undefined,
@@ -963,13 +968,20 @@ class EosDesigns(EosDesignsRootModel):
                        configure `mgmt_interface` or `inband_mgmt_interface` as the local interface depending on the value
                        of `default_mgmt_method`.
                          - Any other string will be used directly as the local interface.
-                    dhcp_servers_ipv4: Subclass of AvdList with `str` items.
+                       When
+                       `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually
+                       exclusive with `dhcp_server_interfaces`.
                     dhcp_server_interfaces:
                        The list of interfaces connected to the DHCP server.
-                       Requires EOS version 4.36 or later.
+                       Requires
+                       `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
+                       ignored.
+                       When enabled, this setting is mutually exclusive with `local_interface`.
+                       Requires EOS
+                       version 4.36 or later.
 
-                       Subclass
-                       of AvdList with `str` items.
+                       Subclass of AvdList with `str` items.
+                    dhcp_servers_ipv4: Subclass of AvdList with `str` items.
                     disabled: Disable IP locking on configured ports.
                     leases: Subclass of AvdList with `LeasesItem` items.
                     locked_address: Subclass of AvdModel.
@@ -983,8 +995,11 @@ class EosDesigns(EosDesignsRootModel):
             "accept_dhcp_default_route_for_mgmt_ip_dhcp": {"type": bool, "default": False},
             "accept_ra_default_route_for_ipv6_mgmt_ip_auto_config": {"type": bool, "default": False},
             "accept_dhcp_default_route_for_inband_mgmt_ip_dhcp": {"type": bool, "default": False},
+            "allow_recursive_profile_inheritance": {"type": bool, "default": False},
             "configure_inband_mgmt_ipv6_vrf": {"type": bool, "default": False},
             "consistent_uplink_vlans": {"type": bool, "default": False},
+            "fix_address_locking_dhcp_server_interfaces": {"type": bool, "default": False},
+            "fix_match_ipv6_prefix_list_on_mlag_route_map": {"type": bool, "default": False},
             "fix_radius_server_group_tls": {"type": bool, "default": False},
             "only_configure_ipv6_inband_mgmt_prefix_list_when_used": {"type": bool, "default": False},
             "only_configure_mlag_vrfs_peer_group_when_used": {"type": bool, "default": False},
@@ -1018,6 +1033,14 @@ class EosDesigns(EosDesignsRootModel):
 
         Default value: `False`
         """
+        allow_recursive_profile_inheritance: bool
+        """
+        Available from AVD 6.5.0.
+        Allow `parent_profile` to inherit from its own `parent_profile` in
+        `port_profiles`, `device_profiles`, `svi_profiles` and `l2vlan_profiles`.
+
+        Default value: `False`
+        """
         configure_inband_mgmt_ipv6_vrf: bool
         """
         Available from AVD 6.2.0.
@@ -1032,6 +1055,26 @@ class EosDesigns(EosDesignsRootModel):
         allowed' on both ends
         and on all 'uplink_switches' even when available VLANs differ between the
         'uplink_switches'.
+
+        Default value: `False`
+        """
+        fix_address_locking_dhcp_server_interfaces: bool
+        """
+        Available from AVD 6.4.0.
+        Fix support for `address_locking_settings.dhcp_server_interfaces`.
+        When
+        enabled, `address_locking_settings.dhcp_server_interfaces` and
+        `address_locking_settings.local_interface` are mutually exclusive.
+
+        Default value: `False`
+        """
+        fix_match_ipv6_prefix_list_on_mlag_route_map: bool
+        """
+        Available from AVD 6.4.0.
+        Fix to properly configure the `RM-CONN-2-BGP-VRFS` route-map with `match
+        ipv6 address prefix-list`
+        instead of `match ip address prefix-list` when using
+        `underlay_ipv6_numbered`.
 
         Default value: `False`
         """
@@ -1112,8 +1155,11 @@ class EosDesigns(EosDesignsRootModel):
                 accept_dhcp_default_route_for_mgmt_ip_dhcp: bool | UndefinedType = Undefined,
                 accept_ra_default_route_for_ipv6_mgmt_ip_auto_config: bool | UndefinedType = Undefined,
                 accept_dhcp_default_route_for_inband_mgmt_ip_dhcp: bool | UndefinedType = Undefined,
+                allow_recursive_profile_inheritance: bool | UndefinedType = Undefined,
                 configure_inband_mgmt_ipv6_vrf: bool | UndefinedType = Undefined,
                 consistent_uplink_vlans: bool | UndefinedType = Undefined,
+                fix_address_locking_dhcp_server_interfaces: bool | UndefinedType = Undefined,
+                fix_match_ipv6_prefix_list_on_mlag_route_map: bool | UndefinedType = Undefined,
                 fix_radius_server_group_tls: bool | UndefinedType = Undefined,
                 only_configure_ipv6_inband_mgmt_prefix_list_when_used: bool | UndefinedType = Undefined,
                 only_configure_mlag_vrfs_peer_group_when_used: bool | UndefinedType = Undefined,
@@ -1142,6 +1188,10 @@ class EosDesigns(EosDesignsRootModel):
                        Available from AVD 6.3.0.
                        Configure inband management interface to accept DHCP default route when
                        the inband management IP is set to 'dhcp'.
+                    allow_recursive_profile_inheritance:
+                       Available from AVD 6.5.0.
+                       Allow `parent_profile` to inherit from its own `parent_profile` in
+                       `port_profiles`, `device_profiles`, `svi_profiles` and `l2vlan_profiles`.
                     configure_inband_mgmt_ipv6_vrf:
                        Available from AVD 6.2.0.
                        Configure `inband_mgmt_vrf` for IPv6 inband management.
@@ -1151,6 +1201,18 @@ class EosDesigns(EosDesignsRootModel):
                        allowed' on both ends
                        and on all 'uplink_switches' even when available VLANs differ between the
                        'uplink_switches'.
+                    fix_address_locking_dhcp_server_interfaces:
+                       Available from AVD 6.4.0.
+                       Fix support for `address_locking_settings.dhcp_server_interfaces`.
+                       When
+                       enabled, `address_locking_settings.dhcp_server_interfaces` and
+                       `address_locking_settings.local_interface` are mutually exclusive.
+                    fix_match_ipv6_prefix_list_on_mlag_route_map:
+                       Available from AVD 6.4.0.
+                       Fix to properly configure the `RM-CONN-2-BGP-VRFS` route-map with `match
+                       ipv6 address prefix-list`
+                       instead of `match ip address prefix-list` when using
+                       `underlay_ipv6_numbered`.
                     fix_radius_server_group_tls:
                        Available from AVD 6.2.0.
                        Fix to configure TLS on RADIUS server group members to match their global
@@ -3097,6 +3159,509 @@ class EosDesigns(EosDesignsRootModel):
 
                         """
 
+            class Dot1x(AvdModel):
+                """Subclass of AvdModel."""
+
+                class AuthenticationFailure(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    Action: TypeAlias = Literal["allow", "drop"]
+                    _fields: ClassVar[dict] = {"allow_access_list": {"type": str}, "action": {"type": str}, "allow_vlan": {"type": int}}
+                    allow_access_list: str | None
+                    """
+                    Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                    The access
+                    list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                    On EOS, the access list is
+                    only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                    """
+                    action: Action | None
+                    allow_vlan: int | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            allow_access_list: str | UndefinedType | None = Undefined,
+                            action: Action | UndefinedType | None = Undefined,
+                            allow_vlan: int | UndefinedType | None = Undefined,
+                        ) -> None:
+                            """
+                            AuthenticationFailure.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                allow_access_list:
+                                   Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                                   The access
+                                   list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                                   On EOS, the access list is
+                                   only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                                action: action
+                                allow_vlan: allow_vlan
+
+                            """
+
+                PortControl: TypeAlias = Literal["auto", "force-authorized", "force-unauthorized"]
+
+                class Pae(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    Mode: TypeAlias = Literal["authenticator", "supplicant"]
+                    _fields: ClassVar[dict] = {"mode": {"type": str}, "supplicant_profile": {"type": str}}
+                    mode: Mode | None
+                    supplicant_profile: str | None
+                    """Supplicant profile name."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self, *, mode: Mode | UndefinedType | None = Undefined, supplicant_profile: str | UndefinedType | None = Undefined
+                        ) -> None:
+                            """
+                            Pae.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                mode: mode
+                                supplicant_profile: Supplicant profile name.
+
+                            """
+
+                class HostMode(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    Mode: TypeAlias = Literal["multi-host", "single-host"]
+                    _fields: ClassVar[dict] = {"mode": {"type": str}, "multi_host_authenticated": {"type": bool}}
+                    mode: Mode | None
+                    multi_host_authenticated: bool | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self, *, mode: Mode | UndefinedType | None = Undefined, multi_host_authenticated: bool | UndefinedType | None = Undefined
+                        ) -> None:
+                            """
+                            HostMode.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                mode: mode
+                                multi_host_authenticated: multi_host_authenticated
+
+                            """
+
+                class MacBasedAuthentication(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "host_mode_common": {"type": bool}}
+                    enabled: bool | None
+                    always: bool | None
+                    host_mode_common: bool | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            enabled: bool | UndefinedType | None = Undefined,
+                            always: bool | UndefinedType | None = Undefined,
+                            host_mode_common: bool | UndefinedType | None = Undefined,
+                        ) -> None:
+                            """
+                            MacBasedAuthentication.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: enabled
+                                always: always
+                                host_mode_common: host_mode_common
+
+                            """
+
+                class Timeout(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {
+                        "idle_host": {"type": int},
+                        "quiet_period": {"type": int},
+                        "reauth_period": {"type": str},
+                        "reauth_timeout_ignore": {"type": bool},
+                        "tx_period": {"type": int},
+                    }
+                    idle_host: int | None
+                    quiet_period: int | None
+                    reauth_period: str | None
+                    """Value can be 60-4294967295 or 'server'."""
+                    reauth_timeout_ignore: bool | None
+                    tx_period: int | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            idle_host: int | UndefinedType | None = Undefined,
+                            quiet_period: int | UndefinedType | None = Undefined,
+                            reauth_period: str | UndefinedType | None = Undefined,
+                            reauth_timeout_ignore: bool | UndefinedType | None = Undefined,
+                            tx_period: int | UndefinedType | None = Undefined,
+                        ) -> None:
+                            """
+                            Timeout.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                idle_host: idle_host
+                                quiet_period: quiet_period
+                                reauth_period: Value can be 60-4294967295 or 'server'.
+                                reauth_timeout_ignore: reauth_timeout_ignore
+                                tx_period: tx_period
+
+                            """
+
+                class Unauthorized(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"access_vlan_membership_egress": {"type": bool}, "native_vlan_membership_egress": {"type": bool}}
+                    access_vlan_membership_egress: bool | None
+                    native_vlan_membership_egress: bool | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            access_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                            native_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                        ) -> None:
+                            """
+                            Unauthorized.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                access_vlan_membership_egress: access_vlan_membership_egress
+                                native_vlan_membership_egress: native_vlan_membership_egress
+
+                            """
+
+                class Eapol(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    class AuthenticationFailureFallbackMba(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool}, "timeout": {"type": int}}
+                        enabled: bool | None
+                        timeout: int | None
+
+                        if TYPE_CHECKING:
+
+                            def __init__(self, *, enabled: bool | UndefinedType | None = Undefined, timeout: int | UndefinedType | None = Undefined) -> None:
+                                """
+                                AuthenticationFailureFallbackMba.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: enabled
+                                    timeout: timeout
+
+                                """
+
+                    _fields: ClassVar[dict] = {"disabled": {"type": bool}, "authentication_failure_fallback_mba": {"type": AuthenticationFailureFallbackMba}}
+                    disabled: bool | None
+                    authentication_failure_fallback_mba: AuthenticationFailureFallbackMba
+                    """Subclass of AvdModel."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            disabled: bool | UndefinedType | None = Undefined,
+                            authentication_failure_fallback_mba: AuthenticationFailureFallbackMba | UndefinedType = Undefined,
+                        ) -> None:
+                            """
+                            Eapol.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                disabled: disabled
+                                authentication_failure_fallback_mba: Subclass of AvdModel.
+
+                            """
+
+                class Aaa(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    class Unresponsive(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        EapResponse: TypeAlias = Literal["success", "disabled"]
+
+                        class Action(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class CachedResultsTimeout(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                TimeDurationUnit: TypeAlias = Literal["days", "hours", "minutes", "seconds"]
+                                _fields: ClassVar[dict] = {"time_duration": {"type": int}, "time_duration_unit": {"type": str}}
+                                time_duration: int
+                                """
+                                Enable caching for a specific duration -
+                                <1-10000>      duration in days
+                                <1-14400000>   duration in
+                                minutes
+                                <1-240000>     duration in hours
+                                <1-864000000>  duration in seconds
+                                """
+                                time_duration_unit: TimeDurationUnit
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        time_duration: int | UndefinedType = Undefined,
+                                        time_duration_unit: TimeDurationUnit | UndefinedType = Undefined,
+                                    ) -> None:
+                                        """
+                                        CachedResultsTimeout.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            time_duration:
+                                               Enable caching for a specific duration -
+                                               <1-10000>      duration in days
+                                               <1-14400000>   duration in
+                                               minutes
+                                               <1-240000>     duration in hours
+                                               <1-864000000>  duration in seconds
+                                            time_duration_unit: time_duration_unit
+
+                                        """
+
+                            _fields: ClassVar[dict] = {
+                                "traffic_allow_access_list": {"type": str},
+                                "apply_alternate": {"type": bool},
+                                "traffic_allow_vlan": {"type": int},
+                                "apply_cached_results": {"type": bool},
+                                "cached_results_timeout": {"type": CachedResultsTimeout},
+                                "traffic_allow": {"type": bool},
+                            }
+                            traffic_allow_access_list: str | None
+                            """Name of standard access-list to apply when AAA times out."""
+                            apply_alternate: bool | None
+                            """
+                            Apply alternate action if primary action fails.
+                            e.g. aaa unresponsive action apply cached-results
+                            else traffic allow
+                            """
+                            traffic_allow_vlan: int | None
+                            apply_cached_results: bool | None
+                            """Use results from a previous AAA response."""
+                            cached_results_timeout: CachedResultsTimeout
+                            """Subclass of AvdModel."""
+                            traffic_allow: bool | None
+                            """Set action for supplicant traffic when AAA times out."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    traffic_allow_access_list: str | UndefinedType | None = Undefined,
+                                    apply_alternate: bool | UndefinedType | None = Undefined,
+                                    traffic_allow_vlan: int | UndefinedType | None = Undefined,
+                                    apply_cached_results: bool | UndefinedType | None = Undefined,
+                                    cached_results_timeout: CachedResultsTimeout | UndefinedType = Undefined,
+                                    traffic_allow: bool | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    Action.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        traffic_allow_access_list: Name of standard access-list to apply when AAA times out.
+                                        apply_alternate:
+                                           Apply alternate action if primary action fails.
+                                           e.g. aaa unresponsive action apply cached-results
+                                           else traffic allow
+                                        traffic_allow_vlan: traffic_allow_vlan
+                                        apply_cached_results: Use results from a previous AAA response.
+                                        cached_results_timeout: Subclass of AvdModel.
+                                        traffic_allow: Set action for supplicant traffic when AAA times out.
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "eap_response": {"type": str},
+                            "action": {"type": Action},
+                            "phone_action": {"type": EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction},
+                        }
+                        eap_response: EapResponse | None
+                        """EAP response to send. EOS default is `success`."""
+                        action: Action
+                        """
+                        Set action for supplicant when AAA times out.
+
+                        Subclass of AvdModel.
+                        """
+                        phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction
+                        """Set action for supplicant when AAA times out."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                eap_response: EapResponse | UndefinedType | None = Undefined,
+                                action: Action | UndefinedType = Undefined,
+                                phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction | UndefinedType = Undefined,
+                            ) -> None:
+                                """
+                                Unresponsive.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    eap_response: EAP response to send. EOS default is `success`.
+                                    action:
+                                       Set action for supplicant when AAA times out.
+
+                                       Subclass of AvdModel.
+                                    phone_action: Set action for supplicant when AAA times out.
+
+                                """
+
+                    _fields: ClassVar[dict] = {"unresponsive": {"type": Unresponsive}}
+                    unresponsive: Unresponsive
+                    """
+                    Configure AAA timeout options.
+
+                    Subclass of AvdModel.
+                    """
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, unresponsive: Unresponsive | UndefinedType = Undefined) -> None:
+                            """
+                            Aaa.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                unresponsive:
+                                   Configure AAA timeout options.
+
+                                   Subclass of AvdModel.
+
+                            """
+
+                _fields: ClassVar[dict] = {
+                    "authentication_failure": {"type": AuthenticationFailure},
+                    "port_control": {"type": str},
+                    "port_control_force_authorized_phone": {"type": bool},
+                    "reauthentication": {"type": bool},
+                    "pae": {"type": Pae},
+                    "host_mode": {"type": HostMode},
+                    "mac_based_authentication": {"type": MacBasedAuthentication},
+                    "mac_based_access_list": {"type": bool},
+                    "timeout": {"type": Timeout},
+                    "reauthorization_request_limit": {"type": int},
+                    "unauthorized": {"type": Unauthorized},
+                    "eapol": {"type": Eapol},
+                    "aaa": {"type": Aaa},
+                }
+                authentication_failure: AuthenticationFailure
+                """Subclass of AvdModel."""
+                port_control: PortControl | None
+                port_control_force_authorized_phone: bool | None
+                reauthentication: bool | None
+                pae: Pae
+                """Subclass of AvdModel."""
+                host_mode: HostMode
+                """Subclass of AvdModel."""
+                mac_based_authentication: MacBasedAuthentication
+                """Subclass of AvdModel."""
+                mac_based_access_list: bool | None
+                """Operate interface in per-mac access-list mode."""
+                timeout: Timeout
+                """Subclass of AvdModel."""
+                reauthorization_request_limit: int | None
+                unauthorized: Unauthorized
+                """Subclass of AvdModel."""
+                eapol: Eapol
+                """Subclass of AvdModel."""
+                aaa: Aaa
+                """Subclass of AvdModel."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        authentication_failure: AuthenticationFailure | UndefinedType = Undefined,
+                        port_control: PortControl | UndefinedType | None = Undefined,
+                        port_control_force_authorized_phone: bool | UndefinedType | None = Undefined,
+                        reauthentication: bool | UndefinedType | None = Undefined,
+                        pae: Pae | UndefinedType = Undefined,
+                        host_mode: HostMode | UndefinedType = Undefined,
+                        mac_based_authentication: MacBasedAuthentication | UndefinedType = Undefined,
+                        mac_based_access_list: bool | UndefinedType | None = Undefined,
+                        timeout: Timeout | UndefinedType = Undefined,
+                        reauthorization_request_limit: int | UndefinedType | None = Undefined,
+                        unauthorized: Unauthorized | UndefinedType = Undefined,
+                        eapol: Eapol | UndefinedType = Undefined,
+                        aaa: Aaa | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        Dot1x.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            authentication_failure: Subclass of AvdModel.
+                            port_control: port_control
+                            port_control_force_authorized_phone: port_control_force_authorized_phone
+                            reauthentication: reauthentication
+                            pae: Subclass of AvdModel.
+                            host_mode: Subclass of AvdModel.
+                            mac_based_authentication: Subclass of AvdModel.
+                            mac_based_access_list: Operate interface in per-mac access-list mode.
+                            timeout: Subclass of AvdModel.
+                            reauthorization_request_limit: reauthorization_request_limit
+                            unauthorized: Subclass of AvdModel.
+                            eapol: Subclass of AvdModel.
+                            aaa: Subclass of AvdModel.
+
+                        """
+
             class AddressLocking(AvdModel):
                 """Subclass of AvdModel."""
 
@@ -3693,7 +4258,7 @@ class EosDesigns(EosDesignsRootModel):
                 "sflow": {"type": bool},
                 "flow_tracking": {"type": FlowTracking},
                 "link_tracking": {"type": LinkTracking},
-                "dot1x": {"type": EosCliConfigGen.EthernetInterfacesItem.Dot1x},
+                "dot1x": {"type": Dot1x},
                 "address_locking": {"type": AddressLocking},
                 "poe": {"type": EosCliConfigGen.EthernetInterfacesItem.Poe},
                 "storm_control": {"type": StormControl},
@@ -3891,8 +4456,12 @@ class EosDesigns(EosDesignsRootModel):
 
             Subclass of AvdModel.
             """
-            dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x
-            """802.1x"""
+            dot1x: Dot1x
+            """
+            802.1x
+
+            Subclass of AvdModel.
+            """
             address_locking: AddressLocking
             """
             Address locking settings applied on the port.
@@ -3996,7 +4565,7 @@ class EosDesigns(EosDesignsRootModel):
                     sflow: bool | UndefinedType | None = Undefined,
                     flow_tracking: FlowTracking | UndefinedType = Undefined,
                     link_tracking: LinkTracking | UndefinedType = Undefined,
-                    dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x | UndefinedType = Undefined,
+                    dot1x: Dot1x | UndefinedType = Undefined,
                     address_locking: AddressLocking | UndefinedType = Undefined,
                     poe: EosCliConfigGen.EthernetInterfacesItem.Poe | UndefinedType = Undefined,
                     storm_control: StormControl | UndefinedType = Undefined,
@@ -4156,7 +4725,10 @@ class EosDesigns(EosDesignsRootModel):
 
 
                            Subclass of AvdModel.
-                        dot1x: 802.1x
+                        dot1x:
+                           802.1x
+
+                           Subclass of AvdModel.
                         address_locking:
                            Address locking settings applied on the port.
 
@@ -4984,7 +5556,7 @@ class EosDesigns(EosDesignsRootModel):
             qos_profile: str | None
             """QOS service profile."""
             macsec_profile: str | None
-            """MAC security profile."""
+            """MAC security profile. Not supported when `port_channel` is configured."""
             port_channel: PortChannel
             """
             Port-channel parameters.
@@ -5174,7 +5746,7 @@ class EosDesigns(EosDesignsRootModel):
 
                            Subclass of AvdModel.
                         qos_profile: QOS service profile.
-                        macsec_profile: MAC security profile.
+                        macsec_profile: MAC security profile. Not supported when `port_channel` is configured.
                         port_channel:
                            Port-channel parameters.
 
@@ -5788,7 +6360,7 @@ class EosDesigns(EosDesignsRootModel):
             qos_profile: str | None
             """QOS service profile."""
             macsec_profile: str | None
-            """MAC security profile."""
+            """MAC security profile. Not supported when `port_channel` is configured."""
             port_channel: PortChannel
             """
             Port-channel parameters.
@@ -5978,7 +6550,7 @@ class EosDesigns(EosDesignsRootModel):
 
                            Subclass of AvdModel.
                         qos_profile: QOS service profile.
-                        macsec_profile: MAC security profile.
+                        macsec_profile: MAC security profile. Not supported when `port_channel` is configured.
                         port_channel:
                            Port-channel parameters.
 
@@ -8299,15 +8871,18 @@ class EosDesigns(EosDesignsRootModel):
             ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
             If the
             peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-            Hostnames
-            configured here cannot also be configured under `evpn_route_servers` on the same node.
-            If a remote
-            peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-            peering.
-
-
-            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-            (`str`).
+            If a
+            remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+            the EVPN Gateway core peering is configured on the local node.
+            Suppression is evaluated
+            independently on each node based on its local EVPN Route Server and client relationships and
+            `evpn_gateway.remote_peers` configuration.
+            When one node uses an EVPN Gateway core peering and the
+            other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+            both sides use the same password.
+            If an explicit `ip_address` differs from the regular EVPN peering
+            address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
             """
             evpn_l2: EvpnL2
             """
@@ -8356,15 +8931,18 @@ class EosDesigns(EosDesignsRootModel):
                            ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                            If the
                            peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                           Hostnames
-                           configured here cannot also be configured under `evpn_route_servers` on the same node.
-                           If a remote
-                           peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                           peering.
-
-
-                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                           (`str`).
+                           If a
+                           remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                           the EVPN Gateway core peering is configured on the local node.
+                           Suppression is evaluated
+                           independently on each node based on its local EVPN Route Server and client relationships and
+                           `evpn_gateway.remote_peers` configuration.
+                           When one node uses an EVPN Gateway core peering and the
+                           other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                           both sides use the same password.
+                           If an explicit `ip_address` differs from the regular EVPN peering
+                           address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         evpn_l2:
                            Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -11089,8 +11667,12 @@ class EosDesigns(EosDesignsRootModel):
         parent_profile: str | None
         """
         Inherit settings from a parent profile defined under `device_profiles`.
-        Max two levels of profile
-        inheritance: device -> profile -> parent_profile
+        By default, profile
+        inheritance is limited to two levels: device -> profile -> parent_profile.
+        From AVD 6.5.0 onwards,
+        setting `avd_design_future.allow_recursive_profile_inheritance` to true
+        allows profiles to inherit
+        settings across any number of levels.
         """
         type: str | None
         """
@@ -11509,8 +12091,6 @@ class EosDesigns(EosDesignsRootModel):
         evpn_route_servers: EvpnRouteServers
         """
         List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-        Hostnames configured here cannot also
-        be configured under `evpn_gateway.remote_peers` on the same node.
 
 
         Subclass of AvdList with `str`
@@ -12177,8 +12757,12 @@ class EosDesigns(EosDesignsRootModel):
                     name: Profile Name
                     parent_profile:
                        Inherit settings from a parent profile defined under `device_profiles`.
-                       Max two levels of profile
-                       inheritance: device -> profile -> parent_profile
+                       By default, profile
+                       inheritance is limited to two levels: device -> profile -> parent_profile.
+                       From AVD 6.5.0 onwards,
+                       setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                       allows profiles to inherit
+                       settings across any number of levels.
                     type:
                        Set the type of the device as defined under `node_type_keys`.
                        This takes precedence over the global
@@ -12472,8 +13056,6 @@ class EosDesigns(EosDesignsRootModel):
                        Default is set in node_type definition from node_type_keys.
                     evpn_route_servers:
                        List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                       Hostnames configured here cannot also
-                       be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                        Subclass of AvdList with `str`
@@ -13813,15 +14395,18 @@ class EosDesigns(EosDesignsRootModel):
             ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
             If the
             peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-            Hostnames
-            configured here cannot also be configured under `evpn_route_servers` on the same node.
-            If a remote
-            peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-            peering.
-
-
-            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-            (`str`).
+            If a
+            remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+            the EVPN Gateway core peering is configured on the local node.
+            Suppression is evaluated
+            independently on each node based on its local EVPN Route Server and client relationships and
+            `evpn_gateway.remote_peers` configuration.
+            When one node uses an EVPN Gateway core peering and the
+            other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+            both sides use the same password.
+            If an explicit `ip_address` differs from the regular EVPN peering
+            address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
             """
             evpn_l2: EvpnL2
             """
@@ -13870,15 +14455,18 @@ class EosDesigns(EosDesignsRootModel):
                            ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                            If the
                            peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                           Hostnames
-                           configured here cannot also be configured under `evpn_route_servers` on the same node.
-                           If a remote
-                           peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                           peering.
-
-
-                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                           (`str`).
+                           If a
+                           remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                           the EVPN Gateway core peering is configured on the local node.
+                           Suppression is evaluated
+                           independently on each node based on its local EVPN Route Server and client relationships and
+                           `evpn_gateway.remote_peers` configuration.
+                           When one node uses an EVPN Gateway core peering and the
+                           other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                           both sides use the same password.
+                           If an explicit `ip_address` differs from the regular EVPN peering
+                           address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         evpn_l2:
                            Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -16604,10 +17192,13 @@ class EosDesigns(EosDesignsRootModel):
         profile: str | None
         """
         Inherit settings from a profile defined under `device_profiles`.
-        Max two levels of profile
-        inheritance: device -> profile -> parent_profile
-        This takes precedence over the global
-        `device_profile` key.
+        By default, profile inheritance is
+        limited to two levels: device -> profile -> parent_profile.
+        From AVD 6.5.0 onwards, setting
+        `avd_design_future.allow_recursive_profile_inheritance` to true
+        allows profiles to inherit settings
+        across any number of levels.
+        This takes precedence over the global `device_profile` key.
         """
         type: str | None
         """
@@ -17034,8 +17625,6 @@ class EosDesigns(EosDesignsRootModel):
         evpn_route_servers: EvpnRouteServers
         """
         List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-        Hostnames configured here cannot also
-        be configured under `evpn_gateway.remote_peers` on the same node.
 
 
         Subclass of AvdList with `str`
@@ -17703,10 +18292,13 @@ class EosDesigns(EosDesignsRootModel):
                     name: The Node Name is used as "hostname".
                     profile:
                        Inherit settings from a profile defined under `device_profiles`.
-                       Max two levels of profile
-                       inheritance: device -> profile -> parent_profile
-                       This takes precedence over the global
-                       `device_profile` key.
+                       By default, profile inheritance is
+                       limited to two levels: device -> profile -> parent_profile.
+                       From AVD 6.5.0 onwards, setting
+                       `avd_design_future.allow_recursive_profile_inheritance` to true
+                       allows profiles to inherit settings
+                       across any number of levels.
+                       This takes precedence over the global `device_profile` key.
                     type:
                        Set the type of the device as defined under `node_type_keys`.
                        This takes precedence over the global
@@ -18006,8 +18598,6 @@ class EosDesigns(EosDesignsRootModel):
                        Default is set in node_type definition from node_type_keys.
                     evpn_route_servers:
                        List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                       Hostnames configured here cannot also
-                       be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                        Subclass of AvdList with `str`
@@ -18424,13 +19014,11 @@ class EosDesigns(EosDesignsRootModel):
             """
             Ensures eAPI remains accessible for automation and testing via ACT.
             Clients connecting to device
-            eAPI though ACT rely on access in the default VRF. If eAPI is reconfigured for a dedicated
+            eAPI through ACT rely on access in the default VRF. If eAPI is reconfigured for a dedicated
             management VRF, this primary eAPI connectivity can be unintentionally broken.
             Set this to `true` to
             enforce the required EOS configuration, guaranteeing eAPI over HTTPS is always enabled in the
             default VRF and preserving this connectivity.
-            This setting is only applicable to ACT `veos` and
-            `cloudeos` node types.
 
             Default value: `False`
             """
@@ -18465,13 +19053,11 @@ class EosDesigns(EosDesignsRootModel):
                         act_ensure_eapi_access:
                            Ensures eAPI remains accessible for automation and testing via ACT.
                            Clients connecting to device
-                           eAPI though ACT rely on access in the default VRF. If eAPI is reconfigured for a dedicated
+                           eAPI through ACT rely on access in the default VRF. If eAPI is reconfigured for a dedicated
                            management VRF, this primary eAPI connectivity can be unintentionally broken.
                            Set this to `true` to
                            enforce the required EOS configuration, guaranteeing eAPI over HTTPS is always enabled in the
                            default VRF and preserving this connectivity.
-                           This setting is only applicable to ACT `veos` and
-                           `cloudeos` node types.
 
                     """
 
@@ -19303,9 +19889,20 @@ class EosDesigns(EosDesignsRootModel):
         class WebAuthentication(AvdModel):
             """Subclass of AvdModel."""
 
-            _fields: ClassVar[dict] = {"enabled": {"type": bool}, "url": {"type": str}, "ssl_profile": {"type": str}, "start_limit_infinite": {"type": bool}}
+            _fields: ClassVar[dict] = {
+                "enabled": {"type": bool},
+                "ipv4_acl": {"type": str},
+                "url": {"type": str},
+                "ssl_profile": {"type": str},
+                "start_limit_infinite": {"type": bool},
+            }
             enabled: bool
             """Enable the Web Authentication feature."""
+            ipv4_acl: str | None
+            """
+            Extended IPv4 ACL name.
+            This ACL must be present in `ipv4_acls` catalog.
+            """
             url: str | None
             """
             Static captive portal URL used when the RADIUS server does not provide one during the authentication
@@ -19334,6 +19931,7 @@ class EosDesigns(EosDesignsRootModel):
                     self,
                     *,
                     enabled: bool | UndefinedType = Undefined,
+                    ipv4_acl: str | UndefinedType | None = Undefined,
                     url: str | UndefinedType | None = Undefined,
                     ssl_profile: str | UndefinedType | None = Undefined,
                     start_limit_infinite: bool | UndefinedType | None = Undefined,
@@ -19346,6 +19944,9 @@ class EosDesigns(EosDesignsRootModel):
 
                     Args:
                         enabled: Enable the Web Authentication feature.
+                        ipv4_acl:
+                           Extended IPv4 ACL name.
+                           This ACL must be present in `ipv4_acls` catalog.
                         url:
                            Static captive portal URL used when the RADIUS server does not provide one during the authentication
                            workflow.
@@ -22842,6 +23443,7 @@ class EosDesigns(EosDesignsRootModel):
                 "destination_ports_match": {"type": str, "default": "eq"},
                 "destination_ports": {"type": DestinationPorts},
                 "tcp_flags": {"type": TcpFlags},
+                "copy_captive_portal": {"type": bool},
                 "log": {"type": bool},
                 "icmp_type": {"type": str},
                 "icmp_code": {"type": str},
@@ -22855,19 +23457,21 @@ class EosDesigns(EosDesignsRootModel):
             }
             source: str | None
             """
-            This field supports substitution of the fields "interface_ip" for SVIs and both "interface_ip" and
-            "peer_ip" for Layer 3 interfaces.
-            Alternatively it can be set with a static value of "any",
-            "<ip>/<mask>" or "<ip>".
+            This field supports substitution of the fields "interface_ip" and "peer_ip". "peer_ip" is only
+            supported for node type L3 interfaces and L3 port-channels; it is not supported for SVIs or network
+            services L3 interfaces and L3 port-channels.
+            Alternatively it can be set with a static value of
+            "any", "<ip>/<mask>" or "<ip>".
             "<ip>" without a mask means host.
             Required except for remarks.
             """
             destination: str | None
             """
-            This field supports substitution of the fields "interface_ip" for SVIs and both "interface_ip" and
-            "peer_ip" for Layer 3 interfaces.
-            Alternatively it can be set with a static value of "any",
-            "<ip>/<mask>" or "<ip>".
+            This field supports substitution of the fields "interface_ip" and "peer_ip". "peer_ip" is only
+            supported for node type L3 interfaces and L3 port-channels, it is not supported for SVIs or network
+            services L3 interfaces and L3 port-channels.
+            Alternatively it can be set with a static value of
+            "any", "<ip>/<mask>" or "<ip>".
             "<ip>" without a mask means host.
             Required except for remarks.
             """
@@ -22912,8 +23516,19 @@ class EosDesigns(EosDesignsRootModel):
             """Subclass of AvdList with `str` items."""
             tcp_flags: TcpFlags
             """Subclass of AvdList with `str` items."""
+            copy_captive_portal: bool | None
+            """
+            Copy packet to CPU queue for dot1x captive-portal.
+            Only supported with deny entries.
+            For deny
+            entries, mutually exclusive with `log`. `copy_captive_portal` takes precedence.
+            """
             log: bool | None
-            """Log matches against this rule."""
+            """
+            Log matches against this rule.
+            For deny entries, mutually exclusive with `copy_captive_portal`.
+            `copy_captive_portal` takes precedence.
+            """
             icmp_type: str | None
             """Message type name/number for ICMP packets."""
             icmp_code: str | None
@@ -22951,6 +23566,7 @@ class EosDesigns(EosDesignsRootModel):
                     destination_ports_match: DestinationPortsMatch | UndefinedType = Undefined,
                     destination_ports: DestinationPorts | UndefinedType = Undefined,
                     tcp_flags: TcpFlags | UndefinedType = Undefined,
+                    copy_captive_portal: bool | UndefinedType | None = Undefined,
                     log: bool | UndefinedType | None = Undefined,
                     icmp_type: str | UndefinedType | None = Undefined,
                     icmp_code: str | UndefinedType | None = Undefined,
@@ -22970,17 +23586,19 @@ class EosDesigns(EosDesignsRootModel):
 
                     Args:
                         source:
-                           This field supports substitution of the fields "interface_ip" for SVIs and both "interface_ip" and
-                           "peer_ip" for Layer 3 interfaces.
-                           Alternatively it can be set with a static value of "any",
-                           "<ip>/<mask>" or "<ip>".
+                           This field supports substitution of the fields "interface_ip" and "peer_ip". "peer_ip" is only
+                           supported for node type L3 interfaces and L3 port-channels; it is not supported for SVIs or network
+                           services L3 interfaces and L3 port-channels.
+                           Alternatively it can be set with a static value of
+                           "any", "<ip>/<mask>" or "<ip>".
                            "<ip>" without a mask means host.
                            Required except for remarks.
                         destination:
-                           This field supports substitution of the fields "interface_ip" for SVIs and both "interface_ip" and
-                           "peer_ip" for Layer 3 interfaces.
-                           Alternatively it can be set with a static value of "any",
-                           "<ip>/<mask>" or "<ip>".
+                           This field supports substitution of the fields "interface_ip" and "peer_ip". "peer_ip" is only
+                           supported for node type L3 interfaces and L3 port-channels, it is not supported for SVIs or network
+                           services L3 interfaces and L3 port-channels.
+                           Alternatively it can be set with a static value of
+                           "any", "<ip>/<mask>" or "<ip>".
                            "<ip>" without a mask means host.
                            Required except for remarks.
                         sequence: ACL entry sequence number.
@@ -23005,7 +23623,15 @@ class EosDesigns(EosDesignsRootModel):
                         destination_ports_match: destination_ports_match
                         destination_ports: Subclass of AvdList with `str` items.
                         tcp_flags: Subclass of AvdList with `str` items.
-                        log: Log matches against this rule.
+                        copy_captive_portal:
+                           Copy packet to CPU queue for dot1x captive-portal.
+                           Only supported with deny entries.
+                           For deny
+                           entries, mutually exclusive with `log`. `copy_captive_portal` takes precedence.
+                        log:
+                           Log matches against this rule.
+                           For deny entries, mutually exclusive with `copy_captive_portal`.
+                           `copy_captive_portal` takes precedence.
                         icmp_type: Message type name/number for ICMP packets.
                         icmp_code: Message code for ICMP packets.
                         nexthop_group: nexthop-group name.
@@ -23351,6 +23977,7 @@ class EosDesigns(EosDesignsRootModel):
                 "destination_ports_match": {"type": str, "default": "eq"},
                 "destination_ports": {"type": DestinationPorts},
                 "tcp_flags": {"type": TcpFlags},
+                "copy_captive_portal": {"type": bool},
                 "log": {"type": bool},
                 "icmp_type": {"type": str},
                 "icmp_code": {"type": str},
@@ -23417,8 +24044,19 @@ class EosDesigns(EosDesignsRootModel):
             """Subclass of AvdList with `str` items."""
             tcp_flags: TcpFlags
             """Subclass of AvdList with `str` items."""
+            copy_captive_portal: bool | None
+            """
+            Copy packet to CPU queue for dot1x captive-portal.
+            Only supported with deny entries.
+            For deny
+            entries, mutually exclusive with `log`. `copy_captive_portal` takes precedence.
+            """
             log: bool | None
-            """Log matches against this rule."""
+            """
+            Log matches against this rule.
+            For deny entries, mutually exclusive with `copy_captive_portal`.
+            `copy_captive_portal` takes precedence.
+            """
             icmp_type: str | None
             """Message type name/number for ICMP packets."""
             icmp_code: str | None
@@ -23455,6 +24093,7 @@ class EosDesigns(EosDesignsRootModel):
                     destination_ports_match: DestinationPortsMatch | UndefinedType = Undefined,
                     destination_ports: DestinationPorts | UndefinedType = Undefined,
                     tcp_flags: TcpFlags | UndefinedType = Undefined,
+                    copy_captive_portal: bool | UndefinedType | None = Undefined,
                     log: bool | UndefinedType | None = Undefined,
                     icmp_type: str | UndefinedType | None = Undefined,
                     icmp_code: str | UndefinedType | None = Undefined,
@@ -23509,7 +24148,15 @@ class EosDesigns(EosDesignsRootModel):
                         destination_ports_match: destination_ports_match
                         destination_ports: Subclass of AvdList with `str` items.
                         tcp_flags: Subclass of AvdList with `str` items.
-                        log: Log matches against this rule.
+                        copy_captive_portal:
+                           Copy packet to CPU queue for dot1x captive-portal.
+                           Only supported with deny entries.
+                           For deny
+                           entries, mutually exclusive with `log`. `copy_captive_portal` takes precedence.
+                        log:
+                           Log matches against this rule.
+                           For deny entries, mutually exclusive with `copy_captive_portal`.
+                           `copy_captive_portal` takes precedence.
                         icmp_type: Message type name/number for ICMP packets.
                         icmp_code: Message code for ICMP packets.
                         nexthop_group: nexthop-group name.
@@ -24033,8 +24680,12 @@ class EosDesigns(EosDesignsRootModel):
         parent_profile: str | None
         """
         Name of parent L2VLAN profile to apply.
-        l2vlan_profiles can refer to another l2vlan_profile to
-        inherit settings in up to two levels (l2vlan -> l2vlan_profile -> l2vlan_parent_profile).
+        By default, profile inheritance is limited to two levels:
+        (l2vlan -> l2vlan_profile -> parent_profile).
+        From AVD 6.5.0 onwards, setting
+        `avd_design_future.allow_recursive_profile_inheritance` to true
+        allows profiles to inherit settings
+        across any number of levels.
         """
         address_locking: EosCliConfigGen.VlansItem.AddressLocking.AddressFamily
         vni_override: int | None
@@ -24164,8 +24815,12 @@ class EosDesigns(EosDesignsRootModel):
                     profile: Profile name.
                     parent_profile:
                        Name of parent L2VLAN profile to apply.
-                       l2vlan_profiles can refer to another l2vlan_profile to
-                       inherit settings in up to two levels (l2vlan -> l2vlan_profile -> l2vlan_parent_profile).
+                       By default, profile inheritance is limited to two levels:
+                       (l2vlan -> l2vlan_profile -> parent_profile).
+                       From AVD 6.5.0 onwards, setting
+                       `avd_design_future.allow_recursive_profile_inheritance` to true
+                       allows profiles to inherit settings
+                       across any number of levels.
                     address_locking: address_locking
                     vni_override:
                        By default the VNI will be derived from mac_vrf_vni_base.
@@ -24886,7 +25541,7 @@ class EosDesigns(EosDesignsRootModel):
             qos_profile: str | None
             """QOS service profile."""
             macsec_profile: str | None
-            """MAC security profile."""
+            """MAC security profile. Not supported when `port_channel` is configured."""
             port_channel: PortChannel
             """
             Port-channel parameters.
@@ -25076,7 +25731,7 @@ class EosDesigns(EosDesignsRootModel):
 
                            Subclass of AvdModel.
                         qos_profile: QOS service profile.
-                        macsec_profile: MAC security profile.
+                        macsec_profile: MAC security profile. Not supported when `port_channel` is configured.
                         port_channel:
                            Port-channel parameters.
 
@@ -25690,7 +26345,7 @@ class EosDesigns(EosDesignsRootModel):
             qos_profile: str | None
             """QOS service profile."""
             macsec_profile: str | None
-            """MAC security profile."""
+            """MAC security profile. Not supported when `port_channel` is configured."""
             port_channel: PortChannel
             """
             Port-channel parameters.
@@ -25880,7 +26535,7 @@ class EosDesigns(EosDesignsRootModel):
 
                            Subclass of AvdModel.
                         qos_profile: QOS service profile.
-                        macsec_profile: MAC security profile.
+                        macsec_profile: MAC security profile. Not supported when `port_channel` is configured.
                         port_channel:
                            Port-channel parameters.
 
@@ -28028,6 +28683,504 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class Dot1x(AvdModel):
+            """Subclass of AvdModel."""
+
+            class AuthenticationFailure(AvdModel):
+                """Subclass of AvdModel."""
+
+                Action: TypeAlias = Literal["allow", "drop"]
+                _fields: ClassVar[dict] = {"allow_access_list": {"type": str}, "action": {"type": str}, "allow_vlan": {"type": int}}
+                allow_access_list: str | None
+                """
+                Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                The access
+                list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                On EOS, the access list is
+                only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                """
+                action: Action | None
+                allow_vlan: int | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        allow_access_list: str | UndefinedType | None = Undefined,
+                        action: Action | UndefinedType | None = Undefined,
+                        allow_vlan: int | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        AuthenticationFailure.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            allow_access_list:
+                               Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                               The access
+                               list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                               On EOS, the access list is
+                               only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                            action: action
+                            allow_vlan: allow_vlan
+
+                        """
+
+            PortControl: TypeAlias = Literal["auto", "force-authorized", "force-unauthorized"]
+
+            class Pae(AvdModel):
+                """Subclass of AvdModel."""
+
+                Mode: TypeAlias = Literal["authenticator", "supplicant"]
+                _fields: ClassVar[dict] = {"mode": {"type": str}, "supplicant_profile": {"type": str}}
+                mode: Mode | None
+                supplicant_profile: str | None
+                """Supplicant profile name."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, mode: Mode | UndefinedType | None = Undefined, supplicant_profile: str | UndefinedType | None = Undefined) -> None:
+                        """
+                        Pae.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            mode: mode
+                            supplicant_profile: Supplicant profile name.
+
+                        """
+
+            class HostMode(AvdModel):
+                """Subclass of AvdModel."""
+
+                Mode: TypeAlias = Literal["multi-host", "single-host"]
+                _fields: ClassVar[dict] = {"mode": {"type": str}, "multi_host_authenticated": {"type": bool}}
+                mode: Mode | None
+                multi_host_authenticated: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self, *, mode: Mode | UndefinedType | None = Undefined, multi_host_authenticated: bool | UndefinedType | None = Undefined
+                    ) -> None:
+                        """
+                        HostMode.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            mode: mode
+                            multi_host_authenticated: multi_host_authenticated
+
+                        """
+
+            class MacBasedAuthentication(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "host_mode_common": {"type": bool}}
+                enabled: bool | None
+                always: bool | None
+                host_mode_common: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        enabled: bool | UndefinedType | None = Undefined,
+                        always: bool | UndefinedType | None = Undefined,
+                        host_mode_common: bool | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        MacBasedAuthentication.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            enabled: enabled
+                            always: always
+                            host_mode_common: host_mode_common
+
+                        """
+
+            class Timeout(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {
+                    "idle_host": {"type": int},
+                    "quiet_period": {"type": int},
+                    "reauth_period": {"type": str},
+                    "reauth_timeout_ignore": {"type": bool},
+                    "tx_period": {"type": int},
+                }
+                idle_host: int | None
+                quiet_period: int | None
+                reauth_period: str | None
+                """Value can be 60-4294967295 or 'server'."""
+                reauth_timeout_ignore: bool | None
+                tx_period: int | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        idle_host: int | UndefinedType | None = Undefined,
+                        quiet_period: int | UndefinedType | None = Undefined,
+                        reauth_period: str | UndefinedType | None = Undefined,
+                        reauth_timeout_ignore: bool | UndefinedType | None = Undefined,
+                        tx_period: int | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        Timeout.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            idle_host: idle_host
+                            quiet_period: quiet_period
+                            reauth_period: Value can be 60-4294967295 or 'server'.
+                            reauth_timeout_ignore: reauth_timeout_ignore
+                            tx_period: tx_period
+
+                        """
+
+            class Unauthorized(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"access_vlan_membership_egress": {"type": bool}, "native_vlan_membership_egress": {"type": bool}}
+                access_vlan_membership_egress: bool | None
+                native_vlan_membership_egress: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        access_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                        native_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        Unauthorized.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            access_vlan_membership_egress: access_vlan_membership_egress
+                            native_vlan_membership_egress: native_vlan_membership_egress
+
+                        """
+
+            class Eapol(AvdModel):
+                """Subclass of AvdModel."""
+
+                class AuthenticationFailureFallbackMba(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}, "timeout": {"type": int}}
+                    enabled: bool | None
+                    timeout: int | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType | None = Undefined, timeout: int | UndefinedType | None = Undefined) -> None:
+                            """
+                            AuthenticationFailureFallbackMba.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: enabled
+                                timeout: timeout
+
+                            """
+
+                _fields: ClassVar[dict] = {"disabled": {"type": bool}, "authentication_failure_fallback_mba": {"type": AuthenticationFailureFallbackMba}}
+                disabled: bool | None
+                authentication_failure_fallback_mba: AuthenticationFailureFallbackMba
+                """Subclass of AvdModel."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        disabled: bool | UndefinedType | None = Undefined,
+                        authentication_failure_fallback_mba: AuthenticationFailureFallbackMba | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        Eapol.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            disabled: disabled
+                            authentication_failure_fallback_mba: Subclass of AvdModel.
+
+                        """
+
+            class Aaa(AvdModel):
+                """Subclass of AvdModel."""
+
+                class Unresponsive(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    EapResponse: TypeAlias = Literal["success", "disabled"]
+
+                    class Action(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class CachedResultsTimeout(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            TimeDurationUnit: TypeAlias = Literal["days", "hours", "minutes", "seconds"]
+                            _fields: ClassVar[dict] = {"time_duration": {"type": int}, "time_duration_unit": {"type": str}}
+                            time_duration: int
+                            """
+                            Enable caching for a specific duration -
+                            <1-10000>      duration in days
+                            <1-14400000>   duration in
+                            minutes
+                            <1-240000>     duration in hours
+                            <1-864000000>  duration in seconds
+                            """
+                            time_duration_unit: TimeDurationUnit
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, time_duration: int | UndefinedType = Undefined, time_duration_unit: TimeDurationUnit | UndefinedType = Undefined
+                                ) -> None:
+                                    """
+                                    CachedResultsTimeout.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        time_duration:
+                                           Enable caching for a specific duration -
+                                           <1-10000>      duration in days
+                                           <1-14400000>   duration in
+                                           minutes
+                                           <1-240000>     duration in hours
+                                           <1-864000000>  duration in seconds
+                                        time_duration_unit: time_duration_unit
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "traffic_allow_access_list": {"type": str},
+                            "apply_alternate": {"type": bool},
+                            "traffic_allow_vlan": {"type": int},
+                            "apply_cached_results": {"type": bool},
+                            "cached_results_timeout": {"type": CachedResultsTimeout},
+                            "traffic_allow": {"type": bool},
+                        }
+                        traffic_allow_access_list: str | None
+                        """Name of standard access-list to apply when AAA times out."""
+                        apply_alternate: bool | None
+                        """
+                        Apply alternate action if primary action fails.
+                        e.g. aaa unresponsive action apply cached-results
+                        else traffic allow
+                        """
+                        traffic_allow_vlan: int | None
+                        apply_cached_results: bool | None
+                        """Use results from a previous AAA response."""
+                        cached_results_timeout: CachedResultsTimeout
+                        """Subclass of AvdModel."""
+                        traffic_allow: bool | None
+                        """Set action for supplicant traffic when AAA times out."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                traffic_allow_access_list: str | UndefinedType | None = Undefined,
+                                apply_alternate: bool | UndefinedType | None = Undefined,
+                                traffic_allow_vlan: int | UndefinedType | None = Undefined,
+                                apply_cached_results: bool | UndefinedType | None = Undefined,
+                                cached_results_timeout: CachedResultsTimeout | UndefinedType = Undefined,
+                                traffic_allow: bool | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                Action.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    traffic_allow_access_list: Name of standard access-list to apply when AAA times out.
+                                    apply_alternate:
+                                       Apply alternate action if primary action fails.
+                                       e.g. aaa unresponsive action apply cached-results
+                                       else traffic allow
+                                    traffic_allow_vlan: traffic_allow_vlan
+                                    apply_cached_results: Use results from a previous AAA response.
+                                    cached_results_timeout: Subclass of AvdModel.
+                                    traffic_allow: Set action for supplicant traffic when AAA times out.
+
+                                """
+
+                    _fields: ClassVar[dict] = {
+                        "eap_response": {"type": str},
+                        "action": {"type": Action},
+                        "phone_action": {"type": EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction},
+                    }
+                    eap_response: EapResponse | None
+                    """EAP response to send. EOS default is `success`."""
+                    action: Action
+                    """
+                    Set action for supplicant when AAA times out.
+
+                    Subclass of AvdModel.
+                    """
+                    phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction
+                    """Set action for supplicant when AAA times out."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            eap_response: EapResponse | UndefinedType | None = Undefined,
+                            action: Action | UndefinedType = Undefined,
+                            phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction | UndefinedType = Undefined,
+                        ) -> None:
+                            """
+                            Unresponsive.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                eap_response: EAP response to send. EOS default is `success`.
+                                action:
+                                   Set action for supplicant when AAA times out.
+
+                                   Subclass of AvdModel.
+                                phone_action: Set action for supplicant when AAA times out.
+
+                            """
+
+                _fields: ClassVar[dict] = {"unresponsive": {"type": Unresponsive}}
+                unresponsive: Unresponsive
+                """
+                Configure AAA timeout options.
+
+                Subclass of AvdModel.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, unresponsive: Unresponsive | UndefinedType = Undefined) -> None:
+                        """
+                        Aaa.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            unresponsive:
+                               Configure AAA timeout options.
+
+                               Subclass of AvdModel.
+
+                        """
+
+            _fields: ClassVar[dict] = {
+                "authentication_failure": {"type": AuthenticationFailure},
+                "port_control": {"type": str},
+                "port_control_force_authorized_phone": {"type": bool},
+                "reauthentication": {"type": bool},
+                "pae": {"type": Pae},
+                "host_mode": {"type": HostMode},
+                "mac_based_authentication": {"type": MacBasedAuthentication},
+                "mac_based_access_list": {"type": bool},
+                "timeout": {"type": Timeout},
+                "reauthorization_request_limit": {"type": int},
+                "unauthorized": {"type": Unauthorized},
+                "eapol": {"type": Eapol},
+                "aaa": {"type": Aaa},
+            }
+            authentication_failure: AuthenticationFailure
+            """Subclass of AvdModel."""
+            port_control: PortControl | None
+            port_control_force_authorized_phone: bool | None
+            reauthentication: bool | None
+            pae: Pae
+            """Subclass of AvdModel."""
+            host_mode: HostMode
+            """Subclass of AvdModel."""
+            mac_based_authentication: MacBasedAuthentication
+            """Subclass of AvdModel."""
+            mac_based_access_list: bool | None
+            """Operate interface in per-mac access-list mode."""
+            timeout: Timeout
+            """Subclass of AvdModel."""
+            reauthorization_request_limit: int | None
+            unauthorized: Unauthorized
+            """Subclass of AvdModel."""
+            eapol: Eapol
+            """Subclass of AvdModel."""
+            aaa: Aaa
+            """Subclass of AvdModel."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    authentication_failure: AuthenticationFailure | UndefinedType = Undefined,
+                    port_control: PortControl | UndefinedType | None = Undefined,
+                    port_control_force_authorized_phone: bool | UndefinedType | None = Undefined,
+                    reauthentication: bool | UndefinedType | None = Undefined,
+                    pae: Pae | UndefinedType = Undefined,
+                    host_mode: HostMode | UndefinedType = Undefined,
+                    mac_based_authentication: MacBasedAuthentication | UndefinedType = Undefined,
+                    mac_based_access_list: bool | UndefinedType | None = Undefined,
+                    timeout: Timeout | UndefinedType = Undefined,
+                    reauthorization_request_limit: int | UndefinedType | None = Undefined,
+                    unauthorized: Unauthorized | UndefinedType = Undefined,
+                    eapol: Eapol | UndefinedType = Undefined,
+                    aaa: Aaa | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Dot1x.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        authentication_failure: Subclass of AvdModel.
+                        port_control: port_control
+                        port_control_force_authorized_phone: port_control_force_authorized_phone
+                        reauthentication: reauthentication
+                        pae: Subclass of AvdModel.
+                        host_mode: Subclass of AvdModel.
+                        mac_based_authentication: Subclass of AvdModel.
+                        mac_based_access_list: Operate interface in per-mac access-list mode.
+                        timeout: Subclass of AvdModel.
+                        reauthorization_request_limit: reauthorization_request_limit
+                        unauthorized: Subclass of AvdModel.
+                        eapol: Subclass of AvdModel.
+                        aaa: Subclass of AvdModel.
+
+                    """
+
         class AddressLocking(AvdModel):
             """Subclass of AvdModel."""
 
@@ -28918,7 +30071,7 @@ class EosDesigns(EosDesignsRootModel):
             "sflow": {"type": bool},
             "flow_tracking": {"type": FlowTracking},
             "link_tracking": {"type": LinkTracking},
-            "dot1x": {"type": EosCliConfigGen.EthernetInterfacesItem.Dot1x},
+            "dot1x": {"type": Dot1x},
             "address_locking": {"type": AddressLocking},
             "poe": {"type": EosCliConfigGen.EthernetInterfacesItem.Poe},
             "storm_control": {"type": StormControl},
@@ -29101,8 +30254,12 @@ class EosDesigns(EosDesignsRootModel):
 
         Subclass of AvdModel.
         """
-        dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x
-        """802.1x"""
+        dot1x: Dot1x
+        """
+        802.1x
+
+        Subclass of AvdModel.
+        """
         address_locking: AddressLocking
         """
         Address locking settings applied on the port.
@@ -29210,7 +30367,7 @@ class EosDesigns(EosDesignsRootModel):
                 sflow: bool | UndefinedType | None = Undefined,
                 flow_tracking: FlowTracking | UndefinedType = Undefined,
                 link_tracking: LinkTracking | UndefinedType = Undefined,
-                dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x | UndefinedType = Undefined,
+                dot1x: Dot1x | UndefinedType = Undefined,
                 address_locking: AddressLocking | UndefinedType = Undefined,
                 poe: EosCliConfigGen.EthernetInterfacesItem.Poe | UndefinedType = Undefined,
                 storm_control: StormControl | UndefinedType = Undefined,
@@ -29360,7 +30517,10 @@ class EosDesigns(EosDesignsRootModel):
 
 
                        Subclass of AvdModel.
-                    dot1x: 802.1x
+                    dot1x:
+                       802.1x
+
+                       Subclass of AvdModel.
                     address_locking:
                        Address locking settings applied on the port.
 
@@ -29508,12 +30668,45 @@ class EosDesigns(EosDesignsRootModel):
             class AddressFamilyIpv6(AvdModel):
                 """Subclass of AvdModel."""
 
+                class DefaultOriginate(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "route_map": {"type": str}}
+                    enabled: bool
+                    always: bool | None
+                    """Always advertise a default route to this peer."""
+                    route_map: str | None
+                    """Route-map name."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            enabled: bool | UndefinedType = Undefined,
+                            always: bool | UndefinedType | None = Undefined,
+                            route_map: str | UndefinedType | None = Undefined,
+                        ) -> None:
+                            """
+                            DefaultOriginate.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: enabled
+                                always: Always advertise a default route to this peer.
+                                route_map: Route-map name.
+
+                            """
+
                 _fields: ClassVar[dict] = {
                     "activate": {"type": bool},
                     "route_map_in": {"type": str},
                     "route_map_out": {"type": str},
                     "rcf_in": {"type": str},
                     "rcf_out": {"type": str},
+                    "default_originate": {"type": DefaultOriginate},
                     "prefix_list_in": {"type": str},
                     "prefix_list_out": {"type": str},
                 }
@@ -29532,6 +30725,8 @@ class EosDesigns(EosDesignsRootModel):
                 Outbound RCF function name with parenthesis.
                 Example: MyFunction(myarg).
                 """
+                default_originate: DefaultOriginate
+                """Subclass of AvdModel."""
                 prefix_list_in: str | None
                 """Inbound prefix-list name."""
                 prefix_list_out: str | None
@@ -29547,6 +30742,7 @@ class EosDesigns(EosDesignsRootModel):
                         route_map_out: str | UndefinedType | None = Undefined,
                         rcf_in: str | UndefinedType | None = Undefined,
                         rcf_out: str | UndefinedType | None = Undefined,
+                        default_originate: DefaultOriginate | UndefinedType = Undefined,
                         prefix_list_in: str | UndefinedType | None = Undefined,
                         prefix_list_out: str | UndefinedType | None = Undefined,
                     ) -> None:
@@ -29566,6 +30762,7 @@ class EosDesigns(EosDesignsRootModel):
                             rcf_out:
                                Outbound RCF function name with parenthesis.
                                Example: MyFunction(myarg).
+                            default_originate: Subclass of AvdModel.
                             prefix_list_in: Inbound prefix-list name.
                             prefix_list_out: Outbound prefix-list name.
 
@@ -30124,6 +31321,8 @@ class EosDesigns(EosDesignsRootModel):
                 "session_tracker": {"type": str},
                 "shared_secret": {"type": SharedSecret},
                 "ttl_maximum_hops": {"type": int},
+                "maximum_advertised_routes": {"type": int},
+                "maximum_advertised_routes_warning_limit": {"type": str},
             }
             name: str
             """BGP peer group name."""
@@ -30256,6 +31455,14 @@ class EosDesigns(EosDesignsRootModel):
             """Subclass of AvdModel."""
             ttl_maximum_hops: int | None
             """Maximum number of hops."""
+            maximum_advertised_routes: int | None
+            """Maximum number of advertised routes (0 means unlimited)."""
+            maximum_advertised_routes_warning_limit: str | None
+            """
+            Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+            never warn) or
+            Percentage of maximum number of routes at which to warn ("<1-100> percent").
+            """
 
             if TYPE_CHECKING:
 
@@ -30307,6 +31514,8 @@ class EosDesigns(EosDesignsRootModel):
                     session_tracker: str | UndefinedType | None = Undefined,
                     shared_secret: SharedSecret | UndefinedType = Undefined,
                     ttl_maximum_hops: int | UndefinedType | None = Undefined,
+                    maximum_advertised_routes: int | UndefinedType | None = Undefined,
+                    maximum_advertised_routes_warning_limit: str | UndefinedType | None = Undefined,
                 ) -> None:
                     """
                     BgpPeerGroupsItem.
@@ -30400,6 +31609,11 @@ class EosDesigns(EosDesignsRootModel):
                         session_tracker: session_tracker
                         shared_secret: Subclass of AvdModel.
                         ttl_maximum_hops: Maximum number of hops.
+                        maximum_advertised_routes: Maximum number of advertised routes (0 means unlimited).
+                        maximum_advertised_routes_warning_limit:
+                           Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                           never warn) or
+                           Percentage of maximum number of routes at which to warn ("<1-100> percent").
 
                     """
 
@@ -32458,6 +33672,7 @@ class EosDesigns(EosDesignsRootModel):
                         "tags": {"type": Tags, "default": lambda cls: coerce_type(["all"], target_type=cls)},
                         "name": {"type": str},
                         "enabled": {"type": bool},
+                        "autostate": {"type": bool, "default": True},
                         "description": {"type": str},
                         "arp_gratuitous_accept": {"type": bool},
                         "ip_address": {"type": str},
@@ -32514,6 +33729,12 @@ class EosDesigns(EosDesignsRootModel):
                     """VLAN name."""
                     enabled: bool | None
                     """Enable or disable interface."""
+                    autostate: bool
+                    """
+                    Set to false to disable automatic management of the interface link state.
+
+                    Default value: `True`
+                    """
                     description: str | None
                     """SVI description. By default set to VLAN name."""
                     arp_gratuitous_accept: bool | None
@@ -32596,13 +33817,21 @@ class EosDesigns(EosDesignsRootModel):
                     """
                     Name of the IPv6 access-list to be assigned in the ingress direction.
                     The access-list must be
-                    defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                    defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                    resolved from
+                    `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                    Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                    removed in AVD 7.0.0.
                     """
                     ipv6_acl_out: str | None
                     """
                     Name of the IPv6 access-list to be assigned in the egress direction.
                     The access-list must be defined
-                    under `ipv6_acls` and supports substitution of the field "interface_ip".
+                    under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                    resolved from
+                    `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                    Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                    removed in AVD 7.0.0.
                     """
                     ip_helpers: IpHelpers
                     """
@@ -32743,6 +33972,7 @@ class EosDesigns(EosDesignsRootModel):
                             tags: Tags | UndefinedType = Undefined,
                             name: str | UndefinedType | None = Undefined,
                             enabled: bool | UndefinedType | None = Undefined,
+                            autostate: bool | UndefinedType = Undefined,
                             description: str | UndefinedType | None = Undefined,
                             arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                             ip_address: str | UndefinedType | None = Undefined,
@@ -32799,6 +34029,7 @@ class EosDesigns(EosDesignsRootModel):
                                    Subclass of AvdList with `str` items.
                                 name: VLAN name.
                                 enabled: Enable or disable interface.
+                                autostate: Set to false to disable automatic management of the interface link state.
                                 description: SVI description. By default set to VLAN name.
                                 arp_gratuitous_accept: Accept gratuitous ARP.
                                 ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -32857,11 +34088,19 @@ class EosDesigns(EosDesignsRootModel):
                                 ipv6_acl_in:
                                    Name of the IPv6 access-list to be assigned in the ingress direction.
                                    The access-list must be
-                                   defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                   defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                   resolved from
+                                   `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                   Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                   removed in AVD 7.0.0.
                                 ipv6_acl_out:
                                    Name of the IPv6 access-list to be assigned in the egress direction.
                                    The access-list must be defined
-                                   under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                   under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                   resolved from
+                                   `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                   Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                   removed in AVD 7.0.0.
                                 ip_helpers:
                                    IP helper for DHCP relay.
 
@@ -33867,6 +35106,7 @@ class EosDesigns(EosDesignsRootModel):
                     "evpn_vlan_bundle": {"type": str},
                     "nodes": {"type": Nodes},
                     "enabled": {"type": bool},
+                    "autostate": {"type": bool, "default": True},
                     "description": {"type": str},
                     "arp_gratuitous_accept": {"type": bool},
                     "ip_address": {"type": str},
@@ -33922,6 +35162,10 @@ class EosDesigns(EosDesignsRootModel):
                 SVI profile name to apply.
                 SVI can refer to one svi_profile which again can refer to another
                 svi_profile to inherit settings in up to two levels (svi -> svi_profile -> svi_parent_profile).
+                From
+                AVD 6.5.0 onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                allows
+                profiles to inherit settings across any number of levels.
                 """
                 tags: Tags
                 """
@@ -33953,6 +35197,12 @@ class EosDesigns(EosDesignsRootModel):
                 """
                 enabled: bool | None
                 """Enable or disable interface."""
+                autostate: bool
+                """
+                Set to false to disable automatic management of the interface link state.
+
+                Default value: `True`
+                """
                 description: str | None
                 """SVI description. By default set to VLAN name."""
                 arp_gratuitous_accept: bool | None
@@ -34035,13 +35285,21 @@ class EosDesigns(EosDesignsRootModel):
                 """
                 Name of the IPv6 access-list to be assigned in the ingress direction.
                 The access-list must be
-                defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                resolved from
+                `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                removed in AVD 7.0.0.
                 """
                 ipv6_acl_out: str | None
                 """
                 Name of the IPv6 access-list to be assigned in the egress direction.
                 The access-list must be defined
-                under `ipv6_acls` and supports substitution of the field "interface_ip".
+                under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                resolved from
+                `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                removed in AVD 7.0.0.
                 """
                 ip_helpers: IpHelpers
                 """
@@ -34186,6 +35444,7 @@ class EosDesigns(EosDesignsRootModel):
                         evpn_vlan_bundle: str | UndefinedType | None = Undefined,
                         nodes: Nodes | UndefinedType = Undefined,
                         enabled: bool | UndefinedType | None = Undefined,
+                        autostate: bool | UndefinedType = Undefined,
                         description: str | UndefinedType | None = Undefined,
                         arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                         ip_address: str | UndefinedType | None = Undefined,
@@ -34243,6 +35502,10 @@ class EosDesigns(EosDesignsRootModel):
                                SVI profile name to apply.
                                SVI can refer to one svi_profile which again can refer to another
                                svi_profile to inherit settings in up to two levels (svi -> svi_profile -> svi_parent_profile).
+                               From
+                               AVD 6.5.0 onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                               allows
+                               profiles to inherit settings across any number of levels.
                             tags:
                                Tags leveraged for networks services filtering.
                                Tags are matched against "filter.tags" defined under
@@ -34264,6 +35527,7 @@ class EosDesigns(EosDesignsRootModel):
 
                                Subclass of AvdIndexedList with `NodesItem` items. Primary key is `node` (`str`).
                             enabled: Enable or disable interface.
+                            autostate: Set to false to disable automatic management of the interface link state.
                             description: SVI description. By default set to VLAN name.
                             arp_gratuitous_accept: Accept gratuitous ARP.
                             ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -34322,11 +35586,19 @@ class EosDesigns(EosDesignsRootModel):
                             ipv6_acl_in:
                                Name of the IPv6 access-list to be assigned in the ingress direction.
                                The access-list must be
-                               defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                               defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                               resolved from
+                               `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                               Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                               removed in AVD 7.0.0.
                             ipv6_acl_out:
                                Name of the IPv6 access-list to be assigned in the egress direction.
                                The access-list must be defined
-                               under `ipv6_acls` and supports substitution of the field "interface_ip".
+                               under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                               resolved from
+                               `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                               Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                               removed in AVD 7.0.0.
                             ip_helpers:
                                IP helper for DHCP relay.
 
@@ -36612,9 +37884,38 @@ class EosDesigns(EosDesignsRootModel):
             class Bgp(AvdModel):
                 """Subclass of AvdModel."""
 
+                class GracefulRestart(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}, "restart_time": {"type": int, "default": 300}}
+                    enabled: bool
+                    """Enable or disable BGP graceful-restart for this VRF."""
+                    restart_time: int
+                    """
+                    Restart time in seconds.
+
+                    Default value: `300`
+                    """
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType = Undefined, restart_time: int | UndefinedType = Undefined) -> None:
+                            """
+                            GracefulRestart.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: Enable or disable BGP graceful-restart for this VRF.
+                                restart_time: Restart time in seconds.
+
+                            """
+
                 _fields: ClassVar[dict] = {
                     "enabled": {"type": bool},
                     "router_id": {"type": str, "default": "main_router_id"},
+                    "graceful_restart": {"type": GracefulRestart},
                     "raw_eos_cli": {"type": str},
                     "structured_config": {"type": EosCliConfigGen.RouterBgp.VrfsItem},
                 }
@@ -36644,6 +37945,15 @@ class EosDesigns(EosDesignsRootModel):
 
                 Default value: `"main_router_id"`
                 """
+                graceful_restart: GracefulRestart
+                """
+                BGP graceful-restart configuration for this VRF.
+                This setting is not supported for VRF default. Use
+                `bgp_graceful_restart` instead.
+
+
+                Subclass of AvdModel.
+                """
                 raw_eos_cli: str | None
                 """EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration."""
                 structured_config: EosCliConfigGen.RouterBgp.VrfsItem
@@ -36656,6 +37966,7 @@ class EosDesigns(EosDesignsRootModel):
                         *,
                         enabled: bool | UndefinedType | None = Undefined,
                         router_id: str | UndefinedType = Undefined,
+                        graceful_restart: GracefulRestart | UndefinedType = Undefined,
                         raw_eos_cli: str | UndefinedType | None = Undefined,
                         structured_config: EosCliConfigGen.RouterBgp.VrfsItem | UndefinedType = Undefined,
                     ) -> None:
@@ -36686,6 +37997,13 @@ class EosDesigns(EosDesignsRootModel):
                                Router ID for this VRF. EOS will use the main BGP Router ID.
                                - "diagnostic_loopback" will use the IP
                                address of the VRF Diagnostic Loopback interface.
+                            graceful_restart:
+                               BGP graceful-restart configuration for this VRF.
+                               This setting is not supported for VRF default. Use
+                               `bgp_graceful_restart` instead.
+
+
+                               Subclass of AvdModel.
                             raw_eos_cli: EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration.
                             structured_config: Custom structured config added under router_bgp.vrfs.[name=<vrf>] for the EOS Config schema.
 
@@ -36776,12 +38094,45 @@ class EosDesigns(EosDesignsRootModel):
                 class AddressFamilyIpv6(AvdModel):
                     """Subclass of AvdModel."""
 
+                    class DefaultOriginate(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "route_map": {"type": str}}
+                        enabled: bool
+                        always: bool | None
+                        """Always advertise a default route to this peer."""
+                        route_map: str | None
+                        """Route-map name."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                enabled: bool | UndefinedType = Undefined,
+                                always: bool | UndefinedType | None = Undefined,
+                                route_map: str | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                DefaultOriginate.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: enabled
+                                    always: Always advertise a default route to this peer.
+                                    route_map: Route-map name.
+
+                                """
+
                     _fields: ClassVar[dict] = {
                         "activate": {"type": bool},
                         "route_map_in": {"type": str},
                         "route_map_out": {"type": str},
                         "rcf_in": {"type": str},
                         "rcf_out": {"type": str},
+                        "default_originate": {"type": DefaultOriginate},
                         "prefix_list_in": {"type": str},
                         "prefix_list_out": {"type": str},
                     }
@@ -36800,6 +38151,8 @@ class EosDesigns(EosDesignsRootModel):
                     Outbound RCF function name with parenthesis.
                     Example: MyFunction(myarg).
                     """
+                    default_originate: DefaultOriginate
+                    """Subclass of AvdModel."""
                     prefix_list_in: str | None
                     """Inbound prefix-list name."""
                     prefix_list_out: str | None
@@ -36815,6 +38168,7 @@ class EosDesigns(EosDesignsRootModel):
                             route_map_out: str | UndefinedType | None = Undefined,
                             rcf_in: str | UndefinedType | None = Undefined,
                             rcf_out: str | UndefinedType | None = Undefined,
+                            default_originate: DefaultOriginate | UndefinedType = Undefined,
                             prefix_list_in: str | UndefinedType | None = Undefined,
                             prefix_list_out: str | UndefinedType | None = Undefined,
                         ) -> None:
@@ -36834,6 +38188,7 @@ class EosDesigns(EosDesignsRootModel):
                                 rcf_out:
                                    Outbound RCF function name with parenthesis.
                                    Example: MyFunction(myarg).
+                                default_originate: Subclass of AvdModel.
                                 prefix_list_in: Inbound prefix-list name.
                                 prefix_list_out: Outbound prefix-list name.
 
@@ -37399,6 +38754,8 @@ class EosDesigns(EosDesignsRootModel):
                     "session_tracker": {"type": str},
                     "shared_secret": {"type": SharedSecret},
                     "ttl_maximum_hops": {"type": int},
+                    "maximum_advertised_routes": {"type": int},
+                    "maximum_advertised_routes_warning_limit": {"type": str},
                 }
                 name: str
                 """BGP peer group name."""
@@ -37535,6 +38892,14 @@ class EosDesigns(EosDesignsRootModel):
                 """Subclass of AvdModel."""
                 ttl_maximum_hops: int | None
                 """Maximum number of hops."""
+                maximum_advertised_routes: int | None
+                """Maximum number of advertised routes (0 means unlimited)."""
+                maximum_advertised_routes_warning_limit: str | None
+                """
+                Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                never warn) or
+                Percentage of maximum number of routes at which to warn ("<1-100> percent").
+                """
 
                 if TYPE_CHECKING:
 
@@ -37586,6 +38951,8 @@ class EosDesigns(EosDesignsRootModel):
                         session_tracker: str | UndefinedType | None = Undefined,
                         shared_secret: SharedSecret | UndefinedType = Undefined,
                         ttl_maximum_hops: int | UndefinedType | None = Undefined,
+                        maximum_advertised_routes: int | UndefinedType | None = Undefined,
+                        maximum_advertised_routes_warning_limit: str | UndefinedType | None = Undefined,
                     ) -> None:
                         """
                         BgpPeerGroupsItem.
@@ -37683,6 +39050,11 @@ class EosDesigns(EosDesignsRootModel):
                             session_tracker: session_tracker
                             shared_secret: Subclass of AvdModel.
                             ttl_maximum_hops: Maximum number of hops.
+                            maximum_advertised_routes: Maximum number of advertised routes (0 means unlimited).
+                            maximum_advertised_routes_warning_limit:
+                               Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                               never warn) or
+                               Percentage of maximum number of routes at which to warn ("<1-100> percent").
 
                         """
 
@@ -38799,6 +40171,10 @@ class EosDesigns(EosDesignsRootModel):
             The profile must be defined under `l2vlan_profiles`. The profile may refer to
             another l2vlan_profile as its `parent_profile` to inherit settings in up to two levels (l2vlan ->
             l2vlan_profile -> l2vlan_parent_profile).
+            From AVD 6.5.0 onwards, setting
+            `avd_design_future.allow_recursive_profile_inheritance` to true
+            allows profiles to inherit settings
+            across any number of levels.
             """
             tags: Tags
             """
@@ -38944,6 +40320,10 @@ class EosDesigns(EosDesignsRootModel):
                            The profile must be defined under `l2vlan_profiles`. The profile may refer to
                            another l2vlan_profile as its `parent_profile` to inherit settings in up to two levels (l2vlan ->
                            l2vlan_profile -> l2vlan_parent_profile).
+                           From AVD 6.5.0 onwards, setting
+                           `avd_design_future.allow_recursive_profile_inheritance` to true
+                           allows profiles to inherit settings
+                           across any number of levels.
                         tags:
                            Tags leveraged for networks services filtering.
                            Tags are matched against filter.tags defined under
@@ -41490,6 +42870,11 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class AdditionalTcamProfiles(AvdList[str]):
+            """Subclass of AvdList with `str` items."""
+
+        AdditionalTcamProfiles._item_type = str
+
         class FeatureSupport(AvdModel):
             """Subclass of AvdModel."""
 
@@ -43190,6 +44575,7 @@ class EosDesigns(EosDesignsRootModel):
             "trident_forwarding_table_partition": {"type": str},
             "reload_delay": {"type": ReloadDelay},
             "tcam_profile": {"type": str},
+            "additional_tcam_profiles": {"type": AdditionalTcamProfiles},
             "lag_hardware_only": {"type": bool},
             "default_interface_mtu": {"type": int},
             "p2p_uplinks_mtu": {"type": int},
@@ -43207,6 +44593,24 @@ class EosDesigns(EosDesignsRootModel):
         reload_delay: ReloadDelay
         """Subclass of AvdModel."""
         tcam_profile: str | None
+        """
+        TCAM profile name to activate as the system profile.
+        If the profile is defined under
+        `tcam_profiles`, it will also be configured in the device.
+        Built-in profiles (e.g., system-profile)
+        can be used without being defined in `tcam_profiles`.
+        """
+        additional_tcam_profiles: AdditionalTcamProfiles
+        """
+        List of additional TCAM profile names that must be defined under `tcam_profiles`.
+        These profiles are
+        configured in the device but are not set as the system profile.
+        If a profile is specified in both
+        `tcam_profile` and `additional_tcam_profiles`, it will be configured only once.
+
+        Subclass of AvdList
+        with `str` items.
+        """
         lag_hardware_only: bool | None
         default_interface_mtu: int | None
         """
@@ -43252,6 +44656,7 @@ class EosDesigns(EosDesignsRootModel):
                 trident_forwarding_table_partition: str | UndefinedType | None = Undefined,
                 reload_delay: ReloadDelay | UndefinedType = Undefined,
                 tcam_profile: str | UndefinedType | None = Undefined,
+                additional_tcam_profiles: AdditionalTcamProfiles | UndefinedType = Undefined,
                 lag_hardware_only: bool | UndefinedType | None = Undefined,
                 default_interface_mtu: int | UndefinedType | None = Undefined,
                 p2p_uplinks_mtu: int | UndefinedType | None = Undefined,
@@ -43272,7 +44677,21 @@ class EosDesigns(EosDesignsRootModel):
                     platforms: Subclass of AvdList with `str` items.
                     trident_forwarding_table_partition: Only applied when evpn_multicast is true.
                     reload_delay: Subclass of AvdModel.
-                    tcam_profile: tcam_profile
+                    tcam_profile:
+                       TCAM profile name to activate as the system profile.
+                       If the profile is defined under
+                       `tcam_profiles`, it will also be configured in the device.
+                       Built-in profiles (e.g., system-profile)
+                       can be used without being defined in `tcam_profiles`.
+                    additional_tcam_profiles:
+                       List of additional TCAM profile names that must be defined under `tcam_profiles`.
+                       These profiles are
+                       configured in the device but are not set as the system profile.
+                       If a profile is specified in both
+                       `tcam_profile` and `additional_tcam_profiles`, it will be configured only once.
+
+                       Subclass of AvdList
+                       with `str` items.
                     lag_hardware_only: lag_hardware_only
                     default_interface_mtu:
                        Default interface MTU configured on EOS under "interface defaults".
@@ -43336,6 +44755,11 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class AdditionalTcamProfiles(AvdList[str]):
+            """Subclass of AvdList with `str` items."""
+
+        AdditionalTcamProfiles._item_type = str
+
         class FeatureSupport(AvdModel):
             """Subclass of AvdModel."""
 
@@ -45036,6 +46460,7 @@ class EosDesigns(EosDesignsRootModel):
             "trident_forwarding_table_partition": {"type": str},
             "reload_delay": {"type": ReloadDelay},
             "tcam_profile": {"type": str},
+            "additional_tcam_profiles": {"type": AdditionalTcamProfiles},
             "lag_hardware_only": {"type": bool},
             "default_interface_mtu": {"type": int},
             "p2p_uplinks_mtu": {"type": int},
@@ -45053,6 +46478,24 @@ class EosDesigns(EosDesignsRootModel):
         reload_delay: ReloadDelay
         """Subclass of AvdModel."""
         tcam_profile: str | None
+        """
+        TCAM profile name to activate as the system profile.
+        If the profile is defined under
+        `tcam_profiles`, it will also be configured in the device.
+        Built-in profiles (e.g., system-profile)
+        can be used without being defined in `tcam_profiles`.
+        """
+        additional_tcam_profiles: AdditionalTcamProfiles
+        """
+        List of additional TCAM profile names that must be defined under `tcam_profiles`.
+        These profiles are
+        configured in the device but are not set as the system profile.
+        If a profile is specified in both
+        `tcam_profile` and `additional_tcam_profiles`, it will be configured only once.
+
+        Subclass of AvdList
+        with `str` items.
+        """
         lag_hardware_only: bool | None
         default_interface_mtu: int | None
         """
@@ -45098,6 +46541,7 @@ class EosDesigns(EosDesignsRootModel):
                 trident_forwarding_table_partition: str | UndefinedType | None = Undefined,
                 reload_delay: ReloadDelay | UndefinedType = Undefined,
                 tcam_profile: str | UndefinedType | None = Undefined,
+                additional_tcam_profiles: AdditionalTcamProfiles | UndefinedType = Undefined,
                 lag_hardware_only: bool | UndefinedType | None = Undefined,
                 default_interface_mtu: int | UndefinedType | None = Undefined,
                 p2p_uplinks_mtu: int | UndefinedType | None = Undefined,
@@ -45118,7 +46562,21 @@ class EosDesigns(EosDesignsRootModel):
                     platforms: Subclass of AvdList with `str` items.
                     trident_forwarding_table_partition: Only applied when evpn_multicast is true.
                     reload_delay: Subclass of AvdModel.
-                    tcam_profile: tcam_profile
+                    tcam_profile:
+                       TCAM profile name to activate as the system profile.
+                       If the profile is defined under
+                       `tcam_profiles`, it will also be configured in the device.
+                       Built-in profiles (e.g., system-profile)
+                       can be used without being defined in `tcam_profiles`.
+                    additional_tcam_profiles:
+                       List of additional TCAM profile names that must be defined under `tcam_profiles`.
+                       These profiles are
+                       configured in the device but are not set as the system profile.
+                       If a profile is specified in both
+                       `tcam_profile` and `additional_tcam_profiles`, it will be configured only once.
+
+                       Subclass of AvdList
+                       with `str` items.
                     lag_hardware_only: lag_hardware_only
                     default_interface_mtu:
                        Default interface MTU configured on EOS under "interface defaults".
@@ -45904,6 +47362,504 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class Dot1x(AvdModel):
+            """Subclass of AvdModel."""
+
+            class AuthenticationFailure(AvdModel):
+                """Subclass of AvdModel."""
+
+                Action: TypeAlias = Literal["allow", "drop"]
+                _fields: ClassVar[dict] = {"allow_access_list": {"type": str}, "action": {"type": str}, "allow_vlan": {"type": int}}
+                allow_access_list: str | None
+                """
+                Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                The access
+                list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                On EOS, the access list is
+                only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                """
+                action: Action | None
+                allow_vlan: int | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        allow_access_list: str | UndefinedType | None = Undefined,
+                        action: Action | UndefinedType | None = Undefined,
+                        allow_vlan: int | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        AuthenticationFailure.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            allow_access_list:
+                               Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                               The access
+                               list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                               On EOS, the access list is
+                               only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                            action: action
+                            allow_vlan: allow_vlan
+
+                        """
+
+            PortControl: TypeAlias = Literal["auto", "force-authorized", "force-unauthorized"]
+
+            class Pae(AvdModel):
+                """Subclass of AvdModel."""
+
+                Mode: TypeAlias = Literal["authenticator", "supplicant"]
+                _fields: ClassVar[dict] = {"mode": {"type": str}, "supplicant_profile": {"type": str}}
+                mode: Mode | None
+                supplicant_profile: str | None
+                """Supplicant profile name."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, mode: Mode | UndefinedType | None = Undefined, supplicant_profile: str | UndefinedType | None = Undefined) -> None:
+                        """
+                        Pae.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            mode: mode
+                            supplicant_profile: Supplicant profile name.
+
+                        """
+
+            class HostMode(AvdModel):
+                """Subclass of AvdModel."""
+
+                Mode: TypeAlias = Literal["multi-host", "single-host"]
+                _fields: ClassVar[dict] = {"mode": {"type": str}, "multi_host_authenticated": {"type": bool}}
+                mode: Mode | None
+                multi_host_authenticated: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self, *, mode: Mode | UndefinedType | None = Undefined, multi_host_authenticated: bool | UndefinedType | None = Undefined
+                    ) -> None:
+                        """
+                        HostMode.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            mode: mode
+                            multi_host_authenticated: multi_host_authenticated
+
+                        """
+
+            class MacBasedAuthentication(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "host_mode_common": {"type": bool}}
+                enabled: bool | None
+                always: bool | None
+                host_mode_common: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        enabled: bool | UndefinedType | None = Undefined,
+                        always: bool | UndefinedType | None = Undefined,
+                        host_mode_common: bool | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        MacBasedAuthentication.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            enabled: enabled
+                            always: always
+                            host_mode_common: host_mode_common
+
+                        """
+
+            class Timeout(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {
+                    "idle_host": {"type": int},
+                    "quiet_period": {"type": int},
+                    "reauth_period": {"type": str},
+                    "reauth_timeout_ignore": {"type": bool},
+                    "tx_period": {"type": int},
+                }
+                idle_host: int | None
+                quiet_period: int | None
+                reauth_period: str | None
+                """Value can be 60-4294967295 or 'server'."""
+                reauth_timeout_ignore: bool | None
+                tx_period: int | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        idle_host: int | UndefinedType | None = Undefined,
+                        quiet_period: int | UndefinedType | None = Undefined,
+                        reauth_period: str | UndefinedType | None = Undefined,
+                        reauth_timeout_ignore: bool | UndefinedType | None = Undefined,
+                        tx_period: int | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        Timeout.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            idle_host: idle_host
+                            quiet_period: quiet_period
+                            reauth_period: Value can be 60-4294967295 or 'server'.
+                            reauth_timeout_ignore: reauth_timeout_ignore
+                            tx_period: tx_period
+
+                        """
+
+            class Unauthorized(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"access_vlan_membership_egress": {"type": bool}, "native_vlan_membership_egress": {"type": bool}}
+                access_vlan_membership_egress: bool | None
+                native_vlan_membership_egress: bool | None
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        access_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                        native_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        Unauthorized.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            access_vlan_membership_egress: access_vlan_membership_egress
+                            native_vlan_membership_egress: native_vlan_membership_egress
+
+                        """
+
+            class Eapol(AvdModel):
+                """Subclass of AvdModel."""
+
+                class AuthenticationFailureFallbackMba(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}, "timeout": {"type": int}}
+                    enabled: bool | None
+                    timeout: int | None
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType | None = Undefined, timeout: int | UndefinedType | None = Undefined) -> None:
+                            """
+                            AuthenticationFailureFallbackMba.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: enabled
+                                timeout: timeout
+
+                            """
+
+                _fields: ClassVar[dict] = {"disabled": {"type": bool}, "authentication_failure_fallback_mba": {"type": AuthenticationFailureFallbackMba}}
+                disabled: bool | None
+                authentication_failure_fallback_mba: AuthenticationFailureFallbackMba
+                """Subclass of AvdModel."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        disabled: bool | UndefinedType | None = Undefined,
+                        authentication_failure_fallback_mba: AuthenticationFailureFallbackMba | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        Eapol.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            disabled: disabled
+                            authentication_failure_fallback_mba: Subclass of AvdModel.
+
+                        """
+
+            class Aaa(AvdModel):
+                """Subclass of AvdModel."""
+
+                class Unresponsive(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    EapResponse: TypeAlias = Literal["success", "disabled"]
+
+                    class Action(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class CachedResultsTimeout(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            TimeDurationUnit: TypeAlias = Literal["days", "hours", "minutes", "seconds"]
+                            _fields: ClassVar[dict] = {"time_duration": {"type": int}, "time_duration_unit": {"type": str}}
+                            time_duration: int
+                            """
+                            Enable caching for a specific duration -
+                            <1-10000>      duration in days
+                            <1-14400000>   duration in
+                            minutes
+                            <1-240000>     duration in hours
+                            <1-864000000>  duration in seconds
+                            """
+                            time_duration_unit: TimeDurationUnit
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, time_duration: int | UndefinedType = Undefined, time_duration_unit: TimeDurationUnit | UndefinedType = Undefined
+                                ) -> None:
+                                    """
+                                    CachedResultsTimeout.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        time_duration:
+                                           Enable caching for a specific duration -
+                                           <1-10000>      duration in days
+                                           <1-14400000>   duration in
+                                           minutes
+                                           <1-240000>     duration in hours
+                                           <1-864000000>  duration in seconds
+                                        time_duration_unit: time_duration_unit
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "traffic_allow_access_list": {"type": str},
+                            "apply_alternate": {"type": bool},
+                            "traffic_allow_vlan": {"type": int},
+                            "apply_cached_results": {"type": bool},
+                            "cached_results_timeout": {"type": CachedResultsTimeout},
+                            "traffic_allow": {"type": bool},
+                        }
+                        traffic_allow_access_list: str | None
+                        """Name of standard access-list to apply when AAA times out."""
+                        apply_alternate: bool | None
+                        """
+                        Apply alternate action if primary action fails.
+                        e.g. aaa unresponsive action apply cached-results
+                        else traffic allow
+                        """
+                        traffic_allow_vlan: int | None
+                        apply_cached_results: bool | None
+                        """Use results from a previous AAA response."""
+                        cached_results_timeout: CachedResultsTimeout
+                        """Subclass of AvdModel."""
+                        traffic_allow: bool | None
+                        """Set action for supplicant traffic when AAA times out."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                traffic_allow_access_list: str | UndefinedType | None = Undefined,
+                                apply_alternate: bool | UndefinedType | None = Undefined,
+                                traffic_allow_vlan: int | UndefinedType | None = Undefined,
+                                apply_cached_results: bool | UndefinedType | None = Undefined,
+                                cached_results_timeout: CachedResultsTimeout | UndefinedType = Undefined,
+                                traffic_allow: bool | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                Action.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    traffic_allow_access_list: Name of standard access-list to apply when AAA times out.
+                                    apply_alternate:
+                                       Apply alternate action if primary action fails.
+                                       e.g. aaa unresponsive action apply cached-results
+                                       else traffic allow
+                                    traffic_allow_vlan: traffic_allow_vlan
+                                    apply_cached_results: Use results from a previous AAA response.
+                                    cached_results_timeout: Subclass of AvdModel.
+                                    traffic_allow: Set action for supplicant traffic when AAA times out.
+
+                                """
+
+                    _fields: ClassVar[dict] = {
+                        "eap_response": {"type": str},
+                        "action": {"type": Action},
+                        "phone_action": {"type": EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction},
+                    }
+                    eap_response: EapResponse | None
+                    """EAP response to send. EOS default is `success`."""
+                    action: Action
+                    """
+                    Set action for supplicant when AAA times out.
+
+                    Subclass of AvdModel.
+                    """
+                    phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction
+                    """Set action for supplicant when AAA times out."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            eap_response: EapResponse | UndefinedType | None = Undefined,
+                            action: Action | UndefinedType = Undefined,
+                            phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction | UndefinedType = Undefined,
+                        ) -> None:
+                            """
+                            Unresponsive.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                eap_response: EAP response to send. EOS default is `success`.
+                                action:
+                                   Set action for supplicant when AAA times out.
+
+                                   Subclass of AvdModel.
+                                phone_action: Set action for supplicant when AAA times out.
+
+                            """
+
+                _fields: ClassVar[dict] = {"unresponsive": {"type": Unresponsive}}
+                unresponsive: Unresponsive
+                """
+                Configure AAA timeout options.
+
+                Subclass of AvdModel.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, unresponsive: Unresponsive | UndefinedType = Undefined) -> None:
+                        """
+                        Aaa.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            unresponsive:
+                               Configure AAA timeout options.
+
+                               Subclass of AvdModel.
+
+                        """
+
+            _fields: ClassVar[dict] = {
+                "authentication_failure": {"type": AuthenticationFailure},
+                "port_control": {"type": str},
+                "port_control_force_authorized_phone": {"type": bool},
+                "reauthentication": {"type": bool},
+                "pae": {"type": Pae},
+                "host_mode": {"type": HostMode},
+                "mac_based_authentication": {"type": MacBasedAuthentication},
+                "mac_based_access_list": {"type": bool},
+                "timeout": {"type": Timeout},
+                "reauthorization_request_limit": {"type": int},
+                "unauthorized": {"type": Unauthorized},
+                "eapol": {"type": Eapol},
+                "aaa": {"type": Aaa},
+            }
+            authentication_failure: AuthenticationFailure
+            """Subclass of AvdModel."""
+            port_control: PortControl | None
+            port_control_force_authorized_phone: bool | None
+            reauthentication: bool | None
+            pae: Pae
+            """Subclass of AvdModel."""
+            host_mode: HostMode
+            """Subclass of AvdModel."""
+            mac_based_authentication: MacBasedAuthentication
+            """Subclass of AvdModel."""
+            mac_based_access_list: bool | None
+            """Operate interface in per-mac access-list mode."""
+            timeout: Timeout
+            """Subclass of AvdModel."""
+            reauthorization_request_limit: int | None
+            unauthorized: Unauthorized
+            """Subclass of AvdModel."""
+            eapol: Eapol
+            """Subclass of AvdModel."""
+            aaa: Aaa
+            """Subclass of AvdModel."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    authentication_failure: AuthenticationFailure | UndefinedType = Undefined,
+                    port_control: PortControl | UndefinedType | None = Undefined,
+                    port_control_force_authorized_phone: bool | UndefinedType | None = Undefined,
+                    reauthentication: bool | UndefinedType | None = Undefined,
+                    pae: Pae | UndefinedType = Undefined,
+                    host_mode: HostMode | UndefinedType = Undefined,
+                    mac_based_authentication: MacBasedAuthentication | UndefinedType = Undefined,
+                    mac_based_access_list: bool | UndefinedType | None = Undefined,
+                    timeout: Timeout | UndefinedType = Undefined,
+                    reauthorization_request_limit: int | UndefinedType | None = Undefined,
+                    unauthorized: Unauthorized | UndefinedType = Undefined,
+                    eapol: Eapol | UndefinedType = Undefined,
+                    aaa: Aaa | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Dot1x.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        authentication_failure: Subclass of AvdModel.
+                        port_control: port_control
+                        port_control_force_authorized_phone: port_control_force_authorized_phone
+                        reauthentication: reauthentication
+                        pae: Subclass of AvdModel.
+                        host_mode: Subclass of AvdModel.
+                        mac_based_authentication: Subclass of AvdModel.
+                        mac_based_access_list: Operate interface in per-mac access-list mode.
+                        timeout: Subclass of AvdModel.
+                        reauthorization_request_limit: reauthorization_request_limit
+                        unauthorized: Subclass of AvdModel.
+                        eapol: Subclass of AvdModel.
+                        aaa: Subclass of AvdModel.
+
+                    """
+
         class AddressLocking(AvdModel):
             """Subclass of AvdModel."""
 
@@ -46496,7 +48452,7 @@ class EosDesigns(EosDesignsRootModel):
             "sflow": {"type": bool},
             "flow_tracking": {"type": FlowTracking},
             "link_tracking": {"type": LinkTracking},
-            "dot1x": {"type": EosCliConfigGen.EthernetInterfacesItem.Dot1x},
+            "dot1x": {"type": Dot1x},
             "address_locking": {"type": AddressLocking},
             "poe": {"type": EosCliConfigGen.EthernetInterfacesItem.Poe},
             "storm_control": {"type": StormControl},
@@ -46513,8 +48469,12 @@ class EosDesigns(EosDesignsRootModel):
         parent_profile: str | None
         """
         Parent profile is optional.
-        Port_profiles can refer to another port_profile to inherit settings in
-        up to two levels (adapter->profile->parent_profile).
+        By default, profile inheritance is limited to two levels: adapter ->
+        profile -> parent_profile.
+        From AVD 6.5.0 onwards, setting
+        `avd_design_future.allow_recursive_profile_inheritance` to true
+        allows profiles to inherit settings
+        across any number of levels.
         """
         port_channel: PortChannel
         """
@@ -46641,8 +48601,12 @@ class EosDesigns(EosDesignsRootModel):
 
         Subclass of AvdModel.
         """
-        dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x
-        """802.1x"""
+        dot1x: Dot1x
+        """
+        802.1x
+
+        Subclass of AvdModel.
+        """
         address_locking: AddressLocking
         """
         Address locking settings applied on the port.
@@ -46742,7 +48706,7 @@ class EosDesigns(EosDesignsRootModel):
                 sflow: bool | UndefinedType | None = Undefined,
                 flow_tracking: FlowTracking | UndefinedType = Undefined,
                 link_tracking: LinkTracking | UndefinedType = Undefined,
-                dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x | UndefinedType = Undefined,
+                dot1x: Dot1x | UndefinedType = Undefined,
                 address_locking: AddressLocking | UndefinedType = Undefined,
                 poe: EosCliConfigGen.EthernetInterfacesItem.Poe | UndefinedType = Undefined,
                 storm_control: StormControl | UndefinedType = Undefined,
@@ -46764,8 +48728,12 @@ class EosDesigns(EosDesignsRootModel):
                     profile: Port profile name.
                     parent_profile:
                        Parent profile is optional.
-                       Port_profiles can refer to another port_profile to inherit settings in
-                       up to two levels (adapter->profile->parent_profile).
+                       By default, profile inheritance is limited to two levels: adapter ->
+                       profile -> parent_profile.
+                       From AVD 6.5.0 onwards, setting
+                       `avd_design_future.allow_recursive_profile_inheritance` to true
+                       allows profiles to inherit settings
+                       across any number of levels.
                     port_channel:
                        Used for port-channel adapter.
 
@@ -46857,7 +48825,10 @@ class EosDesigns(EosDesignsRootModel):
 
 
                        Subclass of AvdModel.
-                    dot1x: 802.1x
+                    dot1x:
+                       802.1x
+
+                       Subclass of AvdModel.
                     address_locking:
                        Address locking settings applied on the port.
 
@@ -48673,7 +50644,82 @@ class EosDesigns(EosDesignsRootModel):
 
         Vrfs._item_type = VrfsItem
 
-        _fields: ClassVar[dict] = {"enabled": {"type": bool}, "vrfs": {"type": Vrfs}, "idle_timeout": {"type": int}}
+        class ClientVrfsItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {"name": {"type": str}, "source_interface": {"type": str}}
+            name: str
+            """
+            VRF name.
+            The value will be interpreted according to these rules:
+            - `use_mgmt_interface_vrf` will
+            configure SSH for the VRF set with `mgmt_interface_vrf`.
+              An error will be raised if `mgmt_ip` or
+            `ipv6_mgmt_ip` are not configured for the device.
+            - `use_inband_mgmt_vrf` will configure SSH for the
+            VRF set with `inband_mgmt_vrf`.
+              An error will be raised if inband management is not configured for
+            the device.
+            - `use_default_mgmt_method_vrf` will configure the VRF for one of the two options above
+            depending on the value of `default_mgmt_method`.
+            - Any other string will be used directly as the VRF
+            name.
+            """
+            source_interface: str | None
+            """
+            Source interface to use for IP SSH Client in this VRF.
+            If set, the value is used directly as the
+            source interface name.
+            If not set, the source interface is derived automatically when `name` is set
+            to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+            For any other
+            `name` value, `source_interface` must be set.
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, name: str | UndefinedType = Undefined, source_interface: str | UndefinedType | None = Undefined) -> None:
+                    """
+                    ClientVrfsItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        name:
+                           VRF name.
+                           The value will be interpreted according to these rules:
+                           - `use_mgmt_interface_vrf` will
+                           configure SSH for the VRF set with `mgmt_interface_vrf`.
+                             An error will be raised if `mgmt_ip` or
+                           `ipv6_mgmt_ip` are not configured for the device.
+                           - `use_inband_mgmt_vrf` will configure SSH for the
+                           VRF set with `inband_mgmt_vrf`.
+                             An error will be raised if inband management is not configured for
+                           the device.
+                           - `use_default_mgmt_method_vrf` will configure the VRF for one of the two options above
+                           depending on the value of `default_mgmt_method`.
+                           - Any other string will be used directly as the VRF
+                           name.
+                        source_interface:
+                           Source interface to use for IP SSH Client in this VRF.
+                           If set, the value is used directly as the
+                           source interface name.
+                           If not set, the source interface is derived automatically when `name` is set
+                           to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+                           For any other
+                           `name` value, `source_interface` must be set.
+
+                    """
+
+        class ClientVrfs(AvdIndexedList[str, ClientVrfsItem]):
+            """Subclass of AvdIndexedList with `ClientVrfsItem` items. Primary key is `name` (`str`)."""
+
+            _primary_key: ClassVar[str] = "name"
+
+        ClientVrfs._item_type = ClientVrfsItem
+
+        _fields: ClassVar[dict] = {"enabled": {"type": bool}, "vrfs": {"type": Vrfs}, "idle_timeout": {"type": int}, "client_vrfs": {"type": ClientVrfs}}
         enabled: bool | None
         """
         Explicitly enable or disable management ssh for all VRFs. By default EOS enables management ssh for
@@ -48683,6 +50729,8 @@ class EosDesigns(EosDesignsRootModel):
         """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
         idle_timeout: int | None
         """Idle timeout in minutes."""
+        client_vrfs: ClientVrfs
+        """Subclass of AvdIndexedList with `ClientVrfsItem` items. Primary key is `name` (`str`)."""
 
         if TYPE_CHECKING:
 
@@ -48692,6 +50740,7 @@ class EosDesigns(EosDesignsRootModel):
                 enabled: bool | UndefinedType | None = Undefined,
                 vrfs: Vrfs | UndefinedType = Undefined,
                 idle_timeout: int | UndefinedType | None = Undefined,
+                client_vrfs: ClientVrfs | UndefinedType = Undefined,
             ) -> None:
                 """
                 SshSettings.
@@ -48705,6 +50754,7 @@ class EosDesigns(EosDesignsRootModel):
                        all VRFs.
                     vrfs: Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`).
                     idle_timeout: Idle timeout in minutes.
+                    client_vrfs: Subclass of AvdIndexedList with `ClientVrfsItem` items. Primary key is `name` (`str`).
 
                 """
 
@@ -49611,6 +51661,7 @@ class EosDesigns(EosDesignsRootModel):
                 "node": {"type": str},
                 "name": {"type": str},
                 "enabled": {"type": bool},
+                "autostate": {"type": bool, "default": True},
                 "description": {"type": str},
                 "arp_gratuitous_accept": {"type": bool},
                 "ip_address": {"type": str},
@@ -49657,6 +51708,12 @@ class EosDesigns(EosDesignsRootModel):
             """VLAN name."""
             enabled: bool | None
             """Enable or disable interface."""
+            autostate: bool
+            """
+            Set to false to disable automatic management of the interface link state.
+
+            Default value: `True`
+            """
             description: str | None
             """SVI description. By default set to VLAN name."""
             arp_gratuitous_accept: bool | None
@@ -49739,13 +51796,21 @@ class EosDesigns(EosDesignsRootModel):
             """
             Name of the IPv6 access-list to be assigned in the ingress direction.
             The access-list must be
-            defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+            defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+            resolved from
+            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+            removed in AVD 7.0.0.
             """
             ipv6_acl_out: str | None
             """
             Name of the IPv6 access-list to be assigned in the egress direction.
             The access-list must be defined
-            under `ipv6_acls` and supports substitution of the field "interface_ip".
+            under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+            resolved from
+            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+            removed in AVD 7.0.0.
             """
             ip_helpers: IpHelpers
             """
@@ -49885,6 +51950,7 @@ class EosDesigns(EosDesignsRootModel):
                     node: str | UndefinedType = Undefined,
                     name: str | UndefinedType | None = Undefined,
                     enabled: bool | UndefinedType | None = Undefined,
+                    autostate: bool | UndefinedType = Undefined,
                     description: str | UndefinedType | None = Undefined,
                     arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                     ip_address: str | UndefinedType | None = Undefined,
@@ -49935,6 +52001,7 @@ class EosDesigns(EosDesignsRootModel):
                         node: Node inventory hostname.
                         name: VLAN name.
                         enabled: Enable or disable interface.
+                        autostate: Set to false to disable automatic management of the interface link state.
                         description: SVI description. By default set to VLAN name.
                         arp_gratuitous_accept: Accept gratuitous ARP.
                         ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -49993,11 +52060,19 @@ class EosDesigns(EosDesignsRootModel):
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
-                           defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                           defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                           resolved from
+                           `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                           removed in AVD 7.0.0.
                         ipv6_acl_out:
                            Name of the IPv6 access-list to be assigned in the egress direction.
                            The access-list must be defined
-                           under `ipv6_acls` and supports substitution of the field "interface_ip".
+                           under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                           resolved from
+                           `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                           removed in AVD 7.0.0.
                         ip_helpers:
                            IP helper for DHCP relay.
 
@@ -50993,6 +53068,7 @@ class EosDesigns(EosDesignsRootModel):
             "nodes": {"type": Nodes},
             "name": {"type": str},
             "enabled": {"type": bool},
+            "autostate": {"type": bool, "default": True},
             "description": {"type": str},
             "arp_gratuitous_accept": {"type": bool},
             "ip_address": {"type": str},
@@ -51038,8 +53114,12 @@ class EosDesigns(EosDesignsRootModel):
         parent_profile: str | None
         """
         Parent SVI profile name to apply.
-        svi_profiles can refer to another svi_profile to inherit settings
-        in up to two levels (svi -> svi_profile -> svi_parent_profile).
+        By default, profile inheritance is limited to two levels: svi ->
+        svi_profile -> parent_profile.
+        From AVD 6.5.0 onwards, setting
+        `avd_design_future.allow_recursive_profile_inheritance` to true
+        allows profiles to inherit settings
+        across any number of levels.
         """
         nodes: Nodes
         """
@@ -51055,6 +53135,12 @@ class EosDesigns(EosDesignsRootModel):
         """VLAN name."""
         enabled: bool | None
         """Enable or disable interface."""
+        autostate: bool
+        """
+        Set to false to disable automatic management of the interface link state.
+
+        Default value: `True`
+        """
         description: str | None
         """SVI description. By default set to VLAN name."""
         arp_gratuitous_accept: bool | None
@@ -51137,13 +53223,21 @@ class EosDesigns(EosDesignsRootModel):
         """
         Name of the IPv6 access-list to be assigned in the ingress direction.
         The access-list must be
-        defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+        defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+        resolved from
+        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+        removed in AVD 7.0.0.
         """
         ipv6_acl_out: str | None
         """
         Name of the IPv6 access-list to be assigned in the egress direction.
         The access-list must be defined
-        under `ipv6_acls` and supports substitution of the field "interface_ip".
+        under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+        resolved from
+        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+        removed in AVD 7.0.0.
         """
         ip_helpers: IpHelpers
         """
@@ -51285,6 +53379,7 @@ class EosDesigns(EosDesignsRootModel):
                 nodes: Nodes | UndefinedType = Undefined,
                 name: str | UndefinedType | None = Undefined,
                 enabled: bool | UndefinedType | None = Undefined,
+                autostate: bool | UndefinedType = Undefined,
                 description: str | UndefinedType | None = Undefined,
                 arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                 ip_address: str | UndefinedType | None = Undefined,
@@ -51335,8 +53430,12 @@ class EosDesigns(EosDesignsRootModel):
                     profile: Profile name.
                     parent_profile:
                        Parent SVI profile name to apply.
-                       svi_profiles can refer to another svi_profile to inherit settings
-                       in up to two levels (svi -> svi_profile -> svi_parent_profile).
+                       By default, profile inheritance is limited to two levels: svi ->
+                       svi_profile -> parent_profile.
+                       From AVD 6.5.0 onwards, setting
+                       `avd_design_future.allow_recursive_profile_inheritance` to true
+                       allows profiles to inherit settings
+                       across any number of levels.
                     nodes:
                        Define node specific configuration, such as unique IP addresses.
                        Any keys set here will be merged
@@ -51347,6 +53446,7 @@ class EosDesigns(EosDesignsRootModel):
                        Subclass of AvdIndexedList with `NodesItem` items. Primary key is `node` (`str`).
                     name: VLAN name.
                     enabled: Enable or disable interface.
+                    autostate: Set to false to disable automatic management of the interface link state.
                     description: SVI description. By default set to VLAN name.
                     arp_gratuitous_accept: Accept gratuitous ARP.
                     ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -51405,11 +53505,19 @@ class EosDesigns(EosDesignsRootModel):
                     ipv6_acl_in:
                        Name of the IPv6 access-list to be assigned in the ingress direction.
                        The access-list must be
-                       defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                       defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                       resolved from
+                       `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                       Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                       removed in AVD 7.0.0.
                     ipv6_acl_out:
                        Name of the IPv6 access-list to be assigned in the egress direction.
                        The access-list must be defined
-                       under `ipv6_acls` and supports substitution of the field "interface_ip".
+                       under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                       resolved from
+                       `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                       Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                       removed in AVD 7.0.0.
                     ip_helpers:
                        IP helper for DHCP relay.
 
@@ -51975,6 +54083,7 @@ class EosDesigns(EosDesignsRootModel):
             "logging": {"type": Logging},
             "exclude_as_extra_fabric_validation_target": {"type": bool, "default": False},
             "interfaces": {"type": EosCliConfigGen.Metadata.Interfaces},
+            "bgp": {"type": EosCliConfigGen.Metadata.Bgp},
         }
         name: str
         parent_profile: str | None
@@ -52004,6 +54113,8 @@ class EosDesigns(EosDesignsRootModel):
         """
         interfaces: EosCliConfigGen.Metadata.Interfaces
         """Interface validation settings."""
+        bgp: EosCliConfigGen.Metadata.Bgp
+        """Validation settings for BGP."""
 
         if TYPE_CHECKING:
 
@@ -52016,6 +54127,7 @@ class EosDesigns(EosDesignsRootModel):
                 logging: Logging | UndefinedType = Undefined,
                 exclude_as_extra_fabric_validation_target: bool | UndefinedType = Undefined,
                 interfaces: EosCliConfigGen.Metadata.Interfaces | UndefinedType = Undefined,
+                bgp: EosCliConfigGen.Metadata.Bgp | UndefinedType = Undefined,
             ) -> None:
                 """
                 ValidationProfilesItem.
@@ -52042,6 +54154,7 @@ class EosDesigns(EosDesignsRootModel):
                        Exclude this node from being used as a destination target from other fabric devices in the extra
                        fabric validation tests performed by the `anta_runner` role.
                     interfaces: Interface validation settings.
+                    bgp: Validation settings for BGP.
 
                 """
 
@@ -54780,15 +56893,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -54837,15 +56953,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -57976,8 +60095,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -58922,8 +61039,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -60271,15 +62386,18 @@ class EosDesigns(EosDesignsRootModel):
                             ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                             If the
                             peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                            Hostnames
-                            configured here cannot also be configured under `evpn_route_servers` on the same node.
-                            If a remote
-                            peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                            peering.
-
-
-                            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                            (`str`).
+                            If a
+                            remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                            the EVPN Gateway core peering is configured on the local node.
+                            Suppression is evaluated
+                            independently on each node based on its local EVPN Route Server and client relationships and
+                            `evpn_gateway.remote_peers` configuration.
+                            When one node uses an EVPN Gateway core peering and the
+                            other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                            both sides use the same password.
+                            If an explicit `ip_address` differs from the regular EVPN peering
+                            address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                             """
                             evpn_l2: EvpnL2
                             """
@@ -60328,15 +62446,18 @@ class EosDesigns(EosDesignsRootModel):
                                            ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                            If the
                                            peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                           Hostnames
-                                           configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                           If a remote
-                                           peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                           peering.
-
-
-                                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                           (`str`).
+                                           If a
+                                           remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                           the EVPN Gateway core peering is configured on the local node.
+                                           Suppression is evaluated
+                                           independently on each node based on its local EVPN Route Server and client relationships and
+                                           `evpn_gateway.remote_peers` configuration.
+                                           When one node uses an EVPN Gateway core peering and the
+                                           other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                           both sides use the same password.
+                                           If an explicit `ip_address` differs from the regular EVPN peering
+                                           address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                         evpn_l2:
                                            Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -63488,8 +65609,6 @@ class EosDesigns(EosDesignsRootModel):
                         evpn_route_servers: EvpnRouteServers
                         """
                         List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                        Hostnames configured here cannot also
-                        be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                         Subclass of AvdList with `str`
@@ -64443,8 +66562,6 @@ class EosDesigns(EosDesignsRootModel):
                                        Default is set in node_type definition from node_type_keys.
                                     evpn_route_servers:
                                        List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                       Hostnames configured here cannot also
-                                       be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                        Subclass of AvdList with `str`
@@ -65717,15 +67834,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -65774,15 +67894,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -68928,8 +71051,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -69885,8 +72006,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -71234,15 +73353,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -71291,15 +73413,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -74442,8 +76567,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -75397,8 +77520,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -76707,6 +78828,514 @@ class EosDesigns(EosDesignsRootModel):
 
                                 """
 
+                    class Dot1x(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class AuthenticationFailure(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Action: TypeAlias = Literal["allow", "drop"]
+                            _fields: ClassVar[dict] = {"allow_access_list": {"type": str}, "action": {"type": str}, "allow_vlan": {"type": int}}
+                            allow_access_list: str | None
+                            """
+                            Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                            The access
+                            list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                            On EOS, the access list is
+                            only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                            """
+                            action: Action | None
+                            allow_vlan: int | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    allow_access_list: str | UndefinedType | None = Undefined,
+                                    action: Action | UndefinedType | None = Undefined,
+                                    allow_vlan: int | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    AuthenticationFailure.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        allow_access_list:
+                                           Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                                           The access
+                                           list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                                           On EOS, the access list is
+                                           only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                                        action: action
+                                        allow_vlan: allow_vlan
+
+                                    """
+
+                        PortControl: TypeAlias = Literal["auto", "force-authorized", "force-unauthorized"]
+
+                        class Pae(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Mode: TypeAlias = Literal["authenticator", "supplicant"]
+                            _fields: ClassVar[dict] = {"mode": {"type": str}, "supplicant_profile": {"type": str}}
+                            mode: Mode | None
+                            supplicant_profile: str | None
+                            """Supplicant profile name."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, mode: Mode | UndefinedType | None = Undefined, supplicant_profile: str | UndefinedType | None = Undefined
+                                ) -> None:
+                                    """
+                                    Pae.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        mode: mode
+                                        supplicant_profile: Supplicant profile name.
+
+                                    """
+
+                        class HostMode(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Mode: TypeAlias = Literal["multi-host", "single-host"]
+                            _fields: ClassVar[dict] = {"mode": {"type": str}, "multi_host_authenticated": {"type": bool}}
+                            mode: Mode | None
+                            multi_host_authenticated: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, mode: Mode | UndefinedType | None = Undefined, multi_host_authenticated: bool | UndefinedType | None = Undefined
+                                ) -> None:
+                                    """
+                                    HostMode.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        mode: mode
+                                        multi_host_authenticated: multi_host_authenticated
+
+                                    """
+
+                        class MacBasedAuthentication(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "host_mode_common": {"type": bool}}
+                            enabled: bool | None
+                            always: bool | None
+                            host_mode_common: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    enabled: bool | UndefinedType | None = Undefined,
+                                    always: bool | UndefinedType | None = Undefined,
+                                    host_mode_common: bool | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    MacBasedAuthentication.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: enabled
+                                        always: always
+                                        host_mode_common: host_mode_common
+
+                                    """
+
+                        class Timeout(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {
+                                "idle_host": {"type": int},
+                                "quiet_period": {"type": int},
+                                "reauth_period": {"type": str},
+                                "reauth_timeout_ignore": {"type": bool},
+                                "tx_period": {"type": int},
+                            }
+                            idle_host: int | None
+                            quiet_period: int | None
+                            reauth_period: str | None
+                            """Value can be 60-4294967295 or 'server'."""
+                            reauth_timeout_ignore: bool | None
+                            tx_period: int | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    idle_host: int | UndefinedType | None = Undefined,
+                                    quiet_period: int | UndefinedType | None = Undefined,
+                                    reauth_period: str | UndefinedType | None = Undefined,
+                                    reauth_timeout_ignore: bool | UndefinedType | None = Undefined,
+                                    tx_period: int | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    Timeout.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        idle_host: idle_host
+                                        quiet_period: quiet_period
+                                        reauth_period: Value can be 60-4294967295 or 'server'.
+                                        reauth_timeout_ignore: reauth_timeout_ignore
+                                        tx_period: tx_period
+
+                                    """
+
+                        class Unauthorized(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"access_vlan_membership_egress": {"type": bool}, "native_vlan_membership_egress": {"type": bool}}
+                            access_vlan_membership_egress: bool | None
+                            native_vlan_membership_egress: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    access_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                                    native_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    Unauthorized.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        access_vlan_membership_egress: access_vlan_membership_egress
+                                        native_vlan_membership_egress: native_vlan_membership_egress
+
+                                    """
+
+                        class Eapol(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class AuthenticationFailureFallbackMba(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {"enabled": {"type": bool}, "timeout": {"type": int}}
+                                enabled: bool | None
+                                timeout: int | None
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self, *, enabled: bool | UndefinedType | None = Undefined, timeout: int | UndefinedType | None = Undefined
+                                    ) -> None:
+                                        """
+                                        AuthenticationFailureFallbackMba.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: enabled
+                                            timeout: timeout
+
+                                        """
+
+                            _fields: ClassVar[dict] = {
+                                "disabled": {"type": bool},
+                                "authentication_failure_fallback_mba": {"type": AuthenticationFailureFallbackMba},
+                            }
+                            disabled: bool | None
+                            authentication_failure_fallback_mba: AuthenticationFailureFallbackMba
+                            """Subclass of AvdModel."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    disabled: bool | UndefinedType | None = Undefined,
+                                    authentication_failure_fallback_mba: AuthenticationFailureFallbackMba | UndefinedType = Undefined,
+                                ) -> None:
+                                    """
+                                    Eapol.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        disabled: disabled
+                                        authentication_failure_fallback_mba: Subclass of AvdModel.
+
+                                    """
+
+                        class Aaa(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class Unresponsive(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                EapResponse: TypeAlias = Literal["success", "disabled"]
+
+                                class Action(AvdModel):
+                                    """Subclass of AvdModel."""
+
+                                    class CachedResultsTimeout(AvdModel):
+                                        """Subclass of AvdModel."""
+
+                                        TimeDurationUnit: TypeAlias = Literal["days", "hours", "minutes", "seconds"]
+                                        _fields: ClassVar[dict] = {"time_duration": {"type": int}, "time_duration_unit": {"type": str}}
+                                        time_duration: int
+                                        """
+                                        Enable caching for a specific duration -
+                                        <1-10000>      duration in days
+                                        <1-14400000>   duration in
+                                        minutes
+                                        <1-240000>     duration in hours
+                                        <1-864000000>  duration in seconds
+                                        """
+                                        time_duration_unit: TimeDurationUnit
+
+                                        if TYPE_CHECKING:
+
+                                            def __init__(
+                                                self,
+                                                *,
+                                                time_duration: int | UndefinedType = Undefined,
+                                                time_duration_unit: TimeDurationUnit | UndefinedType = Undefined,
+                                            ) -> None:
+                                                """
+                                                CachedResultsTimeout.
+
+
+                                                Subclass of AvdModel.
+
+                                                Args:
+                                                    time_duration:
+                                                       Enable caching for a specific duration -
+                                                       <1-10000>      duration in days
+                                                       <1-14400000>   duration in
+                                                       minutes
+                                                       <1-240000>     duration in hours
+                                                       <1-864000000>  duration in seconds
+                                                    time_duration_unit: time_duration_unit
+
+                                                """
+
+                                    _fields: ClassVar[dict] = {
+                                        "traffic_allow_access_list": {"type": str},
+                                        "apply_alternate": {"type": bool},
+                                        "traffic_allow_vlan": {"type": int},
+                                        "apply_cached_results": {"type": bool},
+                                        "cached_results_timeout": {"type": CachedResultsTimeout},
+                                        "traffic_allow": {"type": bool},
+                                    }
+                                    traffic_allow_access_list: str | None
+                                    """Name of standard access-list to apply when AAA times out."""
+                                    apply_alternate: bool | None
+                                    """
+                                    Apply alternate action if primary action fails.
+                                    e.g. aaa unresponsive action apply cached-results
+                                    else traffic allow
+                                    """
+                                    traffic_allow_vlan: int | None
+                                    apply_cached_results: bool | None
+                                    """Use results from a previous AAA response."""
+                                    cached_results_timeout: CachedResultsTimeout
+                                    """Subclass of AvdModel."""
+                                    traffic_allow: bool | None
+                                    """Set action for supplicant traffic when AAA times out."""
+
+                                    if TYPE_CHECKING:
+
+                                        def __init__(
+                                            self,
+                                            *,
+                                            traffic_allow_access_list: str | UndefinedType | None = Undefined,
+                                            apply_alternate: bool | UndefinedType | None = Undefined,
+                                            traffic_allow_vlan: int | UndefinedType | None = Undefined,
+                                            apply_cached_results: bool | UndefinedType | None = Undefined,
+                                            cached_results_timeout: CachedResultsTimeout | UndefinedType = Undefined,
+                                            traffic_allow: bool | UndefinedType | None = Undefined,
+                                        ) -> None:
+                                            """
+                                            Action.
+
+
+                                            Subclass of AvdModel.
+
+                                            Args:
+                                                traffic_allow_access_list: Name of standard access-list to apply when AAA times out.
+                                                apply_alternate:
+                                                   Apply alternate action if primary action fails.
+                                                   e.g. aaa unresponsive action apply cached-results
+                                                   else traffic allow
+                                                traffic_allow_vlan: traffic_allow_vlan
+                                                apply_cached_results: Use results from a previous AAA response.
+                                                cached_results_timeout: Subclass of AvdModel.
+                                                traffic_allow: Set action for supplicant traffic when AAA times out.
+
+                                            """
+
+                                _fields: ClassVar[dict] = {
+                                    "eap_response": {"type": str},
+                                    "action": {"type": Action},
+                                    "phone_action": {"type": EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction},
+                                }
+                                eap_response: EapResponse | None
+                                """EAP response to send. EOS default is `success`."""
+                                action: Action
+                                """
+                                Set action for supplicant when AAA times out.
+
+                                Subclass of AvdModel.
+                                """
+                                phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction
+                                """Set action for supplicant when AAA times out."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        eap_response: EapResponse | UndefinedType | None = Undefined,
+                                        action: Action | UndefinedType = Undefined,
+                                        phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction | UndefinedType = Undefined,
+                                    ) -> None:
+                                        """
+                                        Unresponsive.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            eap_response: EAP response to send. EOS default is `success`.
+                                            action:
+                                               Set action for supplicant when AAA times out.
+
+                                               Subclass of AvdModel.
+                                            phone_action: Set action for supplicant when AAA times out.
+
+                                        """
+
+                            _fields: ClassVar[dict] = {"unresponsive": {"type": Unresponsive}}
+                            unresponsive: Unresponsive
+                            """
+                            Configure AAA timeout options.
+
+                            Subclass of AvdModel.
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, unresponsive: Unresponsive | UndefinedType = Undefined) -> None:
+                                    """
+                                    Aaa.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        unresponsive:
+                                           Configure AAA timeout options.
+
+                                           Subclass of AvdModel.
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "authentication_failure": {"type": AuthenticationFailure},
+                            "port_control": {"type": str},
+                            "port_control_force_authorized_phone": {"type": bool},
+                            "reauthentication": {"type": bool},
+                            "pae": {"type": Pae},
+                            "host_mode": {"type": HostMode},
+                            "mac_based_authentication": {"type": MacBasedAuthentication},
+                            "mac_based_access_list": {"type": bool},
+                            "timeout": {"type": Timeout},
+                            "reauthorization_request_limit": {"type": int},
+                            "unauthorized": {"type": Unauthorized},
+                            "eapol": {"type": Eapol},
+                            "aaa": {"type": Aaa},
+                        }
+                        authentication_failure: AuthenticationFailure
+                        """Subclass of AvdModel."""
+                        port_control: PortControl | None
+                        port_control_force_authorized_phone: bool | None
+                        reauthentication: bool | None
+                        pae: Pae
+                        """Subclass of AvdModel."""
+                        host_mode: HostMode
+                        """Subclass of AvdModel."""
+                        mac_based_authentication: MacBasedAuthentication
+                        """Subclass of AvdModel."""
+                        mac_based_access_list: bool | None
+                        """Operate interface in per-mac access-list mode."""
+                        timeout: Timeout
+                        """Subclass of AvdModel."""
+                        reauthorization_request_limit: int | None
+                        unauthorized: Unauthorized
+                        """Subclass of AvdModel."""
+                        eapol: Eapol
+                        """Subclass of AvdModel."""
+                        aaa: Aaa
+                        """Subclass of AvdModel."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                authentication_failure: AuthenticationFailure | UndefinedType = Undefined,
+                                port_control: PortControl | UndefinedType | None = Undefined,
+                                port_control_force_authorized_phone: bool | UndefinedType | None = Undefined,
+                                reauthentication: bool | UndefinedType | None = Undefined,
+                                pae: Pae | UndefinedType = Undefined,
+                                host_mode: HostMode | UndefinedType = Undefined,
+                                mac_based_authentication: MacBasedAuthentication | UndefinedType = Undefined,
+                                mac_based_access_list: bool | UndefinedType | None = Undefined,
+                                timeout: Timeout | UndefinedType = Undefined,
+                                reauthorization_request_limit: int | UndefinedType | None = Undefined,
+                                unauthorized: Unauthorized | UndefinedType = Undefined,
+                                eapol: Eapol | UndefinedType = Undefined,
+                                aaa: Aaa | UndefinedType = Undefined,
+                            ) -> None:
+                                """
+                                Dot1x.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    authentication_failure: Subclass of AvdModel.
+                                    port_control: port_control
+                                    port_control_force_authorized_phone: port_control_force_authorized_phone
+                                    reauthentication: reauthentication
+                                    pae: Subclass of AvdModel.
+                                    host_mode: Subclass of AvdModel.
+                                    mac_based_authentication: Subclass of AvdModel.
+                                    mac_based_access_list: Operate interface in per-mac access-list mode.
+                                    timeout: Subclass of AvdModel.
+                                    reauthorization_request_limit: reauthorization_request_limit
+                                    unauthorized: Subclass of AvdModel.
+                                    eapol: Subclass of AvdModel.
+                                    aaa: Subclass of AvdModel.
+
+                                """
+
                     class AddressLocking(AvdModel):
                         """Subclass of AvdModel."""
 
@@ -77305,7 +79934,7 @@ class EosDesigns(EosDesignsRootModel):
                         "sflow": {"type": bool},
                         "flow_tracking": {"type": FlowTracking},
                         "link_tracking": {"type": LinkTracking},
-                        "dot1x": {"type": EosCliConfigGen.EthernetInterfacesItem.Dot1x},
+                        "dot1x": {"type": Dot1x},
                         "address_locking": {"type": AddressLocking},
                         "poe": {"type": EosCliConfigGen.EthernetInterfacesItem.Poe},
                         "storm_control": {"type": StormControl},
@@ -77503,8 +80132,12 @@ class EosDesigns(EosDesignsRootModel):
 
                     Subclass of AvdModel.
                     """
-                    dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x
-                    """802.1x"""
+                    dot1x: Dot1x
+                    """
+                    802.1x
+
+                    Subclass of AvdModel.
+                    """
                     address_locking: AddressLocking
                     """
                     Address locking settings applied on the port.
@@ -77608,7 +80241,7 @@ class EosDesigns(EosDesignsRootModel):
                             sflow: bool | UndefinedType | None = Undefined,
                             flow_tracking: FlowTracking | UndefinedType = Undefined,
                             link_tracking: LinkTracking | UndefinedType = Undefined,
-                            dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x | UndefinedType = Undefined,
+                            dot1x: Dot1x | UndefinedType = Undefined,
                             address_locking: AddressLocking | UndefinedType = Undefined,
                             poe: EosCliConfigGen.EthernetInterfacesItem.Poe | UndefinedType = Undefined,
                             storm_control: StormControl | UndefinedType = Undefined,
@@ -77768,7 +80401,10 @@ class EosDesigns(EosDesignsRootModel):
 
 
                                    Subclass of AvdModel.
-                                dot1x: 802.1x
+                                dot1x:
+                                   802.1x
+
+                                   Subclass of AvdModel.
                                 address_locking:
                                    Address locking settings applied on the port.
 
@@ -78763,6 +81399,514 @@ class EosDesigns(EosDesignsRootModel):
 
                                 """
 
+                    class Dot1x(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class AuthenticationFailure(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Action: TypeAlias = Literal["allow", "drop"]
+                            _fields: ClassVar[dict] = {"allow_access_list": {"type": str}, "action": {"type": str}, "allow_vlan": {"type": int}}
+                            allow_access_list: str | None
+                            """
+                            Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                            The access
+                            list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                            On EOS, the access list is
+                            only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                            """
+                            action: Action | None
+                            allow_vlan: int | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    allow_access_list: str | UndefinedType | None = Undefined,
+                                    action: Action | UndefinedType | None = Undefined,
+                                    allow_vlan: int | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    AuthenticationFailure.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        allow_access_list:
+                                           Name of the IPv4 and/or IPv6 extended access list to apply to unauthenticated traffic.
+                                           The access
+                                           list must be defined under the `ipv4_acls` and/or `ipv6_acls` catalog.
+                                           On EOS, the access list is
+                                           only applied when `dot1x.mac_based_access_list` is enabled on the interface.
+                                        action: action
+                                        allow_vlan: allow_vlan
+
+                                    """
+
+                        PortControl: TypeAlias = Literal["auto", "force-authorized", "force-unauthorized"]
+
+                        class Pae(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Mode: TypeAlias = Literal["authenticator", "supplicant"]
+                            _fields: ClassVar[dict] = {"mode": {"type": str}, "supplicant_profile": {"type": str}}
+                            mode: Mode | None
+                            supplicant_profile: str | None
+                            """Supplicant profile name."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, mode: Mode | UndefinedType | None = Undefined, supplicant_profile: str | UndefinedType | None = Undefined
+                                ) -> None:
+                                    """
+                                    Pae.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        mode: mode
+                                        supplicant_profile: Supplicant profile name.
+
+                                    """
+
+                        class HostMode(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            Mode: TypeAlias = Literal["multi-host", "single-host"]
+                            _fields: ClassVar[dict] = {"mode": {"type": str}, "multi_host_authenticated": {"type": bool}}
+                            mode: Mode | None
+                            multi_host_authenticated: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self, *, mode: Mode | UndefinedType | None = Undefined, multi_host_authenticated: bool | UndefinedType | None = Undefined
+                                ) -> None:
+                                    """
+                                    HostMode.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        mode: mode
+                                        multi_host_authenticated: multi_host_authenticated
+
+                                    """
+
+                        class MacBasedAuthentication(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "host_mode_common": {"type": bool}}
+                            enabled: bool | None
+                            always: bool | None
+                            host_mode_common: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    enabled: bool | UndefinedType | None = Undefined,
+                                    always: bool | UndefinedType | None = Undefined,
+                                    host_mode_common: bool | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    MacBasedAuthentication.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: enabled
+                                        always: always
+                                        host_mode_common: host_mode_common
+
+                                    """
+
+                        class Timeout(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {
+                                "idle_host": {"type": int},
+                                "quiet_period": {"type": int},
+                                "reauth_period": {"type": str},
+                                "reauth_timeout_ignore": {"type": bool},
+                                "tx_period": {"type": int},
+                            }
+                            idle_host: int | None
+                            quiet_period: int | None
+                            reauth_period: str | None
+                            """Value can be 60-4294967295 or 'server'."""
+                            reauth_timeout_ignore: bool | None
+                            tx_period: int | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    idle_host: int | UndefinedType | None = Undefined,
+                                    quiet_period: int | UndefinedType | None = Undefined,
+                                    reauth_period: str | UndefinedType | None = Undefined,
+                                    reauth_timeout_ignore: bool | UndefinedType | None = Undefined,
+                                    tx_period: int | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    Timeout.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        idle_host: idle_host
+                                        quiet_period: quiet_period
+                                        reauth_period: Value can be 60-4294967295 or 'server'.
+                                        reauth_timeout_ignore: reauth_timeout_ignore
+                                        tx_period: tx_period
+
+                                    """
+
+                        class Unauthorized(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"access_vlan_membership_egress": {"type": bool}, "native_vlan_membership_egress": {"type": bool}}
+                            access_vlan_membership_egress: bool | None
+                            native_vlan_membership_egress: bool | None
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    access_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                                    native_vlan_membership_egress: bool | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    Unauthorized.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        access_vlan_membership_egress: access_vlan_membership_egress
+                                        native_vlan_membership_egress: native_vlan_membership_egress
+
+                                    """
+
+                        class Eapol(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class AuthenticationFailureFallbackMba(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {"enabled": {"type": bool}, "timeout": {"type": int}}
+                                enabled: bool | None
+                                timeout: int | None
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self, *, enabled: bool | UndefinedType | None = Undefined, timeout: int | UndefinedType | None = Undefined
+                                    ) -> None:
+                                        """
+                                        AuthenticationFailureFallbackMba.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: enabled
+                                            timeout: timeout
+
+                                        """
+
+                            _fields: ClassVar[dict] = {
+                                "disabled": {"type": bool},
+                                "authentication_failure_fallback_mba": {"type": AuthenticationFailureFallbackMba},
+                            }
+                            disabled: bool | None
+                            authentication_failure_fallback_mba: AuthenticationFailureFallbackMba
+                            """Subclass of AvdModel."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    disabled: bool | UndefinedType | None = Undefined,
+                                    authentication_failure_fallback_mba: AuthenticationFailureFallbackMba | UndefinedType = Undefined,
+                                ) -> None:
+                                    """
+                                    Eapol.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        disabled: disabled
+                                        authentication_failure_fallback_mba: Subclass of AvdModel.
+
+                                    """
+
+                        class Aaa(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class Unresponsive(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                EapResponse: TypeAlias = Literal["success", "disabled"]
+
+                                class Action(AvdModel):
+                                    """Subclass of AvdModel."""
+
+                                    class CachedResultsTimeout(AvdModel):
+                                        """Subclass of AvdModel."""
+
+                                        TimeDurationUnit: TypeAlias = Literal["days", "hours", "minutes", "seconds"]
+                                        _fields: ClassVar[dict] = {"time_duration": {"type": int}, "time_duration_unit": {"type": str}}
+                                        time_duration: int
+                                        """
+                                        Enable caching for a specific duration -
+                                        <1-10000>      duration in days
+                                        <1-14400000>   duration in
+                                        minutes
+                                        <1-240000>     duration in hours
+                                        <1-864000000>  duration in seconds
+                                        """
+                                        time_duration_unit: TimeDurationUnit
+
+                                        if TYPE_CHECKING:
+
+                                            def __init__(
+                                                self,
+                                                *,
+                                                time_duration: int | UndefinedType = Undefined,
+                                                time_duration_unit: TimeDurationUnit | UndefinedType = Undefined,
+                                            ) -> None:
+                                                """
+                                                CachedResultsTimeout.
+
+
+                                                Subclass of AvdModel.
+
+                                                Args:
+                                                    time_duration:
+                                                       Enable caching for a specific duration -
+                                                       <1-10000>      duration in days
+                                                       <1-14400000>   duration in
+                                                       minutes
+                                                       <1-240000>     duration in hours
+                                                       <1-864000000>  duration in seconds
+                                                    time_duration_unit: time_duration_unit
+
+                                                """
+
+                                    _fields: ClassVar[dict] = {
+                                        "traffic_allow_access_list": {"type": str},
+                                        "apply_alternate": {"type": bool},
+                                        "traffic_allow_vlan": {"type": int},
+                                        "apply_cached_results": {"type": bool},
+                                        "cached_results_timeout": {"type": CachedResultsTimeout},
+                                        "traffic_allow": {"type": bool},
+                                    }
+                                    traffic_allow_access_list: str | None
+                                    """Name of standard access-list to apply when AAA times out."""
+                                    apply_alternate: bool | None
+                                    """
+                                    Apply alternate action if primary action fails.
+                                    e.g. aaa unresponsive action apply cached-results
+                                    else traffic allow
+                                    """
+                                    traffic_allow_vlan: int | None
+                                    apply_cached_results: bool | None
+                                    """Use results from a previous AAA response."""
+                                    cached_results_timeout: CachedResultsTimeout
+                                    """Subclass of AvdModel."""
+                                    traffic_allow: bool | None
+                                    """Set action for supplicant traffic when AAA times out."""
+
+                                    if TYPE_CHECKING:
+
+                                        def __init__(
+                                            self,
+                                            *,
+                                            traffic_allow_access_list: str | UndefinedType | None = Undefined,
+                                            apply_alternate: bool | UndefinedType | None = Undefined,
+                                            traffic_allow_vlan: int | UndefinedType | None = Undefined,
+                                            apply_cached_results: bool | UndefinedType | None = Undefined,
+                                            cached_results_timeout: CachedResultsTimeout | UndefinedType = Undefined,
+                                            traffic_allow: bool | UndefinedType | None = Undefined,
+                                        ) -> None:
+                                            """
+                                            Action.
+
+
+                                            Subclass of AvdModel.
+
+                                            Args:
+                                                traffic_allow_access_list: Name of standard access-list to apply when AAA times out.
+                                                apply_alternate:
+                                                   Apply alternate action if primary action fails.
+                                                   e.g. aaa unresponsive action apply cached-results
+                                                   else traffic allow
+                                                traffic_allow_vlan: traffic_allow_vlan
+                                                apply_cached_results: Use results from a previous AAA response.
+                                                cached_results_timeout: Subclass of AvdModel.
+                                                traffic_allow: Set action for supplicant traffic when AAA times out.
+
+                                            """
+
+                                _fields: ClassVar[dict] = {
+                                    "eap_response": {"type": str},
+                                    "action": {"type": Action},
+                                    "phone_action": {"type": EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction},
+                                }
+                                eap_response: EapResponse | None
+                                """EAP response to send. EOS default is `success`."""
+                                action: Action
+                                """
+                                Set action for supplicant when AAA times out.
+
+                                Subclass of AvdModel.
+                                """
+                                phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction
+                                """Set action for supplicant when AAA times out."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        eap_response: EapResponse | UndefinedType | None = Undefined,
+                                        action: Action | UndefinedType = Undefined,
+                                        phone_action: EosCliConfigGen.Dot1x.Aaa.Unresponsive.PhoneAction | UndefinedType = Undefined,
+                                    ) -> None:
+                                        """
+                                        Unresponsive.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            eap_response: EAP response to send. EOS default is `success`.
+                                            action:
+                                               Set action for supplicant when AAA times out.
+
+                                               Subclass of AvdModel.
+                                            phone_action: Set action for supplicant when AAA times out.
+
+                                        """
+
+                            _fields: ClassVar[dict] = {"unresponsive": {"type": Unresponsive}}
+                            unresponsive: Unresponsive
+                            """
+                            Configure AAA timeout options.
+
+                            Subclass of AvdModel.
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, unresponsive: Unresponsive | UndefinedType = Undefined) -> None:
+                                    """
+                                    Aaa.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        unresponsive:
+                                           Configure AAA timeout options.
+
+                                           Subclass of AvdModel.
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "authentication_failure": {"type": AuthenticationFailure},
+                            "port_control": {"type": str},
+                            "port_control_force_authorized_phone": {"type": bool},
+                            "reauthentication": {"type": bool},
+                            "pae": {"type": Pae},
+                            "host_mode": {"type": HostMode},
+                            "mac_based_authentication": {"type": MacBasedAuthentication},
+                            "mac_based_access_list": {"type": bool},
+                            "timeout": {"type": Timeout},
+                            "reauthorization_request_limit": {"type": int},
+                            "unauthorized": {"type": Unauthorized},
+                            "eapol": {"type": Eapol},
+                            "aaa": {"type": Aaa},
+                        }
+                        authentication_failure: AuthenticationFailure
+                        """Subclass of AvdModel."""
+                        port_control: PortControl | None
+                        port_control_force_authorized_phone: bool | None
+                        reauthentication: bool | None
+                        pae: Pae
+                        """Subclass of AvdModel."""
+                        host_mode: HostMode
+                        """Subclass of AvdModel."""
+                        mac_based_authentication: MacBasedAuthentication
+                        """Subclass of AvdModel."""
+                        mac_based_access_list: bool | None
+                        """Operate interface in per-mac access-list mode."""
+                        timeout: Timeout
+                        """Subclass of AvdModel."""
+                        reauthorization_request_limit: int | None
+                        unauthorized: Unauthorized
+                        """Subclass of AvdModel."""
+                        eapol: Eapol
+                        """Subclass of AvdModel."""
+                        aaa: Aaa
+                        """Subclass of AvdModel."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                authentication_failure: AuthenticationFailure | UndefinedType = Undefined,
+                                port_control: PortControl | UndefinedType | None = Undefined,
+                                port_control_force_authorized_phone: bool | UndefinedType | None = Undefined,
+                                reauthentication: bool | UndefinedType | None = Undefined,
+                                pae: Pae | UndefinedType = Undefined,
+                                host_mode: HostMode | UndefinedType = Undefined,
+                                mac_based_authentication: MacBasedAuthentication | UndefinedType = Undefined,
+                                mac_based_access_list: bool | UndefinedType | None = Undefined,
+                                timeout: Timeout | UndefinedType = Undefined,
+                                reauthorization_request_limit: int | UndefinedType | None = Undefined,
+                                unauthorized: Unauthorized | UndefinedType = Undefined,
+                                eapol: Eapol | UndefinedType = Undefined,
+                                aaa: Aaa | UndefinedType = Undefined,
+                            ) -> None:
+                                """
+                                Dot1x.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    authentication_failure: Subclass of AvdModel.
+                                    port_control: port_control
+                                    port_control_force_authorized_phone: port_control_force_authorized_phone
+                                    reauthentication: reauthentication
+                                    pae: Subclass of AvdModel.
+                                    host_mode: Subclass of AvdModel.
+                                    mac_based_authentication: Subclass of AvdModel.
+                                    mac_based_access_list: Operate interface in per-mac access-list mode.
+                                    timeout: Subclass of AvdModel.
+                                    reauthorization_request_limit: reauthorization_request_limit
+                                    unauthorized: Subclass of AvdModel.
+                                    eapol: Subclass of AvdModel.
+                                    aaa: Subclass of AvdModel.
+
+                                """
+
                     class AddressLocking(AvdModel):
                         """Subclass of AvdModel."""
 
@@ -79361,7 +82505,7 @@ class EosDesigns(EosDesignsRootModel):
                         "sflow": {"type": bool},
                         "flow_tracking": {"type": FlowTracking},
                         "link_tracking": {"type": LinkTracking},
-                        "dot1x": {"type": EosCliConfigGen.EthernetInterfacesItem.Dot1x},
+                        "dot1x": {"type": Dot1x},
                         "address_locking": {"type": AddressLocking},
                         "poe": {"type": EosCliConfigGen.EthernetInterfacesItem.Poe},
                         "storm_control": {"type": StormControl},
@@ -79559,8 +82703,12 @@ class EosDesigns(EosDesignsRootModel):
 
                     Subclass of AvdModel.
                     """
-                    dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x
-                    """802.1x"""
+                    dot1x: Dot1x
+                    """
+                    802.1x
+
+                    Subclass of AvdModel.
+                    """
                     address_locking: AddressLocking
                     """
                     Address locking settings applied on the port.
@@ -79664,7 +82812,7 @@ class EosDesigns(EosDesignsRootModel):
                             sflow: bool | UndefinedType | None = Undefined,
                             flow_tracking: FlowTracking | UndefinedType = Undefined,
                             link_tracking: LinkTracking | UndefinedType = Undefined,
-                            dot1x: EosCliConfigGen.EthernetInterfacesItem.Dot1x | UndefinedType = Undefined,
+                            dot1x: Dot1x | UndefinedType = Undefined,
                             address_locking: AddressLocking | UndefinedType = Undefined,
                             poe: EosCliConfigGen.EthernetInterfacesItem.Poe | UndefinedType = Undefined,
                             storm_control: StormControl | UndefinedType = Undefined,
@@ -79824,7 +82972,10 @@ class EosDesigns(EosDesignsRootModel):
 
 
                                    Subclass of AvdModel.
-                                dot1x: 802.1x
+                                dot1x:
+                                   802.1x
+
+                                   Subclass of AvdModel.
                                 address_locking:
                                    Address locking settings applied on the port.
 
@@ -80054,12 +83205,45 @@ class EosDesigns(EosDesignsRootModel):
                     class AddressFamilyIpv6(AvdModel):
                         """Subclass of AvdModel."""
 
+                        class DefaultOriginate(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "route_map": {"type": str}}
+                            enabled: bool
+                            always: bool | None
+                            """Always advertise a default route to this peer."""
+                            route_map: str | None
+                            """Route-map name."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    enabled: bool | UndefinedType = Undefined,
+                                    always: bool | UndefinedType | None = Undefined,
+                                    route_map: str | UndefinedType | None = Undefined,
+                                ) -> None:
+                                    """
+                                    DefaultOriginate.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: enabled
+                                        always: Always advertise a default route to this peer.
+                                        route_map: Route-map name.
+
+                                    """
+
                         _fields: ClassVar[dict] = {
                             "activate": {"type": bool},
                             "route_map_in": {"type": str},
                             "route_map_out": {"type": str},
                             "rcf_in": {"type": str},
                             "rcf_out": {"type": str},
+                            "default_originate": {"type": DefaultOriginate},
                             "prefix_list_in": {"type": str},
                             "prefix_list_out": {"type": str},
                         }
@@ -80078,6 +83262,8 @@ class EosDesigns(EosDesignsRootModel):
                         Outbound RCF function name with parenthesis.
                         Example: MyFunction(myarg).
                         """
+                        default_originate: DefaultOriginate
+                        """Subclass of AvdModel."""
                         prefix_list_in: str | None
                         """Inbound prefix-list name."""
                         prefix_list_out: str | None
@@ -80093,6 +83279,7 @@ class EosDesigns(EosDesignsRootModel):
                                 route_map_out: str | UndefinedType | None = Undefined,
                                 rcf_in: str | UndefinedType | None = Undefined,
                                 rcf_out: str | UndefinedType | None = Undefined,
+                                default_originate: DefaultOriginate | UndefinedType = Undefined,
                                 prefix_list_in: str | UndefinedType | None = Undefined,
                                 prefix_list_out: str | UndefinedType | None = Undefined,
                             ) -> None:
@@ -80112,6 +83299,7 @@ class EosDesigns(EosDesignsRootModel):
                                     rcf_out:
                                        Outbound RCF function name with parenthesis.
                                        Example: MyFunction(myarg).
+                                    default_originate: Subclass of AvdModel.
                                     prefix_list_in: Inbound prefix-list name.
                                     prefix_list_out: Outbound prefix-list name.
 
@@ -80679,6 +83867,8 @@ class EosDesigns(EosDesignsRootModel):
                         "session_tracker": {"type": str},
                         "shared_secret": {"type": SharedSecret},
                         "ttl_maximum_hops": {"type": int},
+                        "maximum_advertised_routes": {"type": int},
+                        "maximum_advertised_routes_warning_limit": {"type": str},
                     }
                     name: str
                     """BGP peer group name."""
@@ -80811,6 +84001,14 @@ class EosDesigns(EosDesignsRootModel):
                     """Subclass of AvdModel."""
                     ttl_maximum_hops: int | None
                     """Maximum number of hops."""
+                    maximum_advertised_routes: int | None
+                    """Maximum number of advertised routes (0 means unlimited)."""
+                    maximum_advertised_routes_warning_limit: str | None
+                    """
+                    Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                    never warn) or
+                    Percentage of maximum number of routes at which to warn ("<1-100> percent").
+                    """
 
                     if TYPE_CHECKING:
 
@@ -80862,6 +84060,8 @@ class EosDesigns(EosDesignsRootModel):
                             session_tracker: str | UndefinedType | None = Undefined,
                             shared_secret: SharedSecret | UndefinedType = Undefined,
                             ttl_maximum_hops: int | UndefinedType | None = Undefined,
+                            maximum_advertised_routes: int | UndefinedType | None = Undefined,
+                            maximum_advertised_routes_warning_limit: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             BgpPeerGroupsItem.
@@ -80955,6 +84155,11 @@ class EosDesigns(EosDesignsRootModel):
                                 session_tracker: session_tracker
                                 shared_secret: Subclass of AvdModel.
                                 ttl_maximum_hops: Maximum number of hops.
+                                maximum_advertised_routes: Maximum number of advertised routes (0 means unlimited).
+                                maximum_advertised_routes_warning_limit:
+                                   Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                                   never warn) or
+                                   Percentage of maximum number of routes at which to warn ("<1-100> percent").
 
                             """
 
@@ -83038,6 +86243,7 @@ class EosDesigns(EosDesignsRootModel):
                                 "tags": {"type": Tags, "default": lambda cls: coerce_type(["all"], target_type=cls)},
                                 "name": {"type": str},
                                 "enabled": {"type": bool},
+                                "autostate": {"type": bool, "default": True},
                                 "description": {"type": str},
                                 "arp_gratuitous_accept": {"type": bool},
                                 "ip_address": {"type": str},
@@ -83094,6 +86300,12 @@ class EosDesigns(EosDesignsRootModel):
                             """VLAN name."""
                             enabled: bool | None
                             """Enable or disable interface."""
+                            autostate: bool
+                            """
+                            Set to false to disable automatic management of the interface link state.
+
+                            Default value: `True`
+                            """
                             description: str | None
                             """SVI description. By default set to VLAN name."""
                             arp_gratuitous_accept: bool | None
@@ -83176,13 +86388,21 @@ class EosDesigns(EosDesignsRootModel):
                             """
                             Name of the IPv6 access-list to be assigned in the ingress direction.
                             The access-list must be
-                            defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                            defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                            resolved from
+                            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                            removed in AVD 7.0.0.
                             """
                             ipv6_acl_out: str | None
                             """
                             Name of the IPv6 access-list to be assigned in the egress direction.
                             The access-list must be defined
-                            under `ipv6_acls` and supports substitution of the field "interface_ip".
+                            under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                            resolved from
+                            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                            removed in AVD 7.0.0.
                             """
                             ip_helpers: IpHelpers
                             """
@@ -83323,6 +86543,7 @@ class EosDesigns(EosDesignsRootModel):
                                     tags: Tags | UndefinedType = Undefined,
                                     name: str | UndefinedType | None = Undefined,
                                     enabled: bool | UndefinedType | None = Undefined,
+                                    autostate: bool | UndefinedType = Undefined,
                                     description: str | UndefinedType | None = Undefined,
                                     arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                                     ip_address: str | UndefinedType | None = Undefined,
@@ -83379,6 +86600,7 @@ class EosDesigns(EosDesignsRootModel):
                                            Subclass of AvdList with `str` items.
                                         name: VLAN name.
                                         enabled: Enable or disable interface.
+                                        autostate: Set to false to disable automatic management of the interface link state.
                                         description: SVI description. By default set to VLAN name.
                                         arp_gratuitous_accept: Accept gratuitous ARP.
                                         ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -83437,11 +86659,19 @@ class EosDesigns(EosDesignsRootModel):
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
-                                           defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                           defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                           resolved from
+                                           `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                           removed in AVD 7.0.0.
                                         ipv6_acl_out:
                                            Name of the IPv6 access-list to be assigned in the egress direction.
                                            The access-list must be defined
-                                           under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                           under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                           resolved from
+                                           `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                           removed in AVD 7.0.0.
                                         ip_helpers:
                                            IP helper for DHCP relay.
 
@@ -84449,6 +87679,7 @@ class EosDesigns(EosDesignsRootModel):
                             "evpn_vlan_bundle": {"type": str},
                             "nodes": {"type": Nodes},
                             "enabled": {"type": bool},
+                            "autostate": {"type": bool, "default": True},
                             "description": {"type": str},
                             "arp_gratuitous_accept": {"type": bool},
                             "ip_address": {"type": str},
@@ -84504,6 +87735,10 @@ class EosDesigns(EosDesignsRootModel):
                         SVI profile name to apply.
                         SVI can refer to one svi_profile which again can refer to another
                         svi_profile to inherit settings in up to two levels (svi -> svi_profile -> svi_parent_profile).
+                        From
+                        AVD 6.5.0 onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                        allows
+                        profiles to inherit settings across any number of levels.
                         """
                         tags: Tags
                         """
@@ -84535,6 +87770,12 @@ class EosDesigns(EosDesignsRootModel):
                         """
                         enabled: bool | None
                         """Enable or disable interface."""
+                        autostate: bool
+                        """
+                        Set to false to disable automatic management of the interface link state.
+
+                        Default value: `True`
+                        """
                         description: str | None
                         """SVI description. By default set to VLAN name."""
                         arp_gratuitous_accept: bool | None
@@ -84617,13 +87858,21 @@ class EosDesigns(EosDesignsRootModel):
                         """
                         Name of the IPv6 access-list to be assigned in the ingress direction.
                         The access-list must be
-                        defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                        defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                        resolved from
+                        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                        removed in AVD 7.0.0.
                         """
                         ipv6_acl_out: str | None
                         """
                         Name of the IPv6 access-list to be assigned in the egress direction.
                         The access-list must be defined
-                        under `ipv6_acls` and supports substitution of the field "interface_ip".
+                        under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                        resolved from
+                        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                        removed in AVD 7.0.0.
                         """
                         ip_helpers: IpHelpers
                         """
@@ -84768,6 +88017,7 @@ class EosDesigns(EosDesignsRootModel):
                                 evpn_vlan_bundle: str | UndefinedType | None = Undefined,
                                 nodes: Nodes | UndefinedType = Undefined,
                                 enabled: bool | UndefinedType | None = Undefined,
+                                autostate: bool | UndefinedType = Undefined,
                                 description: str | UndefinedType | None = Undefined,
                                 arp_gratuitous_accept: bool | UndefinedType | None = Undefined,
                                 ip_address: str | UndefinedType | None = Undefined,
@@ -84825,6 +88075,10 @@ class EosDesigns(EosDesignsRootModel):
                                        SVI profile name to apply.
                                        SVI can refer to one svi_profile which again can refer to another
                                        svi_profile to inherit settings in up to two levels (svi -> svi_profile -> svi_parent_profile).
+                                       From
+                                       AVD 6.5.0 onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                                       allows
+                                       profiles to inherit settings across any number of levels.
                                     tags:
                                        Tags leveraged for networks services filtering.
                                        Tags are matched against "filter.tags" defined under
@@ -84846,6 +88100,7 @@ class EosDesigns(EosDesignsRootModel):
 
                                        Subclass of AvdIndexedList with `NodesItem` items. Primary key is `node` (`str`).
                                     enabled: Enable or disable interface.
+                                    autostate: Set to false to disable automatic management of the interface link state.
                                     description: SVI description. By default set to VLAN name.
                                     arp_gratuitous_accept: Accept gratuitous ARP.
                                     ip_address: IPv4_address/Mask. Usually set under "nodes" to have unique IPv4 addresses per node.
@@ -84904,11 +88159,19 @@ class EosDesigns(EosDesignsRootModel):
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
-                                       defined under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                       defined under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                       resolved from
+                                       `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                       Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                       removed in AVD 7.0.0.
                                     ipv6_acl_out:
                                        Name of the IPv6 access-list to be assigned in the egress direction.
                                        The access-list must be defined
-                                       under `ipv6_acls` and supports substitution of the field "interface_ip".
+                                       under `ipv6_acls` and supports substitution of the field "interface_ipv6",
+                                       resolved from
+                                       `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
+                                       Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
+                                       removed in AVD 7.0.0.
                                     ip_helpers:
                                        IP helper for DHCP relay.
 
@@ -87198,9 +90461,38 @@ class EosDesigns(EosDesignsRootModel):
                     class Bgp(AvdModel):
                         """Subclass of AvdModel."""
 
+                        class GracefulRestart(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool}, "restart_time": {"type": int, "default": 300}}
+                            enabled: bool
+                            """Enable or disable BGP graceful-restart for this VRF."""
+                            restart_time: int
+                            """
+                            Restart time in seconds.
+
+                            Default value: `300`
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, enabled: bool | UndefinedType = Undefined, restart_time: int | UndefinedType = Undefined) -> None:
+                                    """
+                                    GracefulRestart.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: Enable or disable BGP graceful-restart for this VRF.
+                                        restart_time: Restart time in seconds.
+
+                                    """
+
                         _fields: ClassVar[dict] = {
                             "enabled": {"type": bool},
                             "router_id": {"type": str, "default": "main_router_id"},
+                            "graceful_restart": {"type": GracefulRestart},
                             "raw_eos_cli": {"type": str},
                             "structured_config": {"type": EosCliConfigGen.RouterBgp.VrfsItem},
                         }
@@ -87230,6 +90522,15 @@ class EosDesigns(EosDesignsRootModel):
 
                         Default value: `"main_router_id"`
                         """
+                        graceful_restart: GracefulRestart
+                        """
+                        BGP graceful-restart configuration for this VRF.
+                        This setting is not supported for VRF default. Use
+                        `bgp_graceful_restart` instead.
+
+
+                        Subclass of AvdModel.
+                        """
                         raw_eos_cli: str | None
                         """EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration."""
                         structured_config: EosCliConfigGen.RouterBgp.VrfsItem
@@ -87242,6 +90543,7 @@ class EosDesigns(EosDesignsRootModel):
                                 *,
                                 enabled: bool | UndefinedType | None = Undefined,
                                 router_id: str | UndefinedType = Undefined,
+                                graceful_restart: GracefulRestart | UndefinedType = Undefined,
                                 raw_eos_cli: str | UndefinedType | None = Undefined,
                                 structured_config: EosCliConfigGen.RouterBgp.VrfsItem | UndefinedType = Undefined,
                             ) -> None:
@@ -87272,6 +90574,13 @@ class EosDesigns(EosDesignsRootModel):
                                        Router ID for this VRF. EOS will use the main BGP Router ID.
                                        - "diagnostic_loopback" will use the IP
                                        address of the VRF Diagnostic Loopback interface.
+                                    graceful_restart:
+                                       BGP graceful-restart configuration for this VRF.
+                                       This setting is not supported for VRF default. Use
+                                       `bgp_graceful_restart` instead.
+
+
+                                       Subclass of AvdModel.
                                     raw_eos_cli: EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration.
                                     structured_config: Custom structured config added under router_bgp.vrfs.[name=<vrf>] for the EOS Config schema.
 
@@ -87362,12 +90671,45 @@ class EosDesigns(EosDesignsRootModel):
                         class AddressFamilyIpv6(AvdModel):
                             """Subclass of AvdModel."""
 
+                            class DefaultOriginate(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {"enabled": {"type": bool}, "always": {"type": bool}, "route_map": {"type": str}}
+                                enabled: bool
+                                always: bool | None
+                                """Always advertise a default route to this peer."""
+                                route_map: str | None
+                                """Route-map name."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        enabled: bool | UndefinedType = Undefined,
+                                        always: bool | UndefinedType | None = Undefined,
+                                        route_map: str | UndefinedType | None = Undefined,
+                                    ) -> None:
+                                        """
+                                        DefaultOriginate.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: enabled
+                                            always: Always advertise a default route to this peer.
+                                            route_map: Route-map name.
+
+                                        """
+
                             _fields: ClassVar[dict] = {
                                 "activate": {"type": bool},
                                 "route_map_in": {"type": str},
                                 "route_map_out": {"type": str},
                                 "rcf_in": {"type": str},
                                 "rcf_out": {"type": str},
+                                "default_originate": {"type": DefaultOriginate},
                                 "prefix_list_in": {"type": str},
                                 "prefix_list_out": {"type": str},
                             }
@@ -87386,6 +90728,8 @@ class EosDesigns(EosDesignsRootModel):
                             Outbound RCF function name with parenthesis.
                             Example: MyFunction(myarg).
                             """
+                            default_originate: DefaultOriginate
+                            """Subclass of AvdModel."""
                             prefix_list_in: str | None
                             """Inbound prefix-list name."""
                             prefix_list_out: str | None
@@ -87401,6 +90745,7 @@ class EosDesigns(EosDesignsRootModel):
                                     route_map_out: str | UndefinedType | None = Undefined,
                                     rcf_in: str | UndefinedType | None = Undefined,
                                     rcf_out: str | UndefinedType | None = Undefined,
+                                    default_originate: DefaultOriginate | UndefinedType = Undefined,
                                     prefix_list_in: str | UndefinedType | None = Undefined,
                                     prefix_list_out: str | UndefinedType | None = Undefined,
                                 ) -> None:
@@ -87420,6 +90765,7 @@ class EosDesigns(EosDesignsRootModel):
                                         rcf_out:
                                            Outbound RCF function name with parenthesis.
                                            Example: MyFunction(myarg).
+                                        default_originate: Subclass of AvdModel.
                                         prefix_list_in: Inbound prefix-list name.
                                         prefix_list_out: Outbound prefix-list name.
 
@@ -87993,6 +91339,8 @@ class EosDesigns(EosDesignsRootModel):
                             "session_tracker": {"type": str},
                             "shared_secret": {"type": SharedSecret},
                             "ttl_maximum_hops": {"type": int},
+                            "maximum_advertised_routes": {"type": int},
+                            "maximum_advertised_routes_warning_limit": {"type": str},
                         }
                         name: str
                         """BGP peer group name."""
@@ -88129,6 +91477,14 @@ class EosDesigns(EosDesignsRootModel):
                         """Subclass of AvdModel."""
                         ttl_maximum_hops: int | None
                         """Maximum number of hops."""
+                        maximum_advertised_routes: int | None
+                        """Maximum number of advertised routes (0 means unlimited)."""
+                        maximum_advertised_routes_warning_limit: str | None
+                        """
+                        Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                        never warn) or
+                        Percentage of maximum number of routes at which to warn ("<1-100> percent").
+                        """
 
                         if TYPE_CHECKING:
 
@@ -88180,6 +91536,8 @@ class EosDesigns(EosDesignsRootModel):
                                 session_tracker: str | UndefinedType | None = Undefined,
                                 shared_secret: SharedSecret | UndefinedType = Undefined,
                                 ttl_maximum_hops: int | UndefinedType | None = Undefined,
+                                maximum_advertised_routes: int | UndefinedType | None = Undefined,
+                                maximum_advertised_routes_warning_limit: str | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 BgpPeerGroupsItem.
@@ -88277,6 +91635,11 @@ class EosDesigns(EosDesignsRootModel):
                                     session_tracker: session_tracker
                                     shared_secret: Subclass of AvdModel.
                                     ttl_maximum_hops: Maximum number of hops.
+                                    maximum_advertised_routes: Maximum number of advertised routes (0 means unlimited).
+                                    maximum_advertised_routes_warning_limit:
+                                       Maximum number of advertised routes ("<0-4294967294>") after which a warning is issued (0 means
+                                       never warn) or
+                                       Percentage of maximum number of routes at which to warn ("<1-100> percent").
 
                                 """
 
@@ -89403,6 +92766,10 @@ class EosDesigns(EosDesignsRootModel):
                     The profile must be defined under `l2vlan_profiles`. The profile may refer to
                     another l2vlan_profile as its `parent_profile` to inherit settings in up to two levels (l2vlan ->
                     l2vlan_profile -> l2vlan_parent_profile).
+                    From AVD 6.5.0 onwards, setting
+                    `avd_design_future.allow_recursive_profile_inheritance` to true
+                    allows profiles to inherit settings
+                    across any number of levels.
                     """
                     tags: Tags
                     """
@@ -89548,6 +92915,10 @@ class EosDesigns(EosDesignsRootModel):
                                    The profile must be defined under `l2vlan_profiles`. The profile may refer to
                                    another l2vlan_profile as its `parent_profile` to inherit settings in up to two levels (l2vlan ->
                                    l2vlan_profile -> l2vlan_parent_profile).
+                                   From AVD 6.5.0 onwards, setting
+                                   `avd_design_future.allow_recursive_profile_inheritance` to true
+                                   allows profiles to inherit settings
+                                   across any number of levels.
                                 tags:
                                    Tags leveraged for networks services filtering.
                                    Tags are matched against filter.tags defined under
@@ -91297,15 +94668,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -91354,15 +94728,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -94493,8 +97870,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -95439,8 +98814,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -96788,15 +100161,18 @@ class EosDesigns(EosDesignsRootModel):
                             ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                             If the
                             peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                            Hostnames
-                            configured here cannot also be configured under `evpn_route_servers` on the same node.
-                            If a remote
-                            peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                            peering.
-
-
-                            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                            (`str`).
+                            If a
+                            remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                            the EVPN Gateway core peering is configured on the local node.
+                            Suppression is evaluated
+                            independently on each node based on its local EVPN Route Server and client relationships and
+                            `evpn_gateway.remote_peers` configuration.
+                            When one node uses an EVPN Gateway core peering and the
+                            other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                            both sides use the same password.
+                            If an explicit `ip_address` differs from the regular EVPN peering
+                            address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                            Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                             """
                             evpn_l2: EvpnL2
                             """
@@ -96845,15 +100221,18 @@ class EosDesigns(EosDesignsRootModel):
                                            ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                            If the
                                            peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                           Hostnames
-                                           configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                           If a remote
-                                           peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                           peering.
-
-
-                                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                           (`str`).
+                                           If a
+                                           remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                           the EVPN Gateway core peering is configured on the local node.
+                                           Suppression is evaluated
+                                           independently on each node based on its local EVPN Route Server and client relationships and
+                                           `evpn_gateway.remote_peers` configuration.
+                                           When one node uses an EVPN Gateway core peering and the
+                                           other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                           both sides use the same password.
+                                           If an explicit `ip_address` differs from the regular EVPN peering
+                                           address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                           Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                         evpn_l2:
                                            Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -100005,8 +103384,6 @@ class EosDesigns(EosDesignsRootModel):
                         evpn_route_servers: EvpnRouteServers
                         """
                         List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                        Hostnames configured here cannot also
-                        be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                         Subclass of AvdList with `str`
@@ -100960,8 +104337,6 @@ class EosDesigns(EosDesignsRootModel):
                                        Default is set in node_type definition from node_type_keys.
                                     evpn_route_servers:
                                        List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                       Hostnames configured here cannot also
-                                       be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                        Subclass of AvdList with `str`
@@ -102234,15 +105609,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -102291,15 +105669,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -105445,8 +108826,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -106402,8 +109781,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -107751,15 +111128,18 @@ class EosDesigns(EosDesignsRootModel):
                         ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                         If the
                         peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                        Hostnames
-                        configured here cannot also be configured under `evpn_route_servers` on the same node.
-                        If a remote
-                        peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                        peering.
-
-
-                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                        (`str`).
+                        If a
+                        remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                        the EVPN Gateway core peering is configured on the local node.
+                        Suppression is evaluated
+                        independently on each node based on its local EVPN Route Server and client relationships and
+                        `evpn_gateway.remote_peers` configuration.
+                        When one node uses an EVPN Gateway core peering and the
+                        other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                        both sides use the same password.
+                        If an explicit `ip_address` differs from the regular EVPN peering
+                        address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                        Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                         """
                         evpn_l2: EvpnL2
                         """
@@ -107808,15 +111188,18 @@ class EosDesigns(EosDesignsRootModel):
                                        ip_address and BGP ASN will be automatically populated. Manual override takes precedence.
                                        If the
                                        peer's hostname can not be found in the inventory, ip_address and bgp_as must be defined.
-                                       Hostnames
-                                       configured here cannot also be configured under `evpn_route_servers` on the same node.
-                                       If a remote
-                                       peer is also an uplink switch, AVD treats the EVPN peering to that peer as an EVPN Gateway core
-                                       peering.
-
-
-                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname`
-                                       (`str`).
+                                       If a
+                                       remote peer is also an EVPN Route Server or Route Server client and uses the same IP address, only
+                                       the EVPN Gateway core peering is configured on the local node.
+                                       Suppression is evaluated
+                                       independently on each node based on its local EVPN Route Server and client relationships and
+                                       `evpn_gateway.remote_peers` configuration.
+                                       When one node uses an EVPN Gateway core peering and the
+                                       other uses a regular EVPN peering, AVD does not synchronize BGP passwords. The user must ensure that
+                                       both sides use the same password.
+                                       If an explicit `ip_address` differs from the regular EVPN peering
+                                       address, the EVPN Gateway core peering is configured in addition to the regular EVPN peering.
+                                       Subclass of AvdIndexedList with `RemotePeersItem` items. Primary key is `hostname` (`str`).
                                     evpn_l2:
                                        Enable EVPN Gateway functionality for route-types 2 (MAC-IP) and 3 (IMET).
 
@@ -110959,8 +114342,6 @@ class EosDesigns(EosDesignsRootModel):
                     evpn_route_servers: EvpnRouteServers
                     """
                     List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                    Hostnames configured here cannot also
-                    be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                     Subclass of AvdList with `str`
@@ -111914,8 +115295,6 @@ class EosDesigns(EosDesignsRootModel):
                                    Default is set in node_type definition from node_type_keys.
                                 evpn_route_servers:
                                    List of nodes acting as EVPN Route-Servers / Route-Reflectors.
-                                   Hostnames configured here cannot also
-                                   be configured under `evpn_gateway.remote_peers` on the same node.
 
 
                                    Subclass of AvdList with `str`
@@ -112510,6 +115889,7 @@ class EosDesigns(EosDesignsRootModel):
         "eos_designs_return_structured_config": {"type": bool, "default": False},
         "eos_designs_tmp_dir": {"type": str},
         "eos_designs_validate_inputs_batch_size": {"type": int, "default": 10},
+        "eos_designs_validate_inputs_template_with_multiprocessing": {"type": bool, "default": True},
         "errdisable_settings": {"type": ErrdisableSettings},
         "event_handlers": {"type": EosCliConfigGen.EventHandlers},
         "event_monitor": {"type": EosCliConfigGen.EventMonitor},
@@ -113655,6 +117035,7 @@ class EosDesigns(EosDesignsRootModel):
         "ssh_settings": {"type": SshSettings},
         "svi_profiles": {"type": SviProfiles},
         "system_mac_address": {"type": str},
+        "tcam_profiles": {"type": EosCliConfigGen.TcamProfile.Profiles},
         "timezone": {"type": str},
         "trunk_groups": {"type": TrunkGroups},
         "type": {"type": str},
@@ -114304,8 +117685,12 @@ class EosDesigns(EosDesignsRootModel):
     Inherit settings from a device profile defined under `device_profiles`.
     If the device is defined
     under `devices` it is recommended to set the `profile` there instead.
-    Max two levels of profile
-    inheritance: device -> profile -> parent_profile
+    By default, profile
+    inheritance is limited to two levels: device -> device_profile -> parent_profile.
+    From AVD 6.5.0
+    onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+    allows profiles to
+    inherit settings across any number of levels.
     """
     device_profiles: DeviceProfiles
     """
@@ -114392,6 +117777,16 @@ class EosDesigns(EosDesignsRootModel):
     size and the available resources, you may want to adjust this number.
 
     Default value: `10`
+    """
+    eos_designs_validate_inputs_template_with_multiprocessing: bool
+    """
+    Use Multiprocessing for variable templating.
+    Disable this when templating of input variables invokes
+    code that uses locks or background threads.
+    Forked worker processes may inherit locked state,
+    potentially causing deadlocks.
+
+    Default value: `True`
     """
     errdisable_settings: ErrdisableSettings
     """
@@ -114630,16 +118025,43 @@ class EosDesigns(EosDesignsRootModel):
     """
     IPv4 extended access-lists supporting substitution on certain fields.
     These access-lists can be
-    referenced under node settings `l3_interfaces`, and will only be configured on devices where they
-    are in use.
+    referenced using `ipv4_acl_in` / `ipv4_acl_out` under network services `svis`, `l3_interfaces`,
+    `l3_port_channels`, or under node type `l3_interfaces` and `l3_port_channels`,
+    or using
+    `dot1x.authentication_failure.allow_access_list` under connected endpoints, network ports, and port
+    profiles.
+    They will only be configured on devices where they are in use.
 
-    The substitution is useful when assigning the same access-list on multiple interfaces,
-    but where certain fields require unique values like the "interface_ip" or "peer_ip".
-    When using
-    substitution, the interface name will be appended to the ACL name.
+    The substitution is useful
+    when assigning the same access-list on multiple interfaces where certain fields require unique
+    values.
+    When using substitution, the interface name will be appended to the ACL name.
 
-    Subclass of AvdIndexedList with
-    `Ipv4AclsItem` items. Primary key is `name` (`str`).
+    The
+    "interface_ip" substitution field is resolved per interface type:
+    - For SVIs: resolved from
+    `ip_address`. If not set, `ip_address_virtual` is used as a fallback.
+    - For network services L3
+    interfaces: resolved from the node's entry in `ip_addresses`.
+    - For network services L3 port-
+    channels: resolved from `ip_address`.
+    - For node type L3 interfaces and L3 port-channels: resolved
+    from `ip_address`. If set to "dhcp" and `dhcp_ip` is set for the interface, `dhcp_ip` is used.
+    If
+    the required field is not set, the substitution will fail with an error.
+
+    The "peer_ip" substitution
+    field is resolved per interface type:
+    - For SVIs: not supported. Substitution will fail with an
+    error if used.
+    - For network services L3 interfaces and L3 port-channels: not supported.
+    Substitution will fail with an error if used.
+    - For node type L3 interfaces and L3 port-channels:
+    resolved from `peer_ip`.
+    If `peer_ip` is not set on the interface, the substitution will fail with
+    an error.
+
+    Subclass of AvdIndexedList with `Ipv4AclsItem` items. Primary key is `name` (`str`).
     """
     ipv4_prefix_list_catalog: Ipv4PrefixListCatalog
     """
@@ -114670,38 +118092,40 @@ class EosDesigns(EosDesignsRootModel):
     These access-lists can be
     referenced using `ipv6_acl_in` / `ipv6_acl_out` under network services `svis`, or under node type
     `l3_interfaces` and `l3_port_channels`,
-    and will only be configured on devices where they are in
-    use.
+    or using `dot1x.authentication_failure.allow_access_list`
+    under connected endpoints, network ports, and port profiles.
+    They will only be configured on devices
+    where they are in use.
 
-    The substitution is useful when assigning the same access-list on multiple interfaces where
-    certain fields require unique values.
-    When using substitution, the interface name will be appended
-    to the ACL name.
+    The substitution is useful when assigning the same access-list on multiple
+    interfaces where certain fields require unique values.
+    When using substitution, the interface name
+    will be appended to the ACL name.
 
-    The "interface_ipv6" substitution field is resolved per interface type:
-    - For
-    SVIs: resolved from `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used
-    as a fallback.
-    - For L3 interfaces and L3 port-channels: resolved from the first entry of
-    `ipv6_addresses`.
-    If the required field is not set, the substitution will fail with an error.
+    The "interface_ipv6" substitution field is resolved per interface
+    type:
+    - For SVIs: resolved from `ipv6_address`. If not set, the first entry of
+    `ipv6_address_virtuals` is used as a fallback.
+    - For L3 interfaces and L3 port-channels: resolved
+    from the first entry of `ipv6_addresses`.
+    If the required field is not set, the substitution will
+    fail with an error.
 
-    The
-    "peer_ipv6" substitution field is resolved per interface type:
-    - For SVIs: not supported.
-    Substitution will fail with an error if used.
-    - For network services L3 interfaces and L3 port-
-    channels: not supported. Substitution will fail with an error if used.
-    - For node type L3 interfaces
-    and L3 port-channels: resolved from `peer_ipv6`.
-    If `peer_ipv6` is not set on the interface, the
-    substitution will fail with an error.
+    The "peer_ipv6" substitution field is resolved per interface type:
+    - For SVIs:
+    not supported. Substitution will fail with an error if used.
+    - For network services L3 interfaces
+    and L3 port-channels: not supported. Substitution will fail with an error if used.
+    - For node type
+    L3 interfaces and L3 port-channels: resolved from `peer_ipv6`.
+    If `peer_ipv6` is not set on the
+    interface, the substitution will fail with an error.
 
-    Note: The "interface_ip" token is deprecated and will be
-    removed in AVD 7.0.0. Use "interface_ipv6" instead.
+    Note: The "interface_ip" token is deprecated
+    and will be removed in AVD 7.0.0. Use "interface_ipv6" instead.
 
-    Subclass of AvdIndexedList with `Ipv6AclsItem`
-    items. Primary key is `name` (`str`).
+    Subclass of AvdIndexedList with
+    `Ipv6AclsItem` items. Primary key is `name` (`str`).
     """
     ipv6_mgmt_destination_networks: Ipv6MgmtDestinationNetworks
     """
@@ -115260,9 +118684,11 @@ class EosDesigns(EosDesignsRootModel):
     """
     overlay_routing_protocol_address_family: OverlayRoutingProtocolAddressFamily
     """
-    When set to `ipv6`, enable overlay EVPN peering with IPv6 addresses.
-    This feature depends on
-    underlay_ipv6 variable. As of today, only RFC5549 is capable to transport IPv6 in the underlay.
+    Set to `ipv6` to use IPv6 addresses for overlay EVPN peering.
+    Setting this to `ipv6` requires both
+    `underlay_ipv6: true` and `underlay_rfc5549: true`.
+    When `underlay_ipv6_numbered: true`, this
+    setting is not required. IPv6 overlay peering is enabled automatically.
 
     Default value: `"ipv4"`
     """
@@ -115453,14 +118879,19 @@ class EosDesigns(EosDesignsRootModel):
     svi_profile.nodes[inventory_hostname].structured_config
     3.
     svi_parent_profile.nodes[inventory_hostname].structured_config
-    4. svi.structured_config
-    5.
-    svi_profile.structured_config
-    6. svi_parent_profile.structured_config
+    4. Further ancestor profiles'
+    nodes[inventory_hostname].structured_config in nearest-to-farthest order (when recursive inheritance
+    is enabled)
+    5. svi.structured_config
+    6. svi_profile.structured_config
+    7.
+    svi_parent_profile.structured_config
+    8. Further ancestor profiles' structured_config in nearest-to-
+    farthest order (when recursive inheritance is enabled)
 
 
-    Subclass of AvdIndexedList
-    with `SviProfilesItem` items. Primary key is `profile` (`str`).
+    Subclass of AvdIndexedList with
+    `SviProfilesItem` items. Primary key is `profile` (`str`).
     """
     system_mac_address: str | None
     """
@@ -115469,6 +118900,17 @@ class EosDesigns(EosDesignsRootModel):
     also be set under node type settings.
     If both are set, the value under node type settings takes
     precedence.
+    """
+    tcam_profiles: EosCliConfigGen.TcamProfile.Profiles
+    """
+    List of TCAM profile definitions that can be referenced by platform_settings.
+    Profiles are
+    configured in the device based on platform_settings[].tcam_profile and
+    platform_settings[].additional_tcam_profiles.
+    All profiles in
+    platform_settings[].additional_tcam_profiles (if defined in this list) will be configured.
+    If a
+    profile appears in both tcam_profile and additional_tcam_profiles, it will only be configured once.
     """
     timezone: str | None
     """Clock timezone like "CET" or "US/Pacific"."""
@@ -115933,6 +119375,7 @@ class EosDesigns(EosDesignsRootModel):
             eos_designs_return_structured_config: bool | UndefinedType = Undefined,
             eos_designs_tmp_dir: str | UndefinedType | None = Undefined,
             eos_designs_validate_inputs_batch_size: int | UndefinedType = Undefined,
+            eos_designs_validate_inputs_template_with_multiprocessing: bool | UndefinedType = Undefined,
             errdisable_settings: ErrdisableSettings | UndefinedType = Undefined,
             event_handlers: EosCliConfigGen.EventHandlers | UndefinedType = Undefined,
             event_monitor: EosCliConfigGen.EventMonitor | UndefinedType = Undefined,
@@ -116045,6 +119488,7 @@ class EosDesigns(EosDesignsRootModel):
             ssh_settings: SshSettings | UndefinedType = Undefined,
             svi_profiles: SviProfiles | UndefinedType = Undefined,
             system_mac_address: str | UndefinedType | None = Undefined,
+            tcam_profiles: EosCliConfigGen.TcamProfile.Profiles | UndefinedType = Undefined,
             timezone: str | UndefinedType | None = Undefined,
             trunk_groups: TrunkGroups | UndefinedType = Undefined,
             type: str | UndefinedType | None = Undefined,
@@ -116555,8 +119999,12 @@ class EosDesigns(EosDesignsRootModel):
                    Inherit settings from a device profile defined under `device_profiles`.
                    If the device is defined
                    under `devices` it is recommended to set the `profile` there instead.
-                   Max two levels of profile
-                   inheritance: device -> profile -> parent_profile
+                   By default, profile
+                   inheritance is limited to two levels: device -> device_profile -> parent_profile.
+                   From AVD 6.5.0
+                   onwards, setting `avd_design_future.allow_recursive_profile_inheritance` to true
+                   allows profiles to
+                   inherit settings across any number of levels.
                 device_profiles:
                    PREVIEW - This datamodel is still under development and may change or get removed at any time.
                    Subclass of AvdIndexedList with `DeviceProfilesItem` items. Primary key is `name` (`str`).
@@ -116611,6 +120059,12 @@ class EosDesigns(EosDesignsRootModel):
                    The number of hosts to process in each batch when validating inputs.
                    Depending on your inventory
                    size and the available resources, you may want to adjust this number.
+                eos_designs_validate_inputs_template_with_multiprocessing:
+                   Use Multiprocessing for variable templating.
+                   Disable this when templating of input variables invokes
+                   code that uses locks or background threads.
+                   Forked worker processes may inherit locked state,
+                   potentially causing deadlocks.
                 errdisable_settings:
                    Errdisable settings for the device.
                    Causes are filtered based on platform feature support defined in
@@ -116776,16 +120230,43 @@ class EosDesigns(EosDesignsRootModel):
                 ipv4_acls:
                    IPv4 extended access-lists supporting substitution on certain fields.
                    These access-lists can be
-                   referenced under node settings `l3_interfaces`, and will only be configured on devices where they
-                   are in use.
+                   referenced using `ipv4_acl_in` / `ipv4_acl_out` under network services `svis`, `l3_interfaces`,
+                   `l3_port_channels`, or under node type `l3_interfaces` and `l3_port_channels`,
+                   or using
+                   `dot1x.authentication_failure.allow_access_list` under connected endpoints, network ports, and port
+                   profiles.
+                   They will only be configured on devices where they are in use.
 
-                   The substitution is useful when assigning the same access-list on multiple interfaces,
-                   but where certain fields require unique values like the "interface_ip" or "peer_ip".
-                   When using
-                   substitution, the interface name will be appended to the ACL name.
+                   The substitution is useful
+                   when assigning the same access-list on multiple interfaces where certain fields require unique
+                   values.
+                   When using substitution, the interface name will be appended to the ACL name.
 
-                   Subclass of AvdIndexedList with
-                   `Ipv4AclsItem` items. Primary key is `name` (`str`).
+                   The
+                   "interface_ip" substitution field is resolved per interface type:
+                   - For SVIs: resolved from
+                   `ip_address`. If not set, `ip_address_virtual` is used as a fallback.
+                   - For network services L3
+                   interfaces: resolved from the node's entry in `ip_addresses`.
+                   - For network services L3 port-
+                   channels: resolved from `ip_address`.
+                   - For node type L3 interfaces and L3 port-channels: resolved
+                   from `ip_address`. If set to "dhcp" and `dhcp_ip` is set for the interface, `dhcp_ip` is used.
+                   If
+                   the required field is not set, the substitution will fail with an error.
+
+                   The "peer_ip" substitution
+                   field is resolved per interface type:
+                   - For SVIs: not supported. Substitution will fail with an
+                   error if used.
+                   - For network services L3 interfaces and L3 port-channels: not supported.
+                   Substitution will fail with an error if used.
+                   - For node type L3 interfaces and L3 port-channels:
+                   resolved from `peer_ip`.
+                   If `peer_ip` is not set on the interface, the substitution will fail with
+                   an error.
+
+                   Subclass of AvdIndexedList with `Ipv4AclsItem` items. Primary key is `name` (`str`).
                 ipv4_prefix_list_catalog:
                    IPv4 prefix-list catalog.
                    Note: Entries defined in `ipv4_prefix_list_catalog` are only rendered in
@@ -116810,38 +120291,40 @@ class EosDesigns(EosDesignsRootModel):
                    These access-lists can be
                    referenced using `ipv6_acl_in` / `ipv6_acl_out` under network services `svis`, or under node type
                    `l3_interfaces` and `l3_port_channels`,
-                   and will only be configured on devices where they are in
-                   use.
+                   or using `dot1x.authentication_failure.allow_access_list`
+                   under connected endpoints, network ports, and port profiles.
+                   They will only be configured on devices
+                   where they are in use.
 
-                   The substitution is useful when assigning the same access-list on multiple interfaces where
-                   certain fields require unique values.
-                   When using substitution, the interface name will be appended
-                   to the ACL name.
+                   The substitution is useful when assigning the same access-list on multiple
+                   interfaces where certain fields require unique values.
+                   When using substitution, the interface name
+                   will be appended to the ACL name.
 
-                   The "interface_ipv6" substitution field is resolved per interface type:
-                   - For
-                   SVIs: resolved from `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used
-                   as a fallback.
-                   - For L3 interfaces and L3 port-channels: resolved from the first entry of
-                   `ipv6_addresses`.
-                   If the required field is not set, the substitution will fail with an error.
+                   The "interface_ipv6" substitution field is resolved per interface
+                   type:
+                   - For SVIs: resolved from `ipv6_address`. If not set, the first entry of
+                   `ipv6_address_virtuals` is used as a fallback.
+                   - For L3 interfaces and L3 port-channels: resolved
+                   from the first entry of `ipv6_addresses`.
+                   If the required field is not set, the substitution will
+                   fail with an error.
 
-                   The
-                   "peer_ipv6" substitution field is resolved per interface type:
-                   - For SVIs: not supported.
-                   Substitution will fail with an error if used.
-                   - For network services L3 interfaces and L3 port-
-                   channels: not supported. Substitution will fail with an error if used.
-                   - For node type L3 interfaces
-                   and L3 port-channels: resolved from `peer_ipv6`.
-                   If `peer_ipv6` is not set on the interface, the
-                   substitution will fail with an error.
+                   The "peer_ipv6" substitution field is resolved per interface type:
+                   - For SVIs:
+                   not supported. Substitution will fail with an error if used.
+                   - For network services L3 interfaces
+                   and L3 port-channels: not supported. Substitution will fail with an error if used.
+                   - For node type
+                   L3 interfaces and L3 port-channels: resolved from `peer_ipv6`.
+                   If `peer_ipv6` is not set on the
+                   interface, the substitution will fail with an error.
 
-                   Note: The "interface_ip" token is deprecated and will be
-                   removed in AVD 7.0.0. Use "interface_ipv6" instead.
+                   Note: The "interface_ip" token is deprecated
+                   and will be removed in AVD 7.0.0. Use "interface_ipv6" instead.
 
-                   Subclass of AvdIndexedList with `Ipv6AclsItem`
-                   items. Primary key is `name` (`str`).
+                   Subclass of AvdIndexedList with
+                   `Ipv6AclsItem` items. Primary key is `name` (`str`).
                 ipv6_mgmt_destination_networks:
                    List of IPv6 prefixes to configure as static routes towards the OOB IPv6 Management interface
                    gateway.
@@ -117242,9 +120725,11 @@ class EosDesigns(EosDesignsRootModel):
                      If not set, the
                    default_overlay_routing_protocol defined under the node_type_keys will be used (default is "ebgp").
                 overlay_routing_protocol_address_family:
-                   When set to `ipv6`, enable overlay EVPN peering with IPv6 addresses.
-                   This feature depends on
-                   underlay_ipv6 variable. As of today, only RFC5549 is capable to transport IPv6 in the underlay.
+                   Set to `ipv6` to use IPv6 addresses for overlay EVPN peering.
+                   Setting this to `ipv6` requires both
+                   `underlay_ipv6: true` and `underlay_rfc5549: true`.
+                   When `underlay_ipv6_numbered: true`, this
+                   setting is not required. IPv6 overlay peering is enabled automatically.
                 overlay_rt_type:
                    Configuration options for the Administrator subfield (first part of RT) and the Assigned Number
                    subfield (second part of RT).
@@ -117378,20 +120863,34 @@ class EosDesigns(EosDesignsRootModel):
                    svi_profile.nodes[inventory_hostname].structured_config
                    3.
                    svi_parent_profile.nodes[inventory_hostname].structured_config
-                   4. svi.structured_config
-                   5.
-                   svi_profile.structured_config
-                   6. svi_parent_profile.structured_config
+                   4. Further ancestor profiles'
+                   nodes[inventory_hostname].structured_config in nearest-to-farthest order (when recursive inheritance
+                   is enabled)
+                   5. svi.structured_config
+                   6. svi_profile.structured_config
+                   7.
+                   svi_parent_profile.structured_config
+                   8. Further ancestor profiles' structured_config in nearest-to-
+                   farthest order (when recursive inheritance is enabled)
 
 
-                   Subclass of AvdIndexedList
-                   with `SviProfilesItem` items. Primary key is `profile` (`str`).
+                   Subclass of AvdIndexedList with
+                   `SviProfilesItem` items. Primary key is `profile` (`str`).
                 system_mac_address:
                    Set to the same MAC address as available in "show version" on the device.
                    "system_mac_address" can
                    also be set under node type settings.
                    If both are set, the value under node type settings takes
                    precedence.
+                tcam_profiles:
+                   List of TCAM profile definitions that can be referenced by platform_settings.
+                   Profiles are
+                   configured in the device based on platform_settings[].tcam_profile and
+                   platform_settings[].additional_tcam_profiles.
+                   All profiles in
+                   platform_settings[].additional_tcam_profiles (if defined in this list) will be configured.
+                   If a
+                   profile appears in both tcam_profile and additional_tcam_profiles, it will only be configured once.
                 timezone: Clock timezone like "CET" or "US/Pacific".
                 trunk_groups: Subclass of AvdModel.
                 type:

@@ -29,6 +29,12 @@ keys:
         description: |-
           Available from AVD 6.3.0.
           Configure inband management interface to accept DHCP default route when the inband management IP is set to 'dhcp'.
+      allow_recursive_profile_inheritance:
+        type: bool
+        default: false
+        description: |-
+          Available from AVD 6.5.0.
+          Allow `parent_profile` to inherit from its own `parent_profile` in `port_profiles`, `device_profiles`, `svi_profiles` and `l2vlan_profiles`.
       configure_inband_mgmt_ipv6_vrf:
         type: bool
         description: |-
@@ -42,6 +48,20 @@ keys:
           Always configure Port-Channel uplinks with consistent 'switchport trunk allowed' on both ends
           and on all 'uplink_switches' even when available VLANs differ between the 'uplink_switches'.
         default: false
+      fix_address_locking_dhcp_server_interfaces:
+        type: bool
+        default: false
+        description: |-
+          Available from AVD 6.4.0.
+          Fix support for `address_locking_settings.dhcp_server_interfaces`.
+          When enabled, `address_locking_settings.dhcp_server_interfaces` and `address_locking_settings.local_interface` are mutually exclusive.
+      fix_match_ipv6_prefix_list_on_mlag_route_map:
+        type: bool
+        default: false
+        description: |-
+          Available from AVD 6.4.0.
+          Fix to properly configure the `RM-CONN-2-BGP-VRFS` route-map with `match ipv6 address prefix-list`
+          instead of `match ip address prefix-list` when using `underlay_ipv6_numbered`.
       fix_radius_server_group_tls:
         type: bool
         default: false
