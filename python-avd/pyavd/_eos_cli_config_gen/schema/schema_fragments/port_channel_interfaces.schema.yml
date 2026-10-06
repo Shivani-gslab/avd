@@ -148,6 +148,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    upgrade_handler: encapsulation_vlan_client_dot1q
                   type: dict
                 unmatched:
                   type: bool
@@ -155,6 +156,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    upgrade_handler: encapsulation_vlan_client_unmatched
             network:
               type: dict
               description: Network encapsulation are all optional, and skipped if using client unmatched.
@@ -205,6 +207,7 @@ keys:
                     warning: true
                     removed: true
                     remove_in_version: 6.0.0
+                    upgrade_handler: encapsulation_vlan_network_dot1q
                   type: dict
                 client:
                   type: bool
@@ -1433,12 +1436,14 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: srlgs
+                upgrade_handler: simple
         vlans:
           type: str
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            upgrade_handler: switchport_vlans
             new_key: switchport.access_vlan or switchport.trunk.allowed_vlan
         type:
           type: str
@@ -1446,6 +1451,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
+            upgrade_handler: switchport_mode
         encapsulation_dot1q_vlan:
           type: int
           deprecation:
@@ -1453,6 +1459,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
+            upgrade_handler: simple
         mode:
           type: str
           deprecation:
@@ -1460,6 +1467,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.mode
+            upgrade_handler: simple
         native_vlan:
           type: int
           deprecation:
@@ -1467,6 +1475,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan
+            upgrade_handler: simple
         native_vlan_tag:
           type: bool
           deprecation:
@@ -1474,6 +1483,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.native_vlan_tag
+            upgrade_handler: simple
         phone:
           type: dict
           deprecation:
@@ -1481,6 +1491,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.phone
+            upgrade_handler: simple
         trunk_groups:
           type: list
           items:
@@ -1490,6 +1501,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.groups
+            upgrade_handler: simple
         trunk_private_vlan_secondary:
           type: bool
           deprecation:
@@ -1497,6 +1509,7 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.trunk.private_vlan_secondary
+            upgrade_handler: simple
         pvlan_mapping:
           type: str
           deprecation:
@@ -1504,12 +1517,14 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.pvlan_mapping
+            upgrade_handler: simple
         vlan_translations:
           deprecation:
             warning: true
             removed: true
             remove_in_version: 6.0.0
             new_key: switchport.vlan_translations
+            upgrade_handler: vlan_translations
           type: list
           items:
             type: dict
@@ -1519,6 +1534,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
+            upgrade_handler: isis_authentication_mode
             new_key: port_channel_interfaces[].isis_authentication.both.mode or port_channel_interfaces[].isis_authentication.level_1.mode or port_channel_interfaces[].isis_authentication.level_2.mode
         isis_authentication_key:
           type: str
@@ -1526,6 +1542,7 @@ keys:
             warning: true
             removed: true
             remove_in_version: v6.0.0
+            upgrade_handler: isis_authentication_key
             new_key: port_channel_interfaces[].isis_authentication.both.key or port_channel_interfaces[].isis_authentication.level_1.key or port_channel_interfaces[].isis_authentication.level_2.key
         eos_cli:
           type: str

@@ -338,7 +338,6 @@ repos:
           )
           /inventory/hosts.yml$
         additional_dependencies: ['Jinja2>=3.0.0', 'pyavd-utils==0.0.10', 'deepmerge>=1.1.0']
-
       - id: templates
         name: Precompile Jinja2 templates
         entry: sh -c 'python-avd/scripts/compile_templates.py'

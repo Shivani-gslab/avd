@@ -54,7 +54,8 @@ keys:
             warning: true
             removed: true
             remove_in_version: 6.0.0
-            new_key: prefix
+            new_key: ipv6_static_routes[].prefix
+            upgrade_handler: simple
         gateway:
           type: str
           deprecation:
@@ -62,3 +63,4 @@ keys:
             removed: true
             remove_in_version: 6.0.0
             new_key: next_hop
+            upgrade_handler: simple
