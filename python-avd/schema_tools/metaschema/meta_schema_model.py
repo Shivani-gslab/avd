@@ -74,6 +74,8 @@ class AvdSchemaBaseModel(BaseModel, ABC):
         """URL detailing the deprecation and migration guidelines."""
         allow_with_new_key: bool | None = False
         """Allow the deprecated key to be used in parallel with the new key without raising a conflict error."""
+        upgrade_handler: str | None = "simple"
+        """Upgrade handler used to migrate deprecated data."""
 
     class DocumentationOptions(BaseModel):
         """Schema field options used for controlling documentation generation."""

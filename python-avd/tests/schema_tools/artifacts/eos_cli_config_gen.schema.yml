@@ -2228,6 +2228,7 @@ keys:
             warning: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
+            upgrade_handler: simple
         encapsulation_dot1q:
           description: 'Warning: `encapsulation_dot1q` should not be combined with
             `ethernet_interfaces[].type: l3dot1q` or `ethernet_interfaces[].type:
@@ -8933,6 +8934,7 @@ keys:
             warning: true
             remove_in_version: 6.0.0
             new_key: encapsulation_dot1q.vlan
+            upgrade_handler: simple
         encapsulation_dot1q:
           description: 'Warning: `encapsulation_dot1q` should not be combined with
             `ethernet_interfaces[].type: l3dot1q` or `ethernet_interfaces[].type:
