@@ -816,6 +816,826 @@ class EosDesigns(EosDesignsRootModel):
 
                 """
 
+    class AaaSettingsProfilesItem(AvdModel):
+        """Subclass of AvdModel."""
+
+        class EnablePassword(AvdModel):
+            """Subclass of AvdModel."""
+
+            PasswordType: TypeAlias = Literal["sha512"]
+            _fields: ClassVar[dict] = {"password": {"type": str}, "cleartext_password": {"type": str}, "password_type": {"type": str, "default": "sha512"}}
+            password: str | None
+            """
+            SHA512 hashed password.
+            Takes precedence over `cleartext_password`.
+            This variable is sensitive and
+            SHOULD be configured using some vault.
+            """
+            cleartext_password: str | None
+            """
+            Cleartext enable password.
+            Encrypted using `password_type` by AVD.
+            This variable is sensitive and
+            SHOULD be configured using some vault mechanism.
+            """
+            password_type: PasswordType
+            """Default value: `"sha512"`"""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    password: str | UndefinedType | None = Undefined,
+                    cleartext_password: str | UndefinedType | None = Undefined,
+                    password_type: PasswordType | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    EnablePassword.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        password:
+                           SHA512 hashed password.
+                           Takes precedence over `cleartext_password`.
+                           This variable is sensitive and
+                           SHOULD be configured using some vault.
+                        cleartext_password:
+                           Cleartext enable password.
+                           Encrypted using `password_type` by AVD.
+                           This variable is sensitive and
+                           SHOULD be configured using some vault mechanism.
+                        password_type: password_type
+
+                    """
+
+        class Tacacs(AvdModel):
+            """Subclass of AvdModel."""
+
+            class ServersItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                class Groups(AvdList[str]):
+                    """Subclass of AvdList with `str` items."""
+
+                Groups._item_type = str
+
+                _fields: ClassVar[dict] = {
+                    "host": {"type": str},
+                    "groups": {"type": Groups},
+                    "vrf": {"type": str},
+                    "timeout": {"type": int},
+                    "key": {"type": str},
+                    "cleartext_key": {"type": str},
+                }
+                host: str
+                """
+                Host IP address or name.
+                Combination of `host` and `vrf` should be unique.
+                """
+                groups: Groups
+                """
+                List of Tacacs group names.
+                The group names 'radius', 'tacacs+' and 'ldap' are reserved by EOS and
+                must not be used.
+
+                Subclass of AvdList with `str` items.
+                """
+                vrf: str | None
+                """
+                VRF name.
+                The value will be interpreted according to these rules:
+                - `use_mgmt_interface_vrf` will
+                configure the TACACS host under the VRF set with `mgmt_interface_vrf`.
+                  An error will be raised if
+                `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+                - `use_inband_mgmt_vrf` will
+                configure the TACACS host under the VRF set with `inband_mgmt_vrf`.
+                  An error will be raised if
+                inband management is not configured for the device.
+                - `use_default_mgmt_method_vrf` will configure
+                the VRF and source-interface for one of the two options above depending on the value of
+                `default_mgmt_method`.
+                - Any other string will be used directly as the VRF name.
+                """
+                timeout: int | None
+                """Timeout in seconds."""
+                key: str | None
+                """
+                Encrypted Type 7 key.
+                Takes precedence over `cleartext_key` if both are provided.
+                Either `key` or
+                `cleartext_key` must be set to render the configuration;
+                otherwise, an error will be raised.
+                """
+                cleartext_key: str | None
+                """
+                Plaintext password that will be encrypted to Type 7 by AVD.
+                To protect the password at rest it is
+                strongly recommended to make use of a vault or similar.
+                Either `key` or `cleartext_key` must be set
+                to render the configuration;
+                otherwise, an error will be raised.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        host: str | UndefinedType = Undefined,
+                        groups: Groups | UndefinedType = Undefined,
+                        vrf: str | UndefinedType | None = Undefined,
+                        timeout: int | UndefinedType | None = Undefined,
+                        key: str | UndefinedType | None = Undefined,
+                        cleartext_key: str | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        ServersItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            host:
+                               Host IP address or name.
+                               Combination of `host` and `vrf` should be unique.
+                            groups:
+                               List of Tacacs group names.
+                               The group names 'radius', 'tacacs+' and 'ldap' are reserved by EOS and
+                               must not be used.
+
+                               Subclass of AvdList with `str` items.
+                            vrf:
+                               VRF name.
+                               The value will be interpreted according to these rules:
+                               - `use_mgmt_interface_vrf` will
+                               configure the TACACS host under the VRF set with `mgmt_interface_vrf`.
+                                 An error will be raised if
+                               `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+                               - `use_inband_mgmt_vrf` will
+                               configure the TACACS host under the VRF set with `inband_mgmt_vrf`.
+                                 An error will be raised if
+                               inband management is not configured for the device.
+                               - `use_default_mgmt_method_vrf` will configure
+                               the VRF and source-interface for one of the two options above depending on the value of
+                               `default_mgmt_method`.
+                               - Any other string will be used directly as the VRF name.
+                            timeout: Timeout in seconds.
+                            key:
+                               Encrypted Type 7 key.
+                               Takes precedence over `cleartext_key` if both are provided.
+                               Either `key` or
+                               `cleartext_key` must be set to render the configuration;
+                               otherwise, an error will be raised.
+                            cleartext_key:
+                               Plaintext password that will be encrypted to Type 7 by AVD.
+                               To protect the password at rest it is
+                               strongly recommended to make use of a vault or similar.
+                               Either `key` or `cleartext_key` must be set
+                               to render the configuration;
+                               otherwise, an error will be raised.
+
+                        """
+
+            class Servers(AvdList[ServersItem]):
+                """Subclass of AvdList with `ServersItem` items."""
+
+            Servers._item_type = ServersItem
+
+            class VrfsItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"name": {"type": str}, "source_interface": {"type": str}}
+                name: str
+                """VRF Name."""
+                source_interface: str | None
+                """
+                Source interface to use for TACACS hosts in this VRF.
+                If not set, the source interface may be set
+                automatically when the TACACS server VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf`
+                or `use_default_mgmt_method_vrf`.
+                If set for the VRFs defined by `mgmt_interface_vrf` or
+                `inband_mgmt_vrf`, this setting will take precedence.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, name: str | UndefinedType = Undefined, source_interface: str | UndefinedType | None = Undefined) -> None:
+                        """
+                        VrfsItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            name: VRF Name.
+                            source_interface:
+                               Source interface to use for TACACS hosts in this VRF.
+                               If not set, the source interface may be set
+                               automatically when the TACACS server VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf`
+                               or `use_default_mgmt_method_vrf`.
+                               If set for the VRFs defined by `mgmt_interface_vrf` or
+                               `inband_mgmt_vrf`, this setting will take precedence.
+
+                        """
+
+            class Vrfs(AvdIndexedList[str, VrfsItem]):
+                """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+
+                _primary_key: ClassVar[str] = "name"
+
+            Vrfs._item_type = VrfsItem
+
+            class Policy(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"ignore_unknown_mandatory_attribute": {"type": bool, "default": False}}
+                ignore_unknown_mandatory_attribute: bool
+                """Default value: `False`"""
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, ignore_unknown_mandatory_attribute: bool | UndefinedType = Undefined) -> None:
+                        """
+                        Policy.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            ignore_unknown_mandatory_attribute: ignore_unknown_mandatory_attribute
+
+                        """
+
+            _fields: ClassVar[dict] = {"servers": {"type": Servers}, "vrfs": {"type": Vrfs}, "policy": {"type": Policy}}
+            servers: Servers
+            """Subclass of AvdList with `ServersItem` items."""
+            vrfs: Vrfs
+            """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+            policy: Policy
+            """Subclass of AvdModel."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self, *, servers: Servers | UndefinedType = Undefined, vrfs: Vrfs | UndefinedType = Undefined, policy: Policy | UndefinedType = Undefined
+                ) -> None:
+                    """
+                    Tacacs.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        servers: Subclass of AvdList with `ServersItem` items.
+                        vrfs: Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`).
+                        policy: Subclass of AvdModel.
+
+                    """
+
+        class Radius(AvdModel):
+            """Subclass of AvdModel."""
+
+            class ServersItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                class Groups(AvdList[str]):
+                    """Subclass of AvdList with `str` items."""
+
+                Groups._item_type = str
+
+                _fields: ClassVar[dict] = {
+                    "host": {"type": str},
+                    "groups": {"type": Groups},
+                    "vrf": {"type": str},
+                    "timeout": {"type": int},
+                    "retransmit": {"type": int},
+                    "key": {"type": str},
+                    "cleartext_key": {"type": str},
+                    "tls": {"type": EosCliConfigGen.RadiusServer.ServersItem.Tls},
+                }
+                host: str
+                """
+                Host IP address or name.
+                Multiple servers with the same hostname/IP address can be configured for
+                TLS and no TLS.
+                """
+                groups: Groups
+                """
+                List of Radius group names.
+                The group names 'radius', 'tacacs+' and 'ldap' are reserved by EOS and
+                must not be used.
+
+                Subclass of AvdList with `str` items.
+                """
+                vrf: str | None
+                """
+                VRF name.
+                The value will be interpreted according to these rules:
+                - `use_mgmt_interface_vrf` will
+                configure the Radius host under the VRF set with `mgmt_interface_vrf`.
+                  An error will be raised if
+                `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+                - `use_inband_mgmt_vrf` will
+                configure the Radius host under the VRF set with `inband_mgmt_vrf`.
+                  An error will be raised if
+                inband management is not configured for the device.
+                - `use_default_mgmt_method_vrf` will configure
+                the VRF and source-interface for one of the two options above depending on the value of
+                `default_mgmt_method`.
+                - Any other string will be used directly as the VRF name.
+                """
+                timeout: int | None
+                retransmit: int | None
+                key: str | None
+                """
+                Encrypted type-7 key.
+                Takes precedence over `cleartext_key`.
+                """
+                cleartext_key: str | None
+                """
+                Cleartext password.
+                Encrypted to Type 7 by AVD.
+                To protect the password at rest it is strongly
+                recommended to make use of a vault or similar.
+                """
+                tls: EosCliConfigGen.RadiusServer.ServersItem.Tls
+                """
+                When TLS is configured, `key` and `cleartext_key` are ignored.
+                For proper functionality to render
+                TLS settings on the
+                server group member entry, set `avd_design_future.fix_radius_server_group_tls:
+                true`.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        host: str | UndefinedType = Undefined,
+                        groups: Groups | UndefinedType = Undefined,
+                        vrf: str | UndefinedType | None = Undefined,
+                        timeout: int | UndefinedType | None = Undefined,
+                        retransmit: int | UndefinedType | None = Undefined,
+                        key: str | UndefinedType | None = Undefined,
+                        cleartext_key: str | UndefinedType | None = Undefined,
+                        tls: EosCliConfigGen.RadiusServer.ServersItem.Tls | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        ServersItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            host:
+                               Host IP address or name.
+                               Multiple servers with the same hostname/IP address can be configured for
+                               TLS and no TLS.
+                            groups:
+                               List of Radius group names.
+                               The group names 'radius', 'tacacs+' and 'ldap' are reserved by EOS and
+                               must not be used.
+
+                               Subclass of AvdList with `str` items.
+                            vrf:
+                               VRF name.
+                               The value will be interpreted according to these rules:
+                               - `use_mgmt_interface_vrf` will
+                               configure the Radius host under the VRF set with `mgmt_interface_vrf`.
+                                 An error will be raised if
+                               `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+                               - `use_inband_mgmt_vrf` will
+                               configure the Radius host under the VRF set with `inband_mgmt_vrf`.
+                                 An error will be raised if
+                               inband management is not configured for the device.
+                               - `use_default_mgmt_method_vrf` will configure
+                               the VRF and source-interface for one of the two options above depending on the value of
+                               `default_mgmt_method`.
+                               - Any other string will be used directly as the VRF name.
+                            timeout: timeout
+                            retransmit: retransmit
+                            key:
+                               Encrypted type-7 key.
+                               Takes precedence over `cleartext_key`.
+                            cleartext_key:
+                               Cleartext password.
+                               Encrypted to Type 7 by AVD.
+                               To protect the password at rest it is strongly
+                               recommended to make use of a vault or similar.
+                            tls:
+                               When TLS is configured, `key` and `cleartext_key` are ignored.
+                               For proper functionality to render
+                               TLS settings on the
+                               server group member entry, set `avd_design_future.fix_radius_server_group_tls:
+                               true`.
+
+                        """
+
+            class Servers(AvdList[ServersItem]):
+                """Subclass of AvdList with `ServersItem` items."""
+
+            Servers._item_type = ServersItem
+
+            class VrfsItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"name": {"type": str}, "source_interface": {"type": str}}
+                name: str
+                """VRF Name."""
+                source_interface: str | None
+                """
+                Source interface to use for RADIUS hosts in this VRF.
+                If not set, the source interface may be set
+                automatically when the RADIUS server VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf`
+                or `use_default_mgmt_method_vrf`.
+                If set for the VRFs defined by `mgmt_interface_vrf` or
+                `inband_mgmt_vrf`, this setting will take precedence.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, name: str | UndefinedType = Undefined, source_interface: str | UndefinedType | None = Undefined) -> None:
+                        """
+                        VrfsItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            name: VRF Name.
+                            source_interface:
+                               Source interface to use for RADIUS hosts in this VRF.
+                               If not set, the source interface may be set
+                               automatically when the RADIUS server VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf`
+                               or `use_default_mgmt_method_vrf`.
+                               If set for the VRFs defined by `mgmt_interface_vrf` or
+                               `inband_mgmt_vrf`, this setting will take precedence.
+
+                        """
+
+            class Vrfs(AvdIndexedList[str, VrfsItem]):
+                """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+
+                _primary_key: ClassVar[str] = "name"
+
+            Vrfs._item_type = VrfsItem
+
+            _fields: ClassVar[dict] = {"servers": {"type": Servers}, "vrfs": {"type": Vrfs}}
+            servers: Servers
+            """Subclass of AvdList with `ServersItem` items."""
+            vrfs: Vrfs
+            """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, servers: Servers | UndefinedType = Undefined, vrfs: Vrfs | UndefinedType = Undefined) -> None:
+                    """
+                    Radius.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        servers: Subclass of AvdList with `ServersItem` items.
+                        vrfs: Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`).
+
+                    """
+
+        class Authentication(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {
+                "login": {"type": EosCliConfigGen.AaaAuthentication.Login},
+                "enable": {"type": EosCliConfigGen.AaaAuthentication.Enable},
+                "policies": {"type": EosCliConfigGen.AaaAuthentication.Policies},
+            }
+            login: EosCliConfigGen.AaaAuthentication.Login
+            enable: EosCliConfigGen.AaaAuthentication.Enable
+            policies: EosCliConfigGen.AaaAuthentication.Policies
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    login: EosCliConfigGen.AaaAuthentication.Login | UndefinedType = Undefined,
+                    enable: EosCliConfigGen.AaaAuthentication.Enable | UndefinedType = Undefined,
+                    policies: EosCliConfigGen.AaaAuthentication.Policies | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Authentication.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        login: login
+                        enable: enable
+                        policies: policies
+
+                    """
+
+        class Authorization(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {
+                "policy": {"type": EosCliConfigGen.AaaAuthorization.Policy},
+                "exec": {"type": EosCliConfigGen.AaaAuthorization.Exec},
+                "config_commands": {"type": bool},
+                "serial_console": {"type": bool},
+                "commands": {"type": EosCliConfigGen.AaaAuthorization.Commands},
+            }
+            policy: EosCliConfigGen.AaaAuthorization.Policy
+            exec: EosCliConfigGen.AaaAuthorization.Exec
+            config_commands: bool | None
+            serial_console: bool | None
+            commands: EosCliConfigGen.AaaAuthorization.Commands
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    policy: EosCliConfigGen.AaaAuthorization.Policy | UndefinedType = Undefined,
+                    exec: EosCliConfigGen.AaaAuthorization.Exec | UndefinedType = Undefined,
+                    config_commands: bool | UndefinedType | None = Undefined,
+                    serial_console: bool | UndefinedType | None = Undefined,
+                    commands: EosCliConfigGen.AaaAuthorization.Commands | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Authorization.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        policy: policy
+                        exec: exec
+                        config_commands: config_commands
+                        serial_console: serial_console
+                        commands: commands
+
+                    """
+
+        class Accounting(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {
+                "exec": {"type": EosCliConfigGen.AaaAccounting.Exec},
+                "system": {"type": EosCliConfigGen.AaaAccounting.System},
+                "commands": {"type": EosCliConfigGen.AaaAccounting.Commands},
+            }
+            exec: EosCliConfigGen.AaaAccounting.Exec
+            system: EosCliConfigGen.AaaAccounting.System
+            commands: EosCliConfigGen.AaaAccounting.Commands
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    exec: EosCliConfigGen.AaaAccounting.Exec | UndefinedType = Undefined,
+                    system: EosCliConfigGen.AaaAccounting.System | UndefinedType = Undefined,
+                    commands: EosCliConfigGen.AaaAccounting.Commands | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Accounting.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        exec: exec
+                        system: system
+                        commands: commands
+
+                    """
+
+        class RootLogin(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": False}, "sha512_password": {"type": str}}
+            enabled: bool
+            """Default value: `False`"""
+            sha512_password: str | None
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, enabled: bool | UndefinedType = Undefined, sha512_password: str | UndefinedType | None = Undefined) -> None:
+                    """
+                    RootLogin.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        enabled: enabled
+                        sha512_password: sha512_password
+
+                    """
+
+        class LocalUsersItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            PasswordType: TypeAlias = Literal["sha512"]
+            Shell: TypeAlias = Literal["/bin/bash", "/bin/sh", "/sbin/nologin"]
+            _fields: ClassVar[dict] = {
+                "name": {"type": str},
+                "sha512_password": {"type": str},
+                "cleartext_password": {"type": str},
+                "password_type": {"type": str, "default": "sha512"},
+                "disabled": {"type": bool},
+                "privilege": {"type": int},
+                "role": {"type": str},
+                "no_password": {"type": bool},
+                "ssh_key": {"type": str},
+                "secondary_ssh_key": {"type": str},
+                "shell": {"type": str},
+            }
+            name: str
+            """Username."""
+            sha512_password: str | None
+            """
+            SHA512 Hash of Password.
+            Takes precedence over `cleartext_password`.
+            This variable is sensitive and
+            SHOULD be configured using some vault mechanism.
+            """
+            cleartext_password: str | None
+            """
+            Cleartext user password.
+            Encrypted using `password_type` by AVD.
+            This variable is sensitive and
+            SHOULD be configured using some vault mechanism.
+            """
+            password_type: PasswordType
+            """Default value: `"sha512"`"""
+            disabled: bool | None
+            """
+            If true, the user will be removed and all other settings are ignored.
+            Useful for removing the
+            default "admin" user.
+            """
+            privilege: int | None
+            """Initial privilege level with local EXEC authorization."""
+            role: str | None
+            """EOS RBAC Role to be assigned to the user such as "network-admin" or "network-operator"."""
+            no_password: bool | None
+            """
+            If set a password will not be configured for this user. "sha512_password" MUST not be defined for
+            this user.
+            """
+            ssh_key: str | None
+            secondary_ssh_key: str | None
+            shell: Shell | None
+            """Specify shell for the user."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    name: str | UndefinedType = Undefined,
+                    sha512_password: str | UndefinedType | None = Undefined,
+                    cleartext_password: str | UndefinedType | None = Undefined,
+                    password_type: PasswordType | UndefinedType = Undefined,
+                    disabled: bool | UndefinedType | None = Undefined,
+                    privilege: int | UndefinedType | None = Undefined,
+                    role: str | UndefinedType | None = Undefined,
+                    no_password: bool | UndefinedType | None = Undefined,
+                    ssh_key: str | UndefinedType | None = Undefined,
+                    secondary_ssh_key: str | UndefinedType | None = Undefined,
+                    shell: Shell | UndefinedType | None = Undefined,
+                ) -> None:
+                    """
+                    LocalUsersItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        name: Username.
+                        sha512_password:
+                           SHA512 Hash of Password.
+                           Takes precedence over `cleartext_password`.
+                           This variable is sensitive and
+                           SHOULD be configured using some vault mechanism.
+                        cleartext_password:
+                           Cleartext user password.
+                           Encrypted using `password_type` by AVD.
+                           This variable is sensitive and
+                           SHOULD be configured using some vault mechanism.
+                        password_type: password_type
+                        disabled:
+                           If true, the user will be removed and all other settings are ignored.
+                           Useful for removing the
+                           default "admin" user.
+                        privilege: Initial privilege level with local EXEC authorization.
+                        role: EOS RBAC Role to be assigned to the user such as "network-admin" or "network-operator".
+                        no_password:
+                           If set a password will not be configured for this user. "sha512_password" MUST not be defined for
+                           this user.
+                        ssh_key: ssh_key
+                        secondary_ssh_key: secondary_ssh_key
+                        shell: Specify shell for the user.
+
+                    """
+
+        class LocalUsers(AvdIndexedList[str, LocalUsersItem]):
+            """Subclass of AvdIndexedList with `LocalUsersItem` items. Primary key is `name` (`str`)."""
+
+            _primary_key: ClassVar[str] = "name"
+
+        LocalUsers._item_type = LocalUsersItem
+
+        _fields: ClassVar[dict] = {
+            "profile": {"type": str},
+            "parent_profile": {"type": str},
+            "enable_password": {"type": EnablePassword},
+            "tacacs": {"type": Tacacs},
+            "radius": {"type": Radius},
+            "authentication": {"type": Authentication},
+            "authorization": {"type": Authorization},
+            "accounting": {"type": Accounting},
+            "root_login": {"type": RootLogin},
+            "local_users": {"type": LocalUsers},
+        }
+        profile: str
+        """AAA settings profile name."""
+        parent_profile: str | None
+        """
+        Inherit settings from a parent profile defined under `aaa_settings_profiles`.
+        The settings from this
+        profile override settings inherited from the parent profile.
+        """
+        enable_password: EnablePassword
+        """Subclass of AvdModel."""
+        tacacs: Tacacs
+        """Subclass of AvdModel."""
+        radius: Radius
+        """Subclass of AvdModel."""
+        authentication: Authentication
+        """Subclass of AvdModel."""
+        authorization: Authorization
+        """Subclass of AvdModel."""
+        accounting: Accounting
+        """Subclass of AvdModel."""
+        root_login: RootLogin
+        """Subclass of AvdModel."""
+        local_users: LocalUsers
+        """Subclass of AvdIndexedList with `LocalUsersItem` items. Primary key is `name` (`str`)."""
+
+        if TYPE_CHECKING:
+
+            def __init__(
+                self,
+                *,
+                profile: str | UndefinedType = Undefined,
+                parent_profile: str | UndefinedType | None = Undefined,
+                enable_password: EnablePassword | UndefinedType = Undefined,
+                tacacs: Tacacs | UndefinedType = Undefined,
+                radius: Radius | UndefinedType = Undefined,
+                authentication: Authentication | UndefinedType = Undefined,
+                authorization: Authorization | UndefinedType = Undefined,
+                accounting: Accounting | UndefinedType = Undefined,
+                root_login: RootLogin | UndefinedType = Undefined,
+                local_users: LocalUsers | UndefinedType = Undefined,
+            ) -> None:
+                """
+                AaaSettingsProfilesItem.
+
+
+                Subclass of AvdModel.
+
+                Args:
+                    profile: AAA settings profile name.
+                    parent_profile:
+                       Inherit settings from a parent profile defined under `aaa_settings_profiles`.
+                       The settings from this
+                       profile override settings inherited from the parent profile.
+                    enable_password: Subclass of AvdModel.
+                    tacacs: Subclass of AvdModel.
+                    radius: Subclass of AvdModel.
+                    authentication: Subclass of AvdModel.
+                    authorization: Subclass of AvdModel.
+                    accounting: Subclass of AvdModel.
+                    root_login: Subclass of AvdModel.
+                    local_users: Subclass of AvdIndexedList with `LocalUsersItem` items. Primary key is `name` (`str`).
+
+                """
+
+    class AaaSettingsProfiles(AvdIndexedList[str, AaaSettingsProfilesItem]):
+        """Subclass of AvdIndexedList with `AaaSettingsProfilesItem` items. Primary key is `profile` (`str`)."""
+
+        _primary_key: ClassVar[str] = "profile"
+
+    AaaSettingsProfiles._item_type = AaaSettingsProfilesItem
+
     class AddressLockingSettings(AvdModel):
         """Subclass of AvdModel."""
 
@@ -895,13 +1715,67 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class Logging(AvdModel):
+            """Subclass of AvdModel."""
+
+            class Event(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"denied_address_drop": {"type": bool}, "dhcp_server_drop": {"type": bool}}
+                denied_address_drop: bool | None
+                """Log events for denied address drops."""
+                dhcp_server_drop: bool | None
+                """
+                Log events for DHCP server to client packet drops.
+                Requires EOS version 4.36.2F or later.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self, *, denied_address_drop: bool | UndefinedType | None = Undefined, dhcp_server_drop: bool | UndefinedType | None = Undefined
+                    ) -> None:
+                        """
+                        Event.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            denied_address_drop: Log events for denied address drops.
+                            dhcp_server_drop:
+                               Log events for DHCP server to client packet drops.
+                               Requires EOS version 4.36.2F or later.
+
+                        """
+
+            _fields: ClassVar[dict] = {"event": {"type": Event}}
+            event: Event
+            """Subclass of AvdModel."""
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, event: Event | UndefinedType = Undefined) -> None:
+                    """
+                    Logging.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        event: Subclass of AvdModel.
+
+                    """
+
         _fields: ClassVar[dict] = {
             "local_interface": {"type": str},
             "dhcp_server_interfaces": {"type": DhcpServerInterfaces},
+            "auto_dhcp_server_interfaces": {"type": bool, "default": False},
             "dhcp_servers_ipv4": {"type": DhcpServersIpv4},
             "disabled": {"type": bool},
             "leases": {"type": Leases},
             "locked_address": {"type": LockedAddress},
+            "logging": {"type": Logging},
         }
         local_interface: str | None
         """
@@ -916,7 +1790,7 @@ class EosDesigns(EosDesignsRootModel):
           - Any other string will be used directly as the local interface.
         When
         `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually
-        exclusive with `dhcp_server_interfaces`.
+        exclusive with `dhcp_server_interfaces` and `auto_dhcp_server_interfaces`.
         """
         dhcp_server_interfaces: DhcpServerInterfaces
         """
@@ -925,10 +1799,26 @@ class EosDesigns(EosDesignsRootModel):
         `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
         ignored.
         When enabled, this setting is mutually exclusive with `local_interface`.
-        Requires EOS
-        version 4.36 or later.
+        When
+        `auto_dhcp_server_interfaces` is also enabled, the interfaces from this list are merged with the
+        auto-detected interfaces.
+        Requires EOS version 4.36 or later.
 
         Subclass of AvdList with `str` items.
+        """
+        auto_dhcp_server_interfaces: bool
+        """
+        When enabled, automatically populates the DHCP server interfaces with all L2 uplinks (Ethernet or
+        Port-Channel) and the MLAG Port-Channel (if applicable).
+        Requires
+        `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
+        ignored.
+        When enabled, this setting is mutually exclusive with `local_interface`.
+        Any interfaces
+        manually specified in `dhcp_server_interfaces` are merged with the auto-detected interfaces.
+        Requires EOS version 4.36 or later.
+
+        Default value: `False`
         """
         dhcp_servers_ipv4: DhcpServersIpv4
         """Subclass of AvdList with `str` items."""
@@ -938,6 +1828,8 @@ class EosDesigns(EosDesignsRootModel):
         """Subclass of AvdList with `LeasesItem` items."""
         locked_address: LockedAddress
         """Subclass of AvdModel."""
+        logging: Logging
+        """Subclass of AvdModel."""
 
         if TYPE_CHECKING:
 
@@ -946,10 +1838,12 @@ class EosDesigns(EosDesignsRootModel):
                 *,
                 local_interface: str | UndefinedType | None = Undefined,
                 dhcp_server_interfaces: DhcpServerInterfaces | UndefinedType = Undefined,
+                auto_dhcp_server_interfaces: bool | UndefinedType = Undefined,
                 dhcp_servers_ipv4: DhcpServersIpv4 | UndefinedType = Undefined,
                 disabled: bool | UndefinedType | None = Undefined,
                 leases: Leases | UndefinedType = Undefined,
                 locked_address: LockedAddress | UndefinedType = Undefined,
+                logging: Logging | UndefinedType = Undefined,
             ) -> None:
                 """
                 AddressLockingSettings.
@@ -970,21 +1864,34 @@ class EosDesigns(EosDesignsRootModel):
                          - Any other string will be used directly as the local interface.
                        When
                        `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually
-                       exclusive with `dhcp_server_interfaces`.
+                       exclusive with `dhcp_server_interfaces` and `auto_dhcp_server_interfaces`.
                     dhcp_server_interfaces:
                        The list of interfaces connected to the DHCP server.
                        Requires
                        `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
                        ignored.
                        When enabled, this setting is mutually exclusive with `local_interface`.
-                       Requires EOS
-                       version 4.36 or later.
+                       When
+                       `auto_dhcp_server_interfaces` is also enabled, the interfaces from this list are merged with the
+                       auto-detected interfaces.
+                       Requires EOS version 4.36 or later.
 
                        Subclass of AvdList with `str` items.
+                    auto_dhcp_server_interfaces:
+                       When enabled, automatically populates the DHCP server interfaces with all L2 uplinks (Ethernet or
+                       Port-Channel) and the MLAG Port-Channel (if applicable).
+                       Requires
+                       `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is
+                       ignored.
+                       When enabled, this setting is mutually exclusive with `local_interface`.
+                       Any interfaces
+                       manually specified in `dhcp_server_interfaces` are merged with the auto-detected interfaces.
+                       Requires EOS version 4.36 or later.
                     dhcp_servers_ipv4: Subclass of AvdList with `str` items.
                     disabled: Disable IP locking on configured ports.
                     leases: Subclass of AvdList with `LeasesItem` items.
                     locked_address: Subclass of AvdModel.
+                    logging: Subclass of AvdModel.
 
                 """
 
@@ -1001,7 +1908,9 @@ class EosDesigns(EosDesignsRootModel):
             "fix_address_locking_dhcp_server_interfaces": {"type": bool, "default": False},
             "fix_match_ipv6_prefix_list_on_mlag_route_map": {"type": bool, "default": False},
             "fix_mlag_ibgp_peering_ipv6_pool": {"type": bool, "default": False},
+            "fix_mlag_ibgp_peering_vrfs_address_families": {"type": bool, "default": False},
             "fix_radius_server_group_tls": {"type": bool, "default": False},
+            "fix_virtual_source_nat_address_families": {"type": bool, "default": False},
             "only_configure_ipv6_inband_mgmt_prefix_list_when_used": {"type": bool, "default": False},
             "only_configure_mlag_vrfs_peer_group_when_used": {"type": bool, "default": False},
             "only_configure_pvst_border_when_mode_is_mstp": {"type": bool, "default": False},
@@ -1009,6 +1918,8 @@ class EosDesigns(EosDesignsRootModel):
             "raise_for_port_channels_without_members": {"type": bool, "default": False},
             "raise_for_underlay_router_with_uplink_type_port_channel": {"type": bool, "default": False},
             "remove_redundant_ipv4_unicast_for_peer_groups": {"type": bool, "default": False},
+            "sort_snmp_acls_and_local_interfaces_by_vrf": {"type": bool, "default": False},
+            "only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used": {"type": bool, "default": False},
         }
         accept_dhcp_default_route_for_mgmt_ip_dhcp: bool
         """
@@ -1062,9 +1973,10 @@ class EosDesigns(EosDesignsRootModel):
         fix_address_locking_dhcp_server_interfaces: bool
         """
         Available from AVD 6.4.0.
-        Fix support for `address_locking_settings.dhcp_server_interfaces`.
-        When
-        enabled, `address_locking_settings.dhcp_server_interfaces` and
+        Fix support for `address_locking_settings.dhcp_server_interfaces` and
+        `address_locking_settings.auto_dhcp_server_interfaces`.
+        When enabled, `address_locking_settings.dhcp
+        _server_interfaces`/`address_locking_settings.auto_dhcp_server_interfaces` and
         `address_locking_settings.local_interface` are mutually exclusive.
 
         Default value: `False`
@@ -1091,11 +2003,51 @@ class EosDesigns(EosDesignsRootModel):
 
         Default value: `False`
         """
+        fix_mlag_ibgp_peering_vrfs_address_families: bool
+        """
+        Available from AVD 6.5.0.
+        Fix the BGP address families of the MLAG iBGP peerings in VRFs when using
+        `underlay_ipv6_numbered`.
+        These iBGP sessions run over IPv6, so when enabled:
+        - With
+        `overlay_mlag_rfc5549: false`, the dedicated `bgp_peer_groups.mlag_ipv4_vrfs_peer` peer group
+        activates the IPv6 address family
+          instead of the IPv4 address family. An error is raised if a VRF
+        with MLAG iBGP peering has IPv4 configured, with either the shared
+          or the dedicated peer group,
+        since IPv4 routes cannot be exchanged over these sessions without `overlay_mlag_rfc5549: true`.
+        -
+        With `overlay_mlag_rfc5549: true`, both the IPv4 address family (with `next-hop address-family ipv6
+        originate`) and the IPv6
+          address family are activated on the MLAG peer group used for VRFs, either
+        the shared `bgp_peer_groups.mlag_ipv4_underlay_peer`
+          or the dedicated
+        `bgp_peer_groups.mlag_ipv4_vrfs_peer`. `ip routing ipv6 interfaces` is configured globally when
+        using the shared
+          peer group, and `ip routing ipv6 interfaces vrf <vrf>` and `ipv6 unicast-routing
+        vrf <vrf>` are configured for VRFs with MLAG iBGP peering.
+          This allows dual-stack VRFs over a
+        numbered IPv6 underlay.
+
+        Default value: `False`
+        """
         fix_radius_server_group_tls: bool
         """
         Available from AVD 6.2.0.
         Fix to configure TLS on RADIUS server group members to match their global
         RADIUS server configurations.
+
+        Default value: `False`
+        """
+        fix_virtual_source_nat_address_families: bool
+        """
+        Available from AVD 6.5.0.
+        Fix the selection of the addresses used for the IPv4 and IPv6 virtual
+        source-nat of a VRF.
+        When enabled, each address family uses the first loopback in the VRF with an
+        address of that family.
+        The VTEP diagnostic loopback is used first, followed by the VRF loopbacks in
+        input order.
 
         Default value: `False`
         """
@@ -1159,6 +2111,30 @@ class EosDesigns(EosDesignsRootModel):
 
         Default value: `False`
         """
+        sort_snmp_acls_and_local_interfaces_by_vrf: bool
+        """
+        Available from AVD 6.5.0.
+        Sort SNMP ACLs and local interfaces by VRF name in the generated
+        configuration.
+
+        Default value: `False`
+        """
+        only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used: bool
+        """
+        Available from AVD 6.5.0.
+        Configure OOB management VRF and OOB IPv4 static routes only when OOB
+        management is actually used.
+        When enabled:
+        - AVD renders the OOB management VRF only if
+        `default_mgmt_method` is `oob`, or if `mgmt_ip` / `ipv6_mgmt_ip` is configured.
+        - Setting only
+        `mgmt_interface_vrf` or `mgmt_interface_settings.vrf` does not by itself render the OOB management
+        VRF.
+        - AVD renders OOB IPv4 static routes only when `mgmt_ip` is configured (and other existing
+        route prerequisites are met).
+
+        Default value: `False`
+        """
 
         if TYPE_CHECKING:
 
@@ -1174,7 +2150,9 @@ class EosDesigns(EosDesignsRootModel):
                 fix_address_locking_dhcp_server_interfaces: bool | UndefinedType = Undefined,
                 fix_match_ipv6_prefix_list_on_mlag_route_map: bool | UndefinedType = Undefined,
                 fix_mlag_ibgp_peering_ipv6_pool: bool | UndefinedType = Undefined,
+                fix_mlag_ibgp_peering_vrfs_address_families: bool | UndefinedType = Undefined,
                 fix_radius_server_group_tls: bool | UndefinedType = Undefined,
+                fix_virtual_source_nat_address_families: bool | UndefinedType = Undefined,
                 only_configure_ipv6_inband_mgmt_prefix_list_when_used: bool | UndefinedType = Undefined,
                 only_configure_mlag_vrfs_peer_group_when_used: bool | UndefinedType = Undefined,
                 only_configure_pvst_border_when_mode_is_mstp: bool | UndefinedType = Undefined,
@@ -1182,6 +2160,8 @@ class EosDesigns(EosDesignsRootModel):
                 raise_for_port_channels_without_members: bool | UndefinedType = Undefined,
                 raise_for_underlay_router_with_uplink_type_port_channel: bool | UndefinedType = Undefined,
                 remove_redundant_ipv4_unicast_for_peer_groups: bool | UndefinedType = Undefined,
+                sort_snmp_acls_and_local_interfaces_by_vrf: bool | UndefinedType = Undefined,
+                only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used: bool | UndefinedType = Undefined,
             ) -> None:
                 """
                 AvdDesignFuture.
@@ -1217,9 +2197,10 @@ class EosDesigns(EosDesignsRootModel):
                        'uplink_switches'.
                     fix_address_locking_dhcp_server_interfaces:
                        Available from AVD 6.4.0.
-                       Fix support for `address_locking_settings.dhcp_server_interfaces`.
-                       When
-                       enabled, `address_locking_settings.dhcp_server_interfaces` and
+                       Fix support for `address_locking_settings.dhcp_server_interfaces` and
+                       `address_locking_settings.auto_dhcp_server_interfaces`.
+                       When enabled, `address_locking_settings.dhcp
+                       _server_interfaces`/`address_locking_settings.auto_dhcp_server_interfaces` and
                        `address_locking_settings.local_interface` are mutually exclusive.
                     fix_match_ipv6_prefix_list_on_mlag_route_map:
                        Available from AVD 6.4.0.
@@ -1235,10 +2216,42 @@ class EosDesigns(EosDesignsRootModel):
                        MLAG iBGP peering SVI,
                        using `mlag_ibgp_peering_ipv6_pool` when set, and
                        `mlag_ibgp_peering_ipv4_pool` is ignored.
+                    fix_mlag_ibgp_peering_vrfs_address_families:
+                       Available from AVD 6.5.0.
+                       Fix the BGP address families of the MLAG iBGP peerings in VRFs when using
+                       `underlay_ipv6_numbered`.
+                       These iBGP sessions run over IPv6, so when enabled:
+                       - With
+                       `overlay_mlag_rfc5549: false`, the dedicated `bgp_peer_groups.mlag_ipv4_vrfs_peer` peer group
+                       activates the IPv6 address family
+                         instead of the IPv4 address family. An error is raised if a VRF
+                       with MLAG iBGP peering has IPv4 configured, with either the shared
+                         or the dedicated peer group,
+                       since IPv4 routes cannot be exchanged over these sessions without `overlay_mlag_rfc5549: true`.
+                       -
+                       With `overlay_mlag_rfc5549: true`, both the IPv4 address family (with `next-hop address-family ipv6
+                       originate`) and the IPv6
+                         address family are activated on the MLAG peer group used for VRFs, either
+                       the shared `bgp_peer_groups.mlag_ipv4_underlay_peer`
+                         or the dedicated
+                       `bgp_peer_groups.mlag_ipv4_vrfs_peer`. `ip routing ipv6 interfaces` is configured globally when
+                       using the shared
+                         peer group, and `ip routing ipv6 interfaces vrf <vrf>` and `ipv6 unicast-routing
+                       vrf <vrf>` are configured for VRFs with MLAG iBGP peering.
+                         This allows dual-stack VRFs over a
+                       numbered IPv6 underlay.
                     fix_radius_server_group_tls:
                        Available from AVD 6.2.0.
                        Fix to configure TLS on RADIUS server group members to match their global
                        RADIUS server configurations.
+                    fix_virtual_source_nat_address_families:
+                       Available from AVD 6.5.0.
+                       Fix the selection of the addresses used for the IPv4 and IPv6 virtual
+                       source-nat of a VRF.
+                       When enabled, each address family uses the first loopback in the VRF with an
+                       address of that family.
+                       The VTEP diagnostic loopback is used first, followed by the VRF loopbacks in
+                       input order.
                     only_configure_ipv6_inband_mgmt_prefix_list_when_used:
                        Available from AVD 6.2.0.
                        Configure `IPv6-PL-L2LEAF-INBAND-MGMT` prefix list only when it is needed.
@@ -1271,6 +2284,22 @@ class EosDesigns(EosDesignsRootModel):
                        Available from AVD 6.1.0.
                        Deactivate the IPv4 unicast Address Family for BGP Peer Groups only when
                        IPv4 is activated by default instead of always deactivating it.
+                    sort_snmp_acls_and_local_interfaces_by_vrf:
+                       Available from AVD 6.5.0.
+                       Sort SNMP ACLs and local interfaces by VRF name in the generated
+                       configuration.
+                    only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used:
+                       Available from AVD 6.5.0.
+                       Configure OOB management VRF and OOB IPv4 static routes only when OOB
+                       management is actually used.
+                       When enabled:
+                       - AVD renders the OOB management VRF only if
+                       `default_mgmt_method` is `oob`, or if `mgmt_ip` / `ipv6_mgmt_ip` is configured.
+                       - Setting only
+                       `mgmt_interface_vrf` or `mgmt_interface_settings.vrf` does not by itself render the OOB management
+                       VRF.
+                       - AVD renders OOB IPv4 static routes only when `mgmt_ip` is configured (and other existing
+                       route prerequisites are met).
 
                 """
 
@@ -7216,10 +8245,14 @@ class EosDesigns(EosDesignsRootModel):
             """Short name for the cluster. Required here, but only used when configuring multiple clusters."""
             servers: Servers
             """
-            CloudVision servers that makes up one cluster.
+            CloudVision servers that make up one cluster.
+            May be omitted when inherited from a parent
+            CloudVision settings profile or global `cv_settings`.
+            After resolving profile and global settings,
+            each on-prem cluster must have at least one server.
 
-            Subclass of AvdIndexedList with `ServersItem` items.
-            Primary key is `name` (`str`).
+            Subclass of AvdIndexedList with `ServersItem`
+            items. Primary key is `name` (`str`).
             """
             vrf: str
             """
@@ -7277,10 +8310,14 @@ class EosDesigns(EosDesignsRootModel):
                     Args:
                         name: Short name for the cluster. Required here, but only used when configuring multiple clusters.
                         servers:
-                           CloudVision servers that makes up one cluster.
+                           CloudVision servers that make up one cluster.
+                           May be omitted when inherited from a parent
+                           CloudVision settings profile or global `cv_settings`.
+                           After resolving profile and global settings,
+                           each on-prem cluster must have at least one server.
 
-                           Subclass of AvdIndexedList with `ServersItem` items.
-                           Primary key is `name` (`str`).
+                           Subclass of AvdIndexedList with `ServersItem`
+                           items. Primary key is `name` (`str`).
                         vrf:
                            The VRF used to connect to CloudVision.
                            The value will be interpreted according to these rules:
@@ -7541,6 +8578,606 @@ class EosDesigns(EosDesignsRootModel):
                        migrating from the old `cv_instances` model.
 
                 """
+
+    class CvSettingsProfilesItem(AvdModel):
+        """Subclass of AvdModel."""
+
+        class Cvaas(AvdModel):
+            """Subclass of AvdModel."""
+
+            class ClustersItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                Region: TypeAlias = Literal[
+                    "auto",
+                    "us-central1-a",
+                    "us-central1-b",
+                    "us-central1-c",
+                    "us-4",
+                    "apnortheast-1",
+                    "euwest-2",
+                    "eu-3",
+                    "ausoutheast-1",
+                    "na-northeast1-b",
+                    "uk-1",
+                    "india-1",
+                    "staging",
+                    "dev",
+                    "play",
+                ]
+                _fields: ClassVar[dict] = {
+                    "name": {"type": str},
+                    "region": {"type": str, "default": "auto"},
+                    "vrf": {"type": str, "default": "use_default_mgmt_method_vrf"},
+                    "token_file": {"type": str, "default": "/tmp/cv-onboarding-token"},
+                    "source_interface": {"type": str},
+                }
+                name: str
+                """Short name for the CVaaS cluster. Required here, but only used when configuring multiple clusters."""
+                region: Region
+                """
+                Optionally set the region to stream to.
+                The "auto" region will use 'apiserver.arista.io:443' which
+                will redirect to the correct region based on the device's serial number.
+                "staging", "dev" and "play"
+                are for internal Arista use.
+
+                Default value: `"auto"`
+                """
+                vrf: str
+                """
+                The VRF used to connect to CloudVision.
+                The value will be interpreted according to these rules:
+                -
+                `use_mgmt_interface_vrf` will configure the VRF set with `mgmt_interface_vrf` and configure the
+                `mgmt_interface` as the source interface.
+                  An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip`
+                are not configured for the device.
+                - `use_inband_mgmt_vrf` will configure the VRF set with
+                `inband_mgmt_vrf` and configure the `inband_mgmt_interface` as the source interface.
+                  An error will
+                be raised if inband management is not configured for the device.
+                - `use_default_mgmt_method_vrf`
+                will configure the VRF and source-interface for one of the two options above depending on the value
+                of `default_mgmt_method`.
+                - Any other string will be used directly as the VRF name.
+
+                Default value: `"use_default_mgmt_method_vrf"`
+                """
+                token_file: str
+                """
+                Path to the onboarding token used for certificate based authentication.
+                The path is on the EOS
+                device and the token file must be copied to the device first.
+
+                Default value: `"/tmp/cv-onboarding-token"`
+                """
+                source_interface: str | None
+                """
+                Source-interface used to connect to CloudVision.
+                If not set, the source interface may be set
+                automatically when VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or
+                `use_default_mgmt_method_vrf`.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        name: str | UndefinedType = Undefined,
+                        region: Region | UndefinedType = Undefined,
+                        vrf: str | UndefinedType = Undefined,
+                        token_file: str | UndefinedType = Undefined,
+                        source_interface: str | UndefinedType | None = Undefined,
+                    ) -> None:
+                        """
+                        ClustersItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            name: Short name for the CVaaS cluster. Required here, but only used when configuring multiple clusters.
+                            region:
+                               Optionally set the region to stream to.
+                               The "auto" region will use 'apiserver.arista.io:443' which
+                               will redirect to the correct region based on the device's serial number.
+                               "staging", "dev" and "play"
+                               are for internal Arista use.
+                            vrf:
+                               The VRF used to connect to CloudVision.
+                               The value will be interpreted according to these rules:
+                               -
+                               `use_mgmt_interface_vrf` will configure the VRF set with `mgmt_interface_vrf` and configure the
+                               `mgmt_interface` as the source interface.
+                                 An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip`
+                               are not configured for the device.
+                               - `use_inband_mgmt_vrf` will configure the VRF set with
+                               `inband_mgmt_vrf` and configure the `inband_mgmt_interface` as the source interface.
+                                 An error will
+                               be raised if inband management is not configured for the device.
+                               - `use_default_mgmt_method_vrf`
+                               will configure the VRF and source-interface for one of the two options above depending on the value
+                               of `default_mgmt_method`.
+                               - Any other string will be used directly as the VRF name.
+                            token_file:
+                               Path to the onboarding token used for certificate based authentication.
+                               The path is on the EOS
+                               device and the token file must be copied to the device first.
+                            source_interface:
+                               Source-interface used to connect to CloudVision.
+                               If not set, the source interface may be set
+                               automatically when VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or
+                               `use_default_mgmt_method_vrf`.
+
+                        """
+
+            class Clusters(AvdIndexedList[str, ClustersItem]):
+                """Subclass of AvdIndexedList with `ClustersItem` items. Primary key is `name` (`str`)."""
+
+                _primary_key: ClassVar[str] = "name"
+
+            Clusters._item_type = ClustersItem
+
+            _fields: ClassVar[dict] = {
+                "enabled": {"type": bool},
+                "clusters": {"type": Clusters, "default": lambda cls: coerce_type([{"name": "cvaas"}], target_type=cls)},
+            }
+            enabled: bool | None
+            """
+            Enable streaming to CVaaS.
+            When enabled it will stream to 'apiserver.arista.io:443' using the VRF
+            obtained from `default_mgmt_method` unless overridden under `clusters`.
+            """
+            clusters: Clusters
+            """
+            Subclass of AvdIndexedList with `ClustersItem` items. Primary key is `name` (`str`).
+
+            Default value: `lambda cls: coerce_type([{"name": "cvaas"}], target_type=cls)`
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, enabled: bool | UndefinedType | None = Undefined, clusters: Clusters | UndefinedType = Undefined) -> None:
+                    """
+                    Cvaas.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        enabled:
+                           Enable streaming to CVaaS.
+                           When enabled it will stream to 'apiserver.arista.io:443' using the VRF
+                           obtained from `default_mgmt_method` unless overridden under `clusters`.
+                        clusters: Subclass of AvdIndexedList with `ClustersItem` items. Primary key is `name` (`str`).
+
+                    """
+
+        class OnpremClustersItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            class ServersItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"name": {"type": str}, "port": {"type": int, "default": 9910}}
+                name: str
+                """
+                Server IP address or FQDN.
+                Note: It is currently recommended to use IP address because of
+                limitations with Image transfers from CloudVision.
+                """
+                port: int
+                """Default value: `9910`"""
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, name: str | UndefinedType = Undefined, port: int | UndefinedType = Undefined) -> None:
+                        """
+                        ServersItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            name:
+                               Server IP address or FQDN.
+                               Note: It is currently recommended to use IP address because of
+                               limitations with Image transfers from CloudVision.
+                            port: port
+
+                        """
+
+            class Servers(AvdIndexedList[str, ServersItem]):
+                """Subclass of AvdIndexedList with `ServersItem` items. Primary key is `name` (`str`)."""
+
+                _primary_key: ClassVar[str] = "name"
+
+            Servers._item_type = ServersItem
+
+            _fields: ClassVar[dict] = {
+                "name": {"type": str},
+                "servers": {"type": Servers},
+                "vrf": {"type": str, "default": "use_default_mgmt_method_vrf"},
+                "token_file": {"type": str, "default": "/tmp/token"},
+                "source_interface": {"type": str},
+            }
+            name: str
+            """Short name for the cluster. Required here, but only used when configuring multiple clusters."""
+            servers: Servers
+            """
+            CloudVision servers that make up one cluster.
+            May be omitted when inherited from a parent
+            CloudVision settings profile or global `cv_settings`.
+            After resolving profile and global settings,
+            each on-prem cluster must have at least one server.
+
+            Note: Servers from this profile are merged with
+            servers for the same cluster from the parent profile and global
+            `cv_settings`, so the combined list
+            must not exceed three servers.
+            If a server has the same `name` as an inherited server, values from
+            this profile override the inherited values.
+
+            Subclass of AvdIndexedList with `ServersItem` items.
+            Primary key is `name` (`str`).
+            """
+            vrf: str
+            """
+            The VRF used to connect to CloudVision.
+            The value will be interpreted according to these rules:
+            -
+            `use_mgmt_interface_vrf` will configure the VRF set with `mgmt_interface_vrf` and configure the
+            `mgmt_interface` as the source interface.
+              An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip`
+            are not configured for the device.
+            - `use_inband_mgmt_vrf` will configure the VRF set with
+            `inband_mgmt_vrf` and configure the `inband_mgmt_interface` as the source interface.
+              An error will
+            be raised if inband management is not configured for the device.
+            - `use_default_mgmt_method_vrf`
+            will configure the VRF and source-interface for one of the two options above depending on the value
+            of `default_mgmt_method`.
+            - Any other string will be used directly as the VRF name.
+
+            Default value: `"use_default_mgmt_method_vrf"`
+            """
+            token_file: str
+            """
+            Path to the onboarding token used for certificate based authentication.
+            The path is on the EOS
+            device and the token file must be copied to the device first.
+
+            Default value: `"/tmp/token"`
+            """
+            source_interface: str | None
+            """
+            Source-interface used to connect to CloudVision.
+            If not set, the source interface may be set
+            automatically when VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or
+            `use_default_mgmt_method_vrf`.
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    name: str | UndefinedType = Undefined,
+                    servers: Servers | UndefinedType = Undefined,
+                    vrf: str | UndefinedType = Undefined,
+                    token_file: str | UndefinedType = Undefined,
+                    source_interface: str | UndefinedType | None = Undefined,
+                ) -> None:
+                    """
+                    OnpremClustersItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        name: Short name for the cluster. Required here, but only used when configuring multiple clusters.
+                        servers:
+                           CloudVision servers that make up one cluster.
+                           May be omitted when inherited from a parent
+                           CloudVision settings profile or global `cv_settings`.
+                           After resolving profile and global settings,
+                           each on-prem cluster must have at least one server.
+
+                           Note: Servers from this profile are merged with
+                           servers for the same cluster from the parent profile and global
+                           `cv_settings`, so the combined list
+                           must not exceed three servers.
+                           If a server has the same `name` as an inherited server, values from
+                           this profile override the inherited values.
+
+                           Subclass of AvdIndexedList with `ServersItem` items.
+                           Primary key is `name` (`str`).
+                        vrf:
+                           The VRF used to connect to CloudVision.
+                           The value will be interpreted according to these rules:
+                           -
+                           `use_mgmt_interface_vrf` will configure the VRF set with `mgmt_interface_vrf` and configure the
+                           `mgmt_interface` as the source interface.
+                             An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip`
+                           are not configured for the device.
+                           - `use_inband_mgmt_vrf` will configure the VRF set with
+                           `inband_mgmt_vrf` and configure the `inband_mgmt_interface` as the source interface.
+                             An error will
+                           be raised if inband management is not configured for the device.
+                           - `use_default_mgmt_method_vrf`
+                           will configure the VRF and source-interface for one of the two options above depending on the value
+                           of `default_mgmt_method`.
+                           - Any other string will be used directly as the VRF name.
+                        token_file:
+                           Path to the onboarding token used for certificate based authentication.
+                           The path is on the EOS
+                           device and the token file must be copied to the device first.
+                        source_interface:
+                           Source-interface used to connect to CloudVision.
+                           If not set, the source interface may be set
+                           automatically when VRF is set to `use_mgmt_interface_vrf`, `use_inband_mgmt_vrf` or
+                           `use_default_mgmt_method_vrf`.
+
+                    """
+
+        class OnpremClusters(AvdIndexedList[str, OnpremClustersItem]):
+            """Subclass of AvdIndexedList with `OnpremClustersItem` items. Primary key is `name` (`str`)."""
+
+            _primary_key: ClassVar[str] = "name"
+
+        OnpremClusters._item_type = OnpremClustersItem
+
+        class Terminattr(AvdModel):
+            """Subclass of AvdModel."""
+
+            class Cvtargetconfigs(AvdList[str]):
+                """Subclass of AvdList with `str` items."""
+
+            Cvtargetconfigs._item_type = str
+
+            class CustomCvOptionsItem(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"flag": {"type": str}, "value": {"type": str}}
+                flag: str
+                """TerminAttr CLI flag name without the leading dash."""
+                value: str | None
+                """
+                Flag value. If omitted, the flag is rendered without a value (e.g. `-someflag`).
+                If set, the flag is
+                rendered as `-flag=value`.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, flag: str | UndefinedType = Undefined, value: str | UndefinedType | None = Undefined) -> None:
+                        """
+                        CustomCvOptionsItem.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            flag: TerminAttr CLI flag name without the leading dash.
+                            value:
+                               Flag value. If omitted, the flag is rendered without a value (e.g. `-someflag`).
+                               If set, the flag is
+                               rendered as `-flag=value`.
+
+                        """
+
+            class CustomCvOptions(AvdList[CustomCvOptionsItem]):
+                """Subclass of AvdList with `CustomCvOptionsItem` items."""
+
+            CustomCvOptions._item_type = CustomCvOptionsItem
+
+            _fields: ClassVar[dict] = {
+                "ingestexclude": {"type": str},
+                "smashexcludes": {"type": str, "default": "ale,flexCounter,hardware,kni,pulse,strata"},
+                "disable_aaa": {"type": bool, "default": False},
+                "cvtargetconfigs": {"type": Cvtargetconfigs},
+                "flowdns": {"type": bool},
+                "custom_cv_options": {"type": CustomCvOptions},
+            }
+            ingestexclude: str | None
+            """
+            Exclude paths from Sysdb on the ingest side.
+            e.g. "/Sysdb/cell/1/agent,/Sysdb/cell/2/agent"
+            """
+            smashexcludes: str
+            """
+            Exclude paths from the shared memory table.
+            e.g. "ale,flexCounter,hardware,kni,pulse,strata"
+
+            Default value: `"ale,flexCounter,hardware,kni,pulse,strata"`
+            """
+            disable_aaa: bool
+            """
+            Disable AAA authorization and accounting.
+            When setting this flag, all commands pushed from
+            CloudVision are applied directly to the CLI without authorization.
+
+            Default value: `False`
+            """
+            cvtargetconfigs: Cvtargetconfigs
+            """
+            Set the target configuration path(s) for dynamic device configuration from CloudVision.
+            Used for MSS
+            (Multi-Domain Segmentation Service) integrations.
+
+
+            Subclass of AvdList with `str` items.
+            """
+            flowdns: bool | None
+            """
+            Enable DNS resolution for flow records (TerminAttr default is true).
+            Set to false to disable DNS
+            lookups on sFlow/IPFIX flow records.
+            """
+            custom_cv_options: CustomCvOptions
+            """
+            TerminAttr CLI options not covered by the schema.
+            Each entry renders as `-<flag>=<value>` when
+            `value` is set, or `-<flag>` when `value` is omitted.
+            Options are appended at the end of the
+            TerminAttr exec command line after all other flags.
+
+
+            Subclass of AvdList with `CustomCvOptionsItem`
+            items.
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    ingestexclude: str | UndefinedType | None = Undefined,
+                    smashexcludes: str | UndefinedType = Undefined,
+                    disable_aaa: bool | UndefinedType = Undefined,
+                    cvtargetconfigs: Cvtargetconfigs | UndefinedType = Undefined,
+                    flowdns: bool | UndefinedType | None = Undefined,
+                    custom_cv_options: CustomCvOptions | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Terminattr.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        ingestexclude:
+                           Exclude paths from Sysdb on the ingest side.
+                           e.g. "/Sysdb/cell/1/agent,/Sysdb/cell/2/agent"
+                        smashexcludes:
+                           Exclude paths from the shared memory table.
+                           e.g. "ale,flexCounter,hardware,kni,pulse,strata"
+                        disable_aaa:
+                           Disable AAA authorization and accounting.
+                           When setting this flag, all commands pushed from
+                           CloudVision are applied directly to the CLI without authorization.
+                        cvtargetconfigs:
+                           Set the target configuration path(s) for dynamic device configuration from CloudVision.
+                           Used for MSS
+                           (Multi-Domain Segmentation Service) integrations.
+
+
+                           Subclass of AvdList with `str` items.
+                        flowdns:
+                           Enable DNS resolution for flow records (TerminAttr default is true).
+                           Set to false to disable DNS
+                           lookups on sFlow/IPFIX flow records.
+                        custom_cv_options:
+                           TerminAttr CLI options not covered by the schema.
+                           Each entry renders as `-<flag>=<value>` when
+                           `value` is set, or `-<flag>` when `value` is omitted.
+                           Options are appended at the end of the
+                           TerminAttr exec command line after all other flags.
+
+
+                           Subclass of AvdList with `CustomCvOptionsItem`
+                           items.
+
+                    """
+
+        _fields: ClassVar[dict] = {
+            "profile": {"type": str},
+            "parent_profile": {"type": str},
+            "cvaas": {"type": Cvaas},
+            "onprem_clusters": {"type": OnpremClusters},
+            "terminattr": {"type": Terminattr},
+            "set_source_interfaces": {"type": bool, "default": True},
+        }
+        profile: str
+        """CloudVision settings profile name."""
+        parent_profile: str | None
+        """
+        Inherit settings from a parent profile defined under `cv_settings_profiles`.
+        The settings from this
+        profile override settings inherited from the parent profile.
+        """
+        cvaas: Cvaas
+        """
+        State streaming to CloudVision-as-a-Service.
+
+        Subclass of AvdModel.
+        """
+        onprem_clusters: OnpremClusters
+        """
+        On-premise CloudVision clusters.
+
+        Subclass of AvdIndexedList with `OnpremClustersItem` items.
+        Primary key is `name` (`str`).
+        """
+        terminattr: Terminattr
+        """
+        Specific settings for the TerminAttr daemon.
+
+        Subclass of AvdModel.
+        """
+        set_source_interfaces: bool
+        """
+        Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
+        `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+        Can be set to `false` to avoid changes when
+        migrating from the old `cv_instances` model.
+
+        Default value: `True`
+        """
+
+        if TYPE_CHECKING:
+
+            def __init__(
+                self,
+                *,
+                profile: str | UndefinedType = Undefined,
+                parent_profile: str | UndefinedType | None = Undefined,
+                cvaas: Cvaas | UndefinedType = Undefined,
+                onprem_clusters: OnpremClusters | UndefinedType = Undefined,
+                terminattr: Terminattr | UndefinedType = Undefined,
+                set_source_interfaces: bool | UndefinedType = Undefined,
+            ) -> None:
+                """
+                CvSettingsProfilesItem.
+
+
+                Subclass of AvdModel.
+
+                Args:
+                    profile: CloudVision settings profile name.
+                    parent_profile:
+                       Inherit settings from a parent profile defined under `cv_settings_profiles`.
+                       The settings from this
+                       profile override settings inherited from the parent profile.
+                    cvaas:
+                       State streaming to CloudVision-as-a-Service.
+
+                       Subclass of AvdModel.
+                    onprem_clusters:
+                       On-premise CloudVision clusters.
+
+                       Subclass of AvdIndexedList with `OnpremClustersItem` items.
+                       Primary key is `name` (`str`).
+                    terminattr:
+                       Specific settings for the TerminAttr daemon.
+
+                       Subclass of AvdModel.
+                    set_source_interfaces:
+                       Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
+                       `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+                       Can be set to `false` to avoid changes when
+                       migrating from the old `cv_instances` model.
+
+                """
+
+    class CvSettingsProfiles(AvdIndexedList[str, CvSettingsProfilesItem]):
+        """Subclass of AvdIndexedList with `CvSettingsProfilesItem` items. Primary key is `profile` (`str`)."""
+
+        _primary_key: ClassVar[str] = "profile"
+
+    CvSettingsProfiles._item_type = CvSettingsProfilesItem
 
     class CvTopologyItem(AvdModel):
         """Subclass of AvdModel."""
@@ -10153,6 +11790,8 @@ class EosDesigns(EosDesignsRootModel):
                 "bgp": {"type": Bgp},
                 "ipv4_acl_in": {"type": str},
                 "ipv4_acl_out": {"type": str},
+                "ipv4_standard_acl_in": {"type": str},
+                "ipv4_standard_acl_out": {"type": str},
                 "ipv6_acl_in": {"type": str},
                 "ipv6_acl_out": {"type": str},
                 "static_routes": {"type": StaticRoutes},
@@ -10270,13 +11909,38 @@ class EosDesigns(EosDesignsRootModel):
             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
             Required
             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-            `wan_carriers`.
+            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+            Mutually exclusive with `ipv4_standard_acl_in`,
+            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
             """
             ipv4_acl_out: str | None
             """
             Name of the IPv4 Access-list to be assigned in the egress direction.
             The access-list must be defined
             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+            Mutually
+            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+            raises an error.
+            """
+            ipv4_standard_acl_in: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Required for all WAN interfaces (`wan_carrier` is set) unless
+            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+            Mutually exclusive
+            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+            """
+            ipv4_standard_acl_out: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the egress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_out`, setting both
+            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+            substitution for "interface_ip" or "peer_ip" is required.
             """
             ipv6_acl_in: str | None
             """
@@ -10311,7 +11975,7 @@ class EosDesigns(EosDesignsRootModel):
             This is used to infer the path-groups in which this
             interface should be configured.
             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-            `ipv4_acl_in` is also required on all WAN interfaces.
+            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
             """
             wan_circuit_id: str | None
             """
@@ -10375,6 +12039,8 @@ class EosDesigns(EosDesignsRootModel):
                     bgp: Bgp | UndefinedType = Undefined,
                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -10462,11 +12128,32 @@ class EosDesigns(EosDesignsRootModel):
                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                            Required
                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                           `wan_carriers`.
+                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                           Mutually exclusive with `ipv4_standard_acl_in`,
+                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         ipv4_acl_out:
                            Name of the IPv4 Access-list to be assigned in the egress direction.
                            The access-list must be defined
                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                           Mutually
+                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                           raises an error.
+                        ipv4_standard_acl_in:
+                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                           Mutually exclusive
+                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        ipv4_standard_acl_out:
+                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_out`, setting both
+                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                           substitution for "interface_ip" or "peer_ip" is required.
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
@@ -10492,7 +12179,7 @@ class EosDesigns(EosDesignsRootModel):
                            This is used to infer the path-groups in which this
                            interface should be configured.
                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                           `ipv4_acl_in` is also required on all WAN interfaces.
+                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         wan_circuit_id:
                            The WAN circuit ID for this interface.
                            This is not rendered in the configuration but used for WAN
@@ -10925,6 +12612,8 @@ class EosDesigns(EosDesignsRootModel):
                 "bgp": {"type": Bgp},
                 "ipv4_acl_in": {"type": str},
                 "ipv4_acl_out": {"type": str},
+                "ipv4_standard_acl_in": {"type": str},
+                "ipv4_standard_acl_out": {"type": str},
                 "ipv6_acl_in": {"type": str},
                 "ipv6_acl_out": {"type": str},
                 "static_routes": {"type": StaticRoutes},
@@ -11039,13 +12728,38 @@ class EosDesigns(EosDesignsRootModel):
             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
             Required
             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-            `wan_carriers`.
+            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+            Mutually exclusive with `ipv4_standard_acl_in`,
+            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
             """
             ipv4_acl_out: str | None
             """
             Name of the IPv4 Access-list to be assigned in the egress direction.
             The access-list must be defined
             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+            Mutually
+            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+            raises an error.
+            """
+            ipv4_standard_acl_in: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Required for all WAN interfaces (`wan_carrier` is set) unless
+            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+            Mutually exclusive
+            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+            """
+            ipv4_standard_acl_out: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the egress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_out`, setting both
+            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+            substitution for "interface_ip" or "peer_ip" is required.
             """
             ipv6_acl_in: str | None
             """
@@ -11080,7 +12794,7 @@ class EosDesigns(EosDesignsRootModel):
             This is used to infer the path-groups in which this
             interface should be configured.
             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-            `ipv4_acl_in` is also required on all WAN interfaces.
+            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
             """
             wan_circuit_id: str | None
             """
@@ -11129,6 +12843,8 @@ class EosDesigns(EosDesignsRootModel):
                     bgp: Bgp | UndefinedType = Undefined,
                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -11213,11 +12929,32 @@ class EosDesigns(EosDesignsRootModel):
                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                            Required
                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                           `wan_carriers`.
+                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                           Mutually exclusive with `ipv4_standard_acl_in`,
+                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         ipv4_acl_out:
                            Name of the IPv4 Access-list to be assigned in the egress direction.
                            The access-list must be defined
                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                           Mutually
+                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                           raises an error.
+                        ipv4_standard_acl_in:
+                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                           Mutually exclusive
+                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        ipv4_standard_acl_out:
+                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_out`, setting both
+                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                           substitution for "interface_ip" or "peer_ip" is required.
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
@@ -11243,7 +12980,7 @@ class EosDesigns(EosDesignsRootModel):
                            This is used to infer the path-groups in which this
                            interface should be configured.
                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                           `ipv4_acl_in` is also required on all WAN interfaces.
+                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         wan_circuit_id:
                            The WAN circuit ID for this interface.
                            This is not rendered in the configuration but used for WAN
@@ -11478,6 +13215,9 @@ class EosDesigns(EosDesignsRootModel):
                 "mgmt_ip": {"type": str},
                 "mgmt_gateway": {"type": str},
                 "act_internet_access": {"type": bool},
+                "serial_number": {"type": str},
+                "system_mac_address": {"type": str},
+                "ztp": {"type": bool},
             }
             act_os_version: str | None
             """
@@ -11509,6 +13249,55 @@ class EosDesigns(EosDesignsRootModel):
             Overrides
             global `digital_twin.fabric.act_internet_access` flag.
             """
+            serial_number: str | None
+            """
+            Serial number or AVD string formatter template for this ACT Digital Twin device.
+            Overrides the
+            global `digital_twin.fabric.serial_number_template` for this device.
+            When set, the rendered value is
+            written into the device metadata and provided as the serial number in the ACT topology.
+            Supports the
+            same AVD string formatter template syntax and variables as
+            `digital_twin.fabric.serial_number_template`.
+            The rendered value should be unique across all devices
+            in the fabric. AVD does not enforce uniqueness automatically.
+            Applies only to `veos` and `cloudeos`
+            node types. Ignored for all other ACT node types.
+            Ignored when `digital_twin.environment` is
+            `containerlab`.
+            """
+            system_mac_address: str | None
+            """
+            System MAC address or AVD string formatter template for this ACT Digital Twin device.
+            Overrides the
+            global `digital_twin.fabric.system_mac_address_template` for this device.
+            When set, the rendered
+            value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+            device metadata, and provided as the system MAC address in the ACT topology.
+            Supports the same AVD
+            string formatter template syntax, variables, MAC address formats, and normalization as
+            `digital_twin.fabric.system_mac_address_template`.
+            The rendered value must be a unicast MAC address
+            in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+            digit). The all-zero address is reserved and not accepted by EOS.
+            Regardless of the input format,
+            the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+            The rendered value should be unique
+            across all devices in the fabric. AVD does not enforce uniqueness automatically.
+            Applies only to
+            `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+            Ignored when
+            `digital_twin.environment` is `containerlab`.
+            """
+            ztp: bool | None
+            """
+            Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+            Supported Digital Twin
+            environments:
+            - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+            types.
+            Overrides global `digital_twin.fabric.ztp` when defined.
+            """
 
             if TYPE_CHECKING:
 
@@ -11519,6 +13308,9 @@ class EosDesigns(EosDesignsRootModel):
                     mgmt_ip: str | UndefinedType | None = Undefined,
                     mgmt_gateway: str | UndefinedType | None = Undefined,
                     act_internet_access: bool | UndefinedType | None = Undefined,
+                    serial_number: str | UndefinedType | None = Undefined,
+                    system_mac_address: str | UndefinedType | None = Undefined,
+                    ztp: bool | UndefinedType | None = Undefined,
                 ) -> None:
                     """
                     DigitalTwin.
@@ -11549,6 +13341,49 @@ class EosDesigns(EosDesignsRootModel):
                            ACT does not provide direct Internet access to cloudeos or veos devices by default.
                            Overrides
                            global `digital_twin.fabric.act_internet_access` flag.
+                        serial_number:
+                           Serial number or AVD string formatter template for this ACT Digital Twin device.
+                           Overrides the
+                           global `digital_twin.fabric.serial_number_template` for this device.
+                           When set, the rendered value is
+                           written into the device metadata and provided as the serial number in the ACT topology.
+                           Supports the
+                           same AVD string formatter template syntax and variables as
+                           `digital_twin.fabric.serial_number_template`.
+                           The rendered value should be unique across all devices
+                           in the fabric. AVD does not enforce uniqueness automatically.
+                           Applies only to `veos` and `cloudeos`
+                           node types. Ignored for all other ACT node types.
+                           Ignored when `digital_twin.environment` is
+                           `containerlab`.
+                        system_mac_address:
+                           System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                           Overrides the
+                           global `digital_twin.fabric.system_mac_address_template` for this device.
+                           When set, the rendered
+                           value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                           device metadata, and provided as the system MAC address in the ACT topology.
+                           Supports the same AVD
+                           string formatter template syntax, variables, MAC address formats, and normalization as
+                           `digital_twin.fabric.system_mac_address_template`.
+                           The rendered value must be a unicast MAC address
+                           in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                           digit). The all-zero address is reserved and not accepted by EOS.
+                           Regardless of the input format,
+                           the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                           The rendered value should be unique
+                           across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                           Applies only to
+                           `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                           Ignored when
+                           `digital_twin.environment` is `containerlab`.
+                        ztp:
+                           Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                           Supported Digital Twin
+                           environments:
+                           - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                           types.
+                           Overrides global `digital_twin.fabric.ztp` when defined.
 
                     """
 
@@ -11654,6 +13489,7 @@ class EosDesigns(EosDesignsRootModel):
             "inband_mgmt_gateway": {"type": str},
             "inband_mgmt_ipv6_address": {"type": str},
             "inband_mgmt_ipv6_subnet": {"type": str},
+            "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
             "inband_mgmt_ipv6_gateway": {"type": str},
             "inband_mgmt_description": {"type": str, "default": "Inband Management"},
             "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -11684,6 +13520,10 @@ class EosDesigns(EosDesignsRootModel):
             "cv_tags_topology_type": {"type": str},
             "digital_twin": {"type": DigitalTwin},
             "validation_profile": {"type": str},
+            "aaa_settings_profile": {"type": str},
+            "cv_settings_profile": {"type": str},
+            "dns_settings_profile": {"type": str},
+            "ntp_settings_profile": {"type": str},
         }
         name: str
         """Profile Name"""
@@ -12446,15 +14286,32 @@ class EosDesigns(EosDesignsRootModel):
         l3leaf A      :
         <subnet> + 2 (same IP on all l3leaf A)
         l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-        l2leafs       : <subnet> + 3 + <l2leaf id>
-        GW on l2leafs : <subnet> + 1
-        Assign range larger than
-        total l2leafs + 5
+        l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+        GW on l2leafs :
+        <subnet> + 1
+        Assign range larger than total l2leafs + 5
 
-        Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+        Setting is ignored if
+        'inband_mgmt_ipv6_address' is set.
 
-        This setting is
-        applicable to L2 switches (switches using L2 trunks as uplinks).
+        This setting is applicable to L2 switches (switches using L2
+        trunks as uplinks).
+        """
+        inband_mgmt_ipv6_subnet_offset: int
+        """
+        Offset value to adjust the calculated inband management IPv6 address within the subnet.
+        The assigned
+        IPv6 address will be computed by adding this offset to the device ID.
+        Choose an IPv6 subnet large
+        enough to contain all calculated addresses.
+        The highest L2 leaf address is:
+        <subnet> + 3 + <highest
+        l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+        If the calculated address falls outside the subnet,
+        address allocation
+        fails with "address out of range".
+
+        Default value: `0`
         """
         inband_mgmt_ipv6_gateway: str | None
         """
@@ -12680,6 +14537,37 @@ class EosDesigns(EosDesignsRootModel):
         Validation profiles define requirements (e.g., hardware and logging) used by
         the `anta_runner` role during post-deployment validation.
         """
+        aaa_settings_profile: str | None
+        """
+        Name of the AAA settings profile to apply to this device.
+        The profile must be defined under
+        `aaa_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `aaa_settings`.
+        """
+        cv_settings_profile: str | None
+        """
+        Name of the CloudVision settings profile to apply to this device.
+        The profile must be defined under
+        `cv_settings_profiles`.
+        The selected profile settings will be merged over the general `cv_settings`.
+        """
+        dns_settings_profile: str | None
+        """
+        Name of the DNS settings profile to apply to this device.
+        The profile must be defined under
+        `dns_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `dns_settings`.
+        """
+        ntp_settings_profile: str | None
+        """
+        Name of the NTP settings profile to apply to this device.
+        The profile must be defined under
+        `ntp_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `ntp_settings`.
+        """
 
         if TYPE_CHECKING:
 
@@ -12787,6 +14675,7 @@ class EosDesigns(EosDesignsRootModel):
                 inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                 inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                 inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                 inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                 inband_mgmt_description: str | UndefinedType = Undefined,
                 inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -12817,6 +14706,10 @@ class EosDesigns(EosDesignsRootModel):
                 cv_tags_topology_type: str | UndefinedType | None = Undefined,
                 digital_twin: DigitalTwin | UndefinedType = Undefined,
                 validation_profile: str | UndefinedType | None = Undefined,
+                aaa_settings_profile: str | UndefinedType | None = Undefined,
+                cv_settings_profile: str | UndefinedType | None = Undefined,
+                dns_settings_profile: str | UndefinedType | None = Undefined,
+                ntp_settings_profile: str | UndefinedType | None = Undefined,
             ) -> None:
                 """
                 DeviceProfilesItem.
@@ -13376,15 +15269,28 @@ class EosDesigns(EosDesignsRootModel):
                        l3leaf A      :
                        <subnet> + 2 (same IP on all l3leaf A)
                        l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                       l2leafs       : <subnet> + 3 + <l2leaf id>
-                       GW on l2leafs : <subnet> + 1
-                       Assign range larger than
-                       total l2leafs + 5
+                       l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                       GW on l2leafs :
+                       <subnet> + 1
+                       Assign range larger than total l2leafs + 5
 
-                       Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                       Setting is ignored if
+                       'inband_mgmt_ipv6_address' is set.
 
-                       This setting is
-                       applicable to L2 switches (switches using L2 trunks as uplinks).
+                       This setting is applicable to L2 switches (switches using L2
+                       trunks as uplinks).
+                    inband_mgmt_ipv6_subnet_offset:
+                       Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                       The assigned
+                       IPv6 address will be computed by adding this offset to the device ID.
+                       Choose an IPv6 subnet large
+                       enough to contain all calculated addresses.
+                       The highest L2 leaf address is:
+                       <subnet> + 3 + <highest
+                       l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                       If the calculated address falls outside the subnet,
+                       address allocation
+                       fails with "address out of range".
                     inband_mgmt_ipv6_gateway:
                        Default gateway configured in the 'inband_mgmt_vrf'.
                        Used when `inband_mgmt_ipv6_address` is set.
@@ -13535,6 +15441,29 @@ class EosDesigns(EosDesignsRootModel):
                        `validation_profiles`.
                        Validation profiles define requirements (e.g., hardware and logging) used by
                        the `anta_runner` role during post-deployment validation.
+                    aaa_settings_profile:
+                       Name of the AAA settings profile to apply to this device.
+                       The profile must be defined under
+                       `aaa_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `aaa_settings`.
+                    cv_settings_profile:
+                       Name of the CloudVision settings profile to apply to this device.
+                       The profile must be defined under
+                       `cv_settings_profiles`.
+                       The selected profile settings will be merged over the general `cv_settings`.
+                    dns_settings_profile:
+                       Name of the DNS settings profile to apply to this device.
+                       The profile must be defined under
+                       `dns_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `dns_settings`.
+                    ntp_settings_profile:
+                       Name of the NTP settings profile to apply to this device.
+                       The profile must be defined under
+                       `ntp_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `ntp_settings`.
 
                 """
 
@@ -15771,6 +17700,8 @@ class EosDesigns(EosDesignsRootModel):
                 "bgp": {"type": Bgp},
                 "ipv4_acl_in": {"type": str},
                 "ipv4_acl_out": {"type": str},
+                "ipv4_standard_acl_in": {"type": str},
+                "ipv4_standard_acl_out": {"type": str},
                 "ipv6_acl_in": {"type": str},
                 "ipv6_acl_out": {"type": str},
                 "static_routes": {"type": StaticRoutes},
@@ -15888,13 +17819,38 @@ class EosDesigns(EosDesignsRootModel):
             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
             Required
             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-            `wan_carriers`.
+            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+            Mutually exclusive with `ipv4_standard_acl_in`,
+            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
             """
             ipv4_acl_out: str | None
             """
             Name of the IPv4 Access-list to be assigned in the egress direction.
             The access-list must be defined
             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+            Mutually
+            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+            raises an error.
+            """
+            ipv4_standard_acl_in: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Required for all WAN interfaces (`wan_carrier` is set) unless
+            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+            Mutually exclusive
+            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+            """
+            ipv4_standard_acl_out: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the egress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_out`, setting both
+            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+            substitution for "interface_ip" or "peer_ip" is required.
             """
             ipv6_acl_in: str | None
             """
@@ -15929,7 +17885,7 @@ class EosDesigns(EosDesignsRootModel):
             This is used to infer the path-groups in which this
             interface should be configured.
             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-            `ipv4_acl_in` is also required on all WAN interfaces.
+            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
             """
             wan_circuit_id: str | None
             """
@@ -15993,6 +17949,8 @@ class EosDesigns(EosDesignsRootModel):
                     bgp: Bgp | UndefinedType = Undefined,
                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -16080,11 +18038,32 @@ class EosDesigns(EosDesignsRootModel):
                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                            Required
                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                           `wan_carriers`.
+                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                           Mutually exclusive with `ipv4_standard_acl_in`,
+                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         ipv4_acl_out:
                            Name of the IPv4 Access-list to be assigned in the egress direction.
                            The access-list must be defined
                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                           Mutually
+                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                           raises an error.
+                        ipv4_standard_acl_in:
+                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                           Mutually exclusive
+                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        ipv4_standard_acl_out:
+                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_out`, setting both
+                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                           substitution for "interface_ip" or "peer_ip" is required.
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
@@ -16110,7 +18089,7 @@ class EosDesigns(EosDesignsRootModel):
                            This is used to infer the path-groups in which this
                            interface should be configured.
                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                           `ipv4_acl_in` is also required on all WAN interfaces.
+                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         wan_circuit_id:
                            The WAN circuit ID for this interface.
                            This is not rendered in the configuration but used for WAN
@@ -16543,6 +18522,8 @@ class EosDesigns(EosDesignsRootModel):
                 "bgp": {"type": Bgp},
                 "ipv4_acl_in": {"type": str},
                 "ipv4_acl_out": {"type": str},
+                "ipv4_standard_acl_in": {"type": str},
+                "ipv4_standard_acl_out": {"type": str},
                 "ipv6_acl_in": {"type": str},
                 "ipv6_acl_out": {"type": str},
                 "static_routes": {"type": StaticRoutes},
@@ -16657,13 +18638,38 @@ class EosDesigns(EosDesignsRootModel):
             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
             Required
             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-            `wan_carriers`.
+            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+            Mutually exclusive with `ipv4_standard_acl_in`,
+            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
             """
             ipv4_acl_out: str | None
             """
             Name of the IPv4 Access-list to be assigned in the egress direction.
             The access-list must be defined
             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+            Mutually
+            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+            raises an error.
+            """
+            ipv4_standard_acl_in: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Required for all WAN interfaces (`wan_carrier` is set) unless
+            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+            Mutually exclusive
+            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+            """
+            ipv4_standard_acl_out: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the egress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_out`, setting both
+            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+            substitution for "interface_ip" or "peer_ip" is required.
             """
             ipv6_acl_in: str | None
             """
@@ -16698,7 +18704,7 @@ class EosDesigns(EosDesignsRootModel):
             This is used to infer the path-groups in which this
             interface should be configured.
             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-            `ipv4_acl_in` is also required on all WAN interfaces.
+            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
             """
             wan_circuit_id: str | None
             """
@@ -16747,6 +18753,8 @@ class EosDesigns(EosDesignsRootModel):
                     bgp: Bgp | UndefinedType = Undefined,
                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -16831,11 +18839,32 @@ class EosDesigns(EosDesignsRootModel):
                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                            Required
                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                           `wan_carriers`.
+                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                           Mutually exclusive with `ipv4_standard_acl_in`,
+                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         ipv4_acl_out:
                            Name of the IPv4 Access-list to be assigned in the egress direction.
                            The access-list must be defined
                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                           Mutually
+                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                           raises an error.
+                        ipv4_standard_acl_in:
+                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                           Mutually exclusive
+                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        ipv4_standard_acl_out:
+                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_out`, setting both
+                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                           substitution for "interface_ip" or "peer_ip" is required.
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
@@ -16861,7 +18890,7 @@ class EosDesigns(EosDesignsRootModel):
                            This is used to infer the path-groups in which this
                            interface should be configured.
                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                           `ipv4_acl_in` is also required on all WAN interfaces.
+                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         wan_circuit_id:
                            The WAN circuit ID for this interface.
                            This is not rendered in the configuration but used for WAN
@@ -17096,6 +19125,9 @@ class EosDesigns(EosDesignsRootModel):
                 "mgmt_ip": {"type": str},
                 "mgmt_gateway": {"type": str},
                 "act_internet_access": {"type": bool},
+                "serial_number": {"type": str},
+                "system_mac_address": {"type": str},
+                "ztp": {"type": bool},
             }
             act_os_version: str | None
             """
@@ -17127,6 +19159,55 @@ class EosDesigns(EosDesignsRootModel):
             Overrides
             global `digital_twin.fabric.act_internet_access` flag.
             """
+            serial_number: str | None
+            """
+            Serial number or AVD string formatter template for this ACT Digital Twin device.
+            Overrides the
+            global `digital_twin.fabric.serial_number_template` for this device.
+            When set, the rendered value is
+            written into the device metadata and provided as the serial number in the ACT topology.
+            Supports the
+            same AVD string formatter template syntax and variables as
+            `digital_twin.fabric.serial_number_template`.
+            The rendered value should be unique across all devices
+            in the fabric. AVD does not enforce uniqueness automatically.
+            Applies only to `veos` and `cloudeos`
+            node types. Ignored for all other ACT node types.
+            Ignored when `digital_twin.environment` is
+            `containerlab`.
+            """
+            system_mac_address: str | None
+            """
+            System MAC address or AVD string formatter template for this ACT Digital Twin device.
+            Overrides the
+            global `digital_twin.fabric.system_mac_address_template` for this device.
+            When set, the rendered
+            value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+            device metadata, and provided as the system MAC address in the ACT topology.
+            Supports the same AVD
+            string formatter template syntax, variables, MAC address formats, and normalization as
+            `digital_twin.fabric.system_mac_address_template`.
+            The rendered value must be a unicast MAC address
+            in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+            digit). The all-zero address is reserved and not accepted by EOS.
+            Regardless of the input format,
+            the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+            The rendered value should be unique
+            across all devices in the fabric. AVD does not enforce uniqueness automatically.
+            Applies only to
+            `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+            Ignored when
+            `digital_twin.environment` is `containerlab`.
+            """
+            ztp: bool | None
+            """
+            Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+            Supported Digital Twin
+            environments:
+            - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+            types.
+            Overrides global `digital_twin.fabric.ztp` when defined.
+            """
 
             if TYPE_CHECKING:
 
@@ -17137,6 +19218,9 @@ class EosDesigns(EosDesignsRootModel):
                     mgmt_ip: str | UndefinedType | None = Undefined,
                     mgmt_gateway: str | UndefinedType | None = Undefined,
                     act_internet_access: bool | UndefinedType | None = Undefined,
+                    serial_number: str | UndefinedType | None = Undefined,
+                    system_mac_address: str | UndefinedType | None = Undefined,
+                    ztp: bool | UndefinedType | None = Undefined,
                 ) -> None:
                     """
                     DigitalTwin.
@@ -17167,6 +19251,49 @@ class EosDesigns(EosDesignsRootModel):
                            ACT does not provide direct Internet access to cloudeos or veos devices by default.
                            Overrides
                            global `digital_twin.fabric.act_internet_access` flag.
+                        serial_number:
+                           Serial number or AVD string formatter template for this ACT Digital Twin device.
+                           Overrides the
+                           global `digital_twin.fabric.serial_number_template` for this device.
+                           When set, the rendered value is
+                           written into the device metadata and provided as the serial number in the ACT topology.
+                           Supports the
+                           same AVD string formatter template syntax and variables as
+                           `digital_twin.fabric.serial_number_template`.
+                           The rendered value should be unique across all devices
+                           in the fabric. AVD does not enforce uniqueness automatically.
+                           Applies only to `veos` and `cloudeos`
+                           node types. Ignored for all other ACT node types.
+                           Ignored when `digital_twin.environment` is
+                           `containerlab`.
+                        system_mac_address:
+                           System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                           Overrides the
+                           global `digital_twin.fabric.system_mac_address_template` for this device.
+                           When set, the rendered
+                           value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                           device metadata, and provided as the system MAC address in the ACT topology.
+                           Supports the same AVD
+                           string formatter template syntax, variables, MAC address formats, and normalization as
+                           `digital_twin.fabric.system_mac_address_template`.
+                           The rendered value must be a unicast MAC address
+                           in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                           digit). The all-zero address is reserved and not accepted by EOS.
+                           Regardless of the input format,
+                           the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                           The rendered value should be unique
+                           across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                           Applies only to
+                           `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                           Ignored when
+                           `digital_twin.environment` is `containerlab`.
+                        ztp:
+                           Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                           Supported Digital Twin
+                           environments:
+                           - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                           types.
+                           Overrides global `digital_twin.fabric.ztp` when defined.
 
                     """
 
@@ -17273,6 +19400,7 @@ class EosDesigns(EosDesignsRootModel):
             "inband_mgmt_gateway": {"type": str},
             "inband_mgmt_ipv6_address": {"type": str},
             "inband_mgmt_ipv6_subnet": {"type": str},
+            "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
             "inband_mgmt_ipv6_gateway": {"type": str},
             "inband_mgmt_description": {"type": str, "default": "Inband Management"},
             "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -17303,6 +19431,10 @@ class EosDesigns(EosDesignsRootModel):
             "cv_tags_topology_type": {"type": str},
             "digital_twin": {"type": DigitalTwin},
             "validation_profile": {"type": str},
+            "aaa_settings_profile": {"type": str},
+            "cv_settings_profile": {"type": str},
+            "dns_settings_profile": {"type": str},
+            "ntp_settings_profile": {"type": str},
         }
         name: str
         """The Node Name is used as "hostname"."""
@@ -18074,15 +20206,32 @@ class EosDesigns(EosDesignsRootModel):
         l3leaf A      :
         <subnet> + 2 (same IP on all l3leaf A)
         l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-        l2leafs       : <subnet> + 3 + <l2leaf id>
-        GW on l2leafs : <subnet> + 1
-        Assign range larger than
-        total l2leafs + 5
+        l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+        GW on l2leafs :
+        <subnet> + 1
+        Assign range larger than total l2leafs + 5
 
-        Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+        Setting is ignored if
+        'inband_mgmt_ipv6_address' is set.
 
-        This setting is
-        applicable to L2 switches (switches using L2 trunks as uplinks).
+        This setting is applicable to L2 switches (switches using L2
+        trunks as uplinks).
+        """
+        inband_mgmt_ipv6_subnet_offset: int
+        """
+        Offset value to adjust the calculated inband management IPv6 address within the subnet.
+        The assigned
+        IPv6 address will be computed by adding this offset to the device ID.
+        Choose an IPv6 subnet large
+        enough to contain all calculated addresses.
+        The highest L2 leaf address is:
+        <subnet> + 3 + <highest
+        l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+        If the calculated address falls outside the subnet,
+        address allocation
+        fails with "address out of range".
+
+        Default value: `0`
         """
         inband_mgmt_ipv6_gateway: str | None
         """
@@ -18308,6 +20457,37 @@ class EosDesigns(EosDesignsRootModel):
         Validation profiles define requirements (e.g., hardware and logging) used by
         the `anta_runner` role during post-deployment validation.
         """
+        aaa_settings_profile: str | None
+        """
+        Name of the AAA settings profile to apply to this device.
+        The profile must be defined under
+        `aaa_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `aaa_settings`.
+        """
+        cv_settings_profile: str | None
+        """
+        Name of the CloudVision settings profile to apply to this device.
+        The profile must be defined under
+        `cv_settings_profiles`.
+        The selected profile settings will be merged over the general `cv_settings`.
+        """
+        dns_settings_profile: str | None
+        """
+        Name of the DNS settings profile to apply to this device.
+        The profile must be defined under
+        `dns_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `dns_settings`.
+        """
+        ntp_settings_profile: str | None
+        """
+        Name of the NTP settings profile to apply to this device.
+        The profile must be defined under
+        `ntp_settings_profiles`.
+        The selected profile settings will be merged over the general
+        `ntp_settings`.
+        """
 
         if TYPE_CHECKING:
 
@@ -18416,6 +20596,7 @@ class EosDesigns(EosDesignsRootModel):
                 inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                 inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                 inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                 inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                 inband_mgmt_description: str | UndefinedType = Undefined,
                 inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -18446,6 +20627,10 @@ class EosDesigns(EosDesignsRootModel):
                 cv_tags_topology_type: str | UndefinedType | None = Undefined,
                 digital_twin: DigitalTwin | UndefinedType = Undefined,
                 validation_profile: str | UndefinedType | None = Undefined,
+                aaa_settings_profile: str | UndefinedType | None = Undefined,
+                cv_settings_profile: str | UndefinedType | None = Undefined,
+                dns_settings_profile: str | UndefinedType | None = Undefined,
+                ntp_settings_profile: str | UndefinedType | None = Undefined,
             ) -> None:
                 """
                 DevicesItem.
@@ -19012,15 +21197,28 @@ class EosDesigns(EosDesignsRootModel):
                        l3leaf A      :
                        <subnet> + 2 (same IP on all l3leaf A)
                        l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                       l2leafs       : <subnet> + 3 + <l2leaf id>
-                       GW on l2leafs : <subnet> + 1
-                       Assign range larger than
-                       total l2leafs + 5
+                       l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                       GW on l2leafs :
+                       <subnet> + 1
+                       Assign range larger than total l2leafs + 5
 
-                       Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                       Setting is ignored if
+                       'inband_mgmt_ipv6_address' is set.
 
-                       This setting is
-                       applicable to L2 switches (switches using L2 trunks as uplinks).
+                       This setting is applicable to L2 switches (switches using L2
+                       trunks as uplinks).
+                    inband_mgmt_ipv6_subnet_offset:
+                       Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                       The assigned
+                       IPv6 address will be computed by adding this offset to the device ID.
+                       Choose an IPv6 subnet large
+                       enough to contain all calculated addresses.
+                       The highest L2 leaf address is:
+                       <subnet> + 3 + <highest
+                       l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                       If the calculated address falls outside the subnet,
+                       address allocation
+                       fails with "address out of range".
                     inband_mgmt_ipv6_gateway:
                        Default gateway configured in the 'inband_mgmt_vrf'.
                        Used when `inband_mgmt_ipv6_address` is set.
@@ -19171,6 +21369,29 @@ class EosDesigns(EosDesignsRootModel):
                        `validation_profiles`.
                        Validation profiles define requirements (e.g., hardware and logging) used by
                        the `anta_runner` role during post-deployment validation.
+                    aaa_settings_profile:
+                       Name of the AAA settings profile to apply to this device.
+                       The profile must be defined under
+                       `aaa_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `aaa_settings`.
+                    cv_settings_profile:
+                       Name of the CloudVision settings profile to apply to this device.
+                       The profile must be defined under
+                       `cv_settings_profiles`.
+                       The selected profile settings will be merged over the general `cv_settings`.
+                    dns_settings_profile:
+                       Name of the DNS settings profile to apply to this device.
+                       The profile must be defined under
+                       `dns_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `dns_settings`.
+                    ntp_settings_profile:
+                       Name of the NTP settings profile to apply to this device.
+                       The profile must be defined under
+                       `ntp_settings_profiles`.
+                       The selected profile settings will be merged over the general
+                       `ntp_settings`.
 
                 """
 
@@ -19184,7 +21405,7 @@ class EosDesigns(EosDesignsRootModel):
     class DigitalTwin(AvdModel):
         """Subclass of AvdModel."""
 
-        Environment: TypeAlias = Literal["act"]
+        Environment: TypeAlias = Literal["act", "containerlab"]
 
         class Fabric(AvdModel):
             """Subclass of AvdModel."""
@@ -19195,6 +21416,10 @@ class EosDesigns(EosDesignsRootModel):
                 "act_password": {"type": str, "default": "cvp123!"},
                 "act_internet_access": {"type": bool, "default": False},
                 "act_ensure_eapi_access": {"type": bool, "default": False},
+                "act_ensure_ssh_access": {"type": bool, "default": False},
+                "serial_number_template": {"type": str},
+                "system_mac_address_template": {"type": str},
+                "ztp": {"type": bool, "default": False},
             }
             act_os_version: str | None
             """OS version for ACT Digital Twin fabric devices."""
@@ -19229,6 +21454,74 @@ class EosDesigns(EosDesignsRootModel):
             Set this to `true` to
             enforce the required EOS configuration, guaranteeing eAPI over HTTPS is always enabled in the
             default VRF and preserving this connectivity.
+            Any IPv4 ACL applied to eAPI in the default VRF is
+            removed. IPv6 ACLs and eAPI configuration for non-default VRFs are preserved.
+
+            Default value: `False`
+            """
+            act_ensure_ssh_access: bool
+            """
+            Ensures SSH remains accessible for automation and testing via ACT.
+            Clients connecting to device SSH
+            through ACT rely on access in the default VRF. If SSH is disabled globally or in the default VRF
+            (takes precedence over global setting), this primary SSH connectivity can be unintentionally broken.
+            Set this to `true` to enforce the required EOS configuration, guaranteeing SSH is enabled in the
+            default VRF and preserving this connectivity.
+            Any IPv4 ACL applied to SSH in the default VRF is
+            removed. IPv6 ACLs and SSH configuration for non-default VRFs are preserved.
+
+            Default value: `False`
+            """
+            serial_number_template: str | None
+            """
+            AVD string formatter template for generating the serial number of ACT Digital Twin devices.
+            When
+            set, the rendered value is written into the device metadata and provided as the serial number in the
+            ACT topology.
+            Can be overridden per device with `digital_twin.serial_number` at node level.
+            Supported template variables: `serial_number` (production serial number), `system_mac_address`
+            (resolved production system MAC address), `hostname`, `device_id`, `fabric_name`.
+            The rendered value
+            should be unique across all devices in the fabric. AVD does not enforce uniqueness automatically.
+            If
+            unset, no serial number is included in the metadata or the ACT topology.
+            Applies only to `veos` and
+            `cloudeos` node types. Ignored for all other ACT node types.
+            Ignored when `digital_twin.environment`
+            is `containerlab`.
+            """
+            system_mac_address_template: str | None
+            """
+            AVD string formatter template for generating the system MAC address of ACT Digital Twin devices.
+            When set, the rendered value is used throughout the device's EOS configuration (e.g., SNMPv3 engine
+            ID), written into the device metadata, and provided as the system MAC address in the ACT topology.
+            Can be overridden per device with `digital_twin.system_mac_address` at node level.
+            Supported
+            template variables: `serial_number` (production serial number), `system_mac_address` (production
+            system MAC address), `hostname`, `device_id`, `fabric_name`.
+            The rendered value must be a unicast
+            MAC address in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a
+            hexadecimal digit). The all-zero address is reserved and not accepted by EOS.
+            Regardless of the
+            input format, the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+            The rendered value should
+            be unique across all devices in the fabric. AVD does not enforce uniqueness automatically.
+            If unset,
+            no system MAC address is included in the metadata or the ACT topology, and the production
+            `system_mac_address` is used for EOS configuration.
+            Applies only to `veos` and `cloudeos` node
+            types. Ignored for all other ACT node types.
+            Ignored when `digital_twin.environment` is
+            `containerlab`.
+            """
+            ztp: bool
+            """
+            Enable ZTP (Zero Touch Provisioning) mode for all Digital Twin devices.
+            Can be overridden by
+            `digital_twin.ztp` at node level.
+            Supported Digital Twin environments:
+            - `act`: Applies only to
+            `veos` and `cloudeos` node types. Ignored for all other node types.
 
             Default value: `False`
             """
@@ -19243,6 +21536,10 @@ class EosDesigns(EosDesignsRootModel):
                     act_password: str | UndefinedType = Undefined,
                     act_internet_access: bool | UndefinedType = Undefined,
                     act_ensure_eapi_access: bool | UndefinedType = Undefined,
+                    act_ensure_ssh_access: bool | UndefinedType = Undefined,
+                    serial_number_template: str | UndefinedType | None = Undefined,
+                    system_mac_address_template: str | UndefinedType | None = Undefined,
+                    ztp: bool | UndefinedType = Undefined,
                 ) -> None:
                     """
                     Fabric.
@@ -19268,6 +21565,62 @@ class EosDesigns(EosDesignsRootModel):
                            Set this to `true` to
                            enforce the required EOS configuration, guaranteeing eAPI over HTTPS is always enabled in the
                            default VRF and preserving this connectivity.
+                           Any IPv4 ACL applied to eAPI in the default VRF is
+                           removed. IPv6 ACLs and eAPI configuration for non-default VRFs are preserved.
+                        act_ensure_ssh_access:
+                           Ensures SSH remains accessible for automation and testing via ACT.
+                           Clients connecting to device SSH
+                           through ACT rely on access in the default VRF. If SSH is disabled globally or in the default VRF
+                           (takes precedence over global setting), this primary SSH connectivity can be unintentionally broken.
+                           Set this to `true` to enforce the required EOS configuration, guaranteeing SSH is enabled in the
+                           default VRF and preserving this connectivity.
+                           Any IPv4 ACL applied to SSH in the default VRF is
+                           removed. IPv6 ACLs and SSH configuration for non-default VRFs are preserved.
+                        serial_number_template:
+                           AVD string formatter template for generating the serial number of ACT Digital Twin devices.
+                           When
+                           set, the rendered value is written into the device metadata and provided as the serial number in the
+                           ACT topology.
+                           Can be overridden per device with `digital_twin.serial_number` at node level.
+                           Supported template variables: `serial_number` (production serial number), `system_mac_address`
+                           (resolved production system MAC address), `hostname`, `device_id`, `fabric_name`.
+                           The rendered value
+                           should be unique across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                           If
+                           unset, no serial number is included in the metadata or the ACT topology.
+                           Applies only to `veos` and
+                           `cloudeos` node types. Ignored for all other ACT node types.
+                           Ignored when `digital_twin.environment`
+                           is `containerlab`.
+                        system_mac_address_template:
+                           AVD string formatter template for generating the system MAC address of ACT Digital Twin devices.
+                           When set, the rendered value is used throughout the device's EOS configuration (e.g., SNMPv3 engine
+                           ID), written into the device metadata, and provided as the system MAC address in the ACT topology.
+                           Can be overridden per device with `digital_twin.system_mac_address` at node level.
+                           Supported
+                           template variables: `serial_number` (production serial number), `system_mac_address` (production
+                           system MAC address), `hostname`, `device_id`, `fabric_name`.
+                           The rendered value must be a unicast
+                           MAC address in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a
+                           hexadecimal digit). The all-zero address is reserved and not accepted by EOS.
+                           Regardless of the
+                           input format, the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                           The rendered value should
+                           be unique across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                           If unset,
+                           no system MAC address is included in the metadata or the ACT topology, and the production
+                           `system_mac_address` is used for EOS configuration.
+                           Applies only to `veos` and `cloudeos` node
+                           types. Ignored for all other ACT node types.
+                           Ignored when `digital_twin.environment` is
+                           `containerlab`.
+                        ztp:
+                           Enable ZTP (Zero Touch Provisioning) mode for all Digital Twin devices.
+                           Can be overridden by
+                           `digital_twin.ztp` at node level.
+                           Supported Digital Twin environments:
+                           - `act`: Applies only to
+                           `veos` and `cloudeos` node types. Ignored for all other node types.
 
                     """
 
@@ -19453,9 +21806,22 @@ class EosDesigns(EosDesignsRootModel):
         Subclass of AvdList with `str` items.
         """
         servers: Servers
-        """Subclass of AvdList with `ServersItem` items."""
+        """
+        List of DNS servers to configure.
+        May be omitted when inherited from a parent DNS settings profile
+        or global `dns_settings`.
+        When the resolved DNS settings are non-empty, at least one server must be
+        configured.
+
+        Subclass of AvdList with `ServersItem` items.
+        """
         vrfs: Vrfs
-        """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+        """
+        Per-VRF DNS lookup source-interface settings.
+
+        Subclass of AvdIndexedList with `VrfsItem` items.
+        Primary key is `name` (`str`).
+        """
         set_source_interfaces: bool
         """
         Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
@@ -19466,6 +21832,7 @@ class EosDesigns(EosDesignsRootModel):
         Default value: `True`
         """
         ip_hosts: EosCliConfigGen.IpHosts
+        """Static hostname-to-IP address mappings to configure in the local host table."""
 
         if TYPE_CHECKING:
 
@@ -19491,16 +21858,255 @@ class EosDesigns(EosDesignsRootModel):
                        Domain names to complete unqualified host names.
 
                        Subclass of AvdList with `str` items.
-                    servers: Subclass of AvdList with `ServersItem` items.
-                    vrfs: Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`).
+                    servers:
+                       List of DNS servers to configure.
+                       May be omitted when inherited from a parent DNS settings profile
+                       or global `dns_settings`.
+                       When the resolved DNS settings are non-empty, at least one server must be
+                       configured.
+
+                       Subclass of AvdList with `ServersItem` items.
+                    vrfs:
+                       Per-VRF DNS lookup source-interface settings.
+
+                       Subclass of AvdIndexedList with `VrfsItem` items.
+                       Primary key is `name` (`str`).
                     set_source_interfaces:
                        Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
                        `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
                        Can be set to `false` to avoid changes when
                        migrating from the old `name_servers` model.
-                    ip_hosts: ip_hosts
+                    ip_hosts: Static hostname-to-IP address mappings to configure in the local host table.
 
                 """
+
+    class DnsSettingsProfilesItem(AvdModel):
+        """Subclass of AvdModel."""
+
+        class DomainList(AvdList[str]):
+            """Subclass of AvdList with `str` items."""
+
+        DomainList._item_type = str
+
+        class ServersItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {"vrf": {"type": str, "default": "use_default_mgmt_method_vrf"}, "ip_address": {"type": str}, "priority": {"type": int}}
+            vrf: str
+            """
+            The value of `vrf` will be interpreted according to these rules:
+            - `use_mgmt_interface_vrf` will
+            configure the DNS server under the VRF set with `mgmt_interface_vrf` and set the `mgmt_interface` as
+            DNS lookup source-interface.
+              An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip` are not
+            configured for the device.
+            - `use_inband_mgmt_vrf` will configure the DNS server under the VRF set
+            with `inband_mgmt_vrf` and set the `inband_mgmt_interface` as DNS lookup source-interface.
+              An
+            error will be raised if inband management is not configured for the device.
+            -
+            `use_default_mgmt_method_vrf` will configure the VRF and source-interface for one of the two options
+            above depending on the value of `default_mgmt_method`.
+            - Any other string will be used directly as
+            the VRF name. Remember to set the `dns_settings.vrfs[].source_interface` if needed.
+
+            Default value: `"use_default_mgmt_method_vrf"`
+            """
+            ip_address: str
+            """IPv4 or IPv6 address for DNS server."""
+            priority: int | None
+            """Priority value (lower is first)."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self, *, vrf: str | UndefinedType = Undefined, ip_address: str | UndefinedType = Undefined, priority: int | UndefinedType | None = Undefined
+                ) -> None:
+                    """
+                    ServersItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        vrf:
+                           The value of `vrf` will be interpreted according to these rules:
+                           - `use_mgmt_interface_vrf` will
+                           configure the DNS server under the VRF set with `mgmt_interface_vrf` and set the `mgmt_interface` as
+                           DNS lookup source-interface.
+                             An error will be raised if `mgmt_ip` or `ipv6_mgmt_ip` are not
+                           configured for the device.
+                           - `use_inband_mgmt_vrf` will configure the DNS server under the VRF set
+                           with `inband_mgmt_vrf` and set the `inband_mgmt_interface` as DNS lookup source-interface.
+                             An
+                           error will be raised if inband management is not configured for the device.
+                           -
+                           `use_default_mgmt_method_vrf` will configure the VRF and source-interface for one of the two options
+                           above depending on the value of `default_mgmt_method`.
+                           - Any other string will be used directly as
+                           the VRF name. Remember to set the `dns_settings.vrfs[].source_interface` if needed.
+                        ip_address: IPv4 or IPv6 address for DNS server.
+                        priority: Priority value (lower is first).
+
+                    """
+
+        class Servers(AvdList[ServersItem]):
+            """Subclass of AvdList with `ServersItem` items."""
+
+        Servers._item_type = ServersItem
+
+        class VrfsItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {"name": {"type": str}, "source_interface": {"type": str}}
+            name: str
+            """VRF name."""
+            source_interface: str | None
+            """
+            Source interface to use for DNS lookups in this VRF.
+            If set for the VRFs defined by
+            `mgmt_interface_vrf` or `inband_mgmt_vrf`, this setting will take precedence.
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(self, *, name: str | UndefinedType = Undefined, source_interface: str | UndefinedType | None = Undefined) -> None:
+                    """
+                    VrfsItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        name: VRF name.
+                        source_interface:
+                           Source interface to use for DNS lookups in this VRF.
+                           If set for the VRFs defined by
+                           `mgmt_interface_vrf` or `inband_mgmt_vrf`, this setting will take precedence.
+
+                    """
+
+        class Vrfs(AvdIndexedList[str, VrfsItem]):
+            """Subclass of AvdIndexedList with `VrfsItem` items. Primary key is `name` (`str`)."""
+
+            _primary_key: ClassVar[str] = "name"
+
+        Vrfs._item_type = VrfsItem
+
+        _fields: ClassVar[dict] = {
+            "profile": {"type": str},
+            "parent_profile": {"type": str},
+            "domain": {"type": str},
+            "domain_list": {"type": DomainList},
+            "servers": {"type": Servers},
+            "vrfs": {"type": Vrfs},
+            "set_source_interfaces": {"type": bool, "default": True},
+            "ip_hosts": {"type": EosCliConfigGen.IpHosts},
+        }
+        profile: str
+        """DNS settings profile name."""
+        parent_profile: str | None
+        """
+        Inherit settings from a parent profile defined under `dns_settings_profiles`.
+        The settings from this
+        profile override settings inherited from the parent profile.
+        """
+        domain: str | None
+        """DNS domain name like 'fabric.local'"""
+        domain_list: DomainList
+        """
+        Domain names to complete unqualified host names.
+
+        Subclass of AvdList with `str` items.
+        """
+        servers: Servers
+        """
+        List of DNS servers to configure.
+        May be omitted when inherited from a parent DNS settings profile
+        or global `dns_settings`.
+        When the resolved DNS settings are non-empty, at least one server must be
+        configured.
+
+        Subclass of AvdList with `ServersItem` items.
+        """
+        vrfs: Vrfs
+        """
+        Per-VRF DNS lookup source-interface settings.
+
+        Subclass of AvdIndexedList with `VrfsItem` items.
+        Primary key is `name` (`str`).
+        """
+        set_source_interfaces: bool
+        """
+        Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
+        `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+        Can be set to `false` to avoid changes when
+        migrating from the old `name_servers` model.
+
+        Default value: `True`
+        """
+        ip_hosts: EosCliConfigGen.IpHosts
+        """Static hostname-to-IP address mappings to configure in the local host table."""
+
+        if TYPE_CHECKING:
+
+            def __init__(
+                self,
+                *,
+                profile: str | UndefinedType = Undefined,
+                parent_profile: str | UndefinedType | None = Undefined,
+                domain: str | UndefinedType | None = Undefined,
+                domain_list: DomainList | UndefinedType = Undefined,
+                servers: Servers | UndefinedType = Undefined,
+                vrfs: Vrfs | UndefinedType = Undefined,
+                set_source_interfaces: bool | UndefinedType = Undefined,
+                ip_hosts: EosCliConfigGen.IpHosts | UndefinedType = Undefined,
+            ) -> None:
+                """
+                DnsSettingsProfilesItem.
+
+
+                Subclass of AvdModel.
+
+                Args:
+                    profile: DNS settings profile name.
+                    parent_profile:
+                       Inherit settings from a parent profile defined under `dns_settings_profiles`.
+                       The settings from this
+                       profile override settings inherited from the parent profile.
+                    domain: DNS domain name like 'fabric.local'
+                    domain_list:
+                       Domain names to complete unqualified host names.
+
+                       Subclass of AvdList with `str` items.
+                    servers:
+                       List of DNS servers to configure.
+                       May be omitted when inherited from a parent DNS settings profile
+                       or global `dns_settings`.
+                       When the resolved DNS settings are non-empty, at least one server must be
+                       configured.
+
+                       Subclass of AvdList with `ServersItem` items.
+                    vrfs:
+                       Per-VRF DNS lookup source-interface settings.
+
+                       Subclass of AvdIndexedList with `VrfsItem` items.
+                       Primary key is `name` (`str`).
+                    set_source_interfaces:
+                       Automatically set source interface when VRF is set to `use_mgmt_interface_vrf`,
+                       `use_inband_mgmt_vrf` or `use_default_mgmt_method_vrf`.
+                       Can be set to `false` to avoid changes when
+                       migrating from the old `name_servers` model.
+                    ip_hosts: Static hostname-to-IP address mappings to configure in the local host table.
+
+                """
+
+    class DnsSettingsProfiles(AvdIndexedList[str, DnsSettingsProfilesItem]):
+        """Subclass of AvdIndexedList with `DnsSettingsProfilesItem` items. Primary key is `profile` (`str`)."""
+
+        _primary_key: ClassVar[str] = "profile"
+
+    DnsSettingsProfiles._item_type = DnsSettingsProfilesItem
 
     class Dot1xSettings(AvdModel):
         """Subclass of AvdModel."""
@@ -19644,13 +22250,19 @@ class EosDesigns(EosDesignsRootModel):
 
             AdditionalGroups._item_type = str
 
-            _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}, "additional_groups": {"type": AdditionalGroups}}
+            _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}, "port": {"type": int}, "additional_groups": {"type": AdditionalGroups}}
             enabled: bool
             """
             Enable RADIUS CoA (Change of Authorization) requests to be received to allow a RADIUS server to
             adjust an active client session.
 
             Default value: `True`
+            """
+            port: int | None
+            """
+            UDP port used for RADIUS dynamic authorization requests.
+            Applied only when
+            `dot1x_settings.dynamic_authorization.enabled` is `true`.
             """
             additional_groups: AdditionalGroups
             """
@@ -19665,7 +22277,13 @@ class EosDesigns(EosDesignsRootModel):
 
             if TYPE_CHECKING:
 
-                def __init__(self, *, enabled: bool | UndefinedType = Undefined, additional_groups: AdditionalGroups | UndefinedType = Undefined) -> None:
+                def __init__(
+                    self,
+                    *,
+                    enabled: bool | UndefinedType = Undefined,
+                    port: int | UndefinedType | None = Undefined,
+                    additional_groups: AdditionalGroups | UndefinedType = Undefined,
+                ) -> None:
                     """
                     DynamicAuthorization.
 
@@ -19676,6 +22294,10 @@ class EosDesigns(EosDesignsRootModel):
                         enabled:
                            Enable RADIUS CoA (Change of Authorization) requests to be received to allow a RADIUS server to
                            adjust an active client session.
+                        port:
+                           UDP port used for RADIUS dynamic authorization requests.
+                           Applied only when
+                           `dot1x_settings.dynamic_authorization.enabled` is `true`.
                         additional_groups:
                            List of additional RADIUS server groups for dynamic authorization purposes only.
                            The order of the
@@ -20203,6 +22825,8 @@ class EosDesigns(EosDesignsRootModel):
         bypass_bpdu: bool
         """
         Allow BPDU packets from unauthenticated hosts/mac to be used for loop detection.
+        Ignored when
+        `feature_support.dot1x_bpdu_bypass` is false in the selected platform settings.
 
         Default value: `True`
         """
@@ -20274,7 +22898,10 @@ class EosDesigns(EosDesignsRootModel):
                        any interface.
                     authentication: Subclass of AvdModel.
                     accounting: Subclass of AvdModel.
-                    bypass_bpdu: Allow BPDU packets from unauthenticated hosts/mac to be used for loop detection.
+                    bypass_bpdu:
+                       Allow BPDU packets from unauthenticated hosts/mac to be used for loop detection.
+                       Ignored when
+                       `feature_support.dot1x_bpdu_bypass` is false in the selected platform settings.
                     bypass_lldp: Allow LLDP packets to be processed even if the port is not authorized.
                     dynamic_authorization: Subclass of AvdModel.
                     mac_based_authentication: Subclass of AvdModel.
@@ -27234,6 +29861,8 @@ class EosDesigns(EosDesignsRootModel):
             "bgp": {"type": Bgp},
             "ipv4_acl_in": {"type": str},
             "ipv4_acl_out": {"type": str},
+            "ipv4_standard_acl_in": {"type": str},
+            "ipv4_standard_acl_out": {"type": str},
             "ipv6_acl_in": {"type": str},
             "ipv6_acl_out": {"type": str},
             "static_routes": {"type": StaticRoutes},
@@ -27354,13 +29983,38 @@ class EosDesigns(EosDesignsRootModel):
         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
         Required
         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-        `wan_carriers`.
+        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+        Mutually exclusive with `ipv4_standard_acl_in`,
+        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
         """
         ipv4_acl_out: str | None
         """
         Name of the IPv4 Access-list to be assigned in the egress direction.
         The access-list must be defined
         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+        Mutually
+        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+        raises an error.
+        """
+        ipv4_standard_acl_in: str | None
+        """
+        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+        The access-list must
+        be defined under `ipv4_standard_acls`.
+        Required for all WAN interfaces (`wan_carrier` is set) unless
+        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+        Mutually exclusive
+        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+        """
+        ipv4_standard_acl_out: str | None
+        """
+        Name of the IPv4 standard access-list to be assigned in the egress direction.
+        The access-list must
+        be defined under `ipv4_standard_acls`.
+        Mutually exclusive with `ipv4_acl_out`, setting both
+        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+        substitution for "interface_ip" or "peer_ip" is required.
         """
         ipv6_acl_in: str | None
         """
@@ -27395,7 +30049,7 @@ class EosDesigns(EosDesignsRootModel):
         This is used to infer the path-groups in which this
         interface should be configured.
         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-        `ipv4_acl_in` is also required on all WAN interfaces.
+        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
         """
         wan_circuit_id: str | None
         """
@@ -27459,6 +30113,8 @@ class EosDesigns(EosDesignsRootModel):
                 bgp: Bgp | UndefinedType = Undefined,
                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -27548,11 +30204,32 @@ class EosDesigns(EosDesignsRootModel):
                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                        Required
                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                       `wan_carriers`.
+                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                       Mutually exclusive with `ipv4_standard_acl_in`,
+                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                     ipv4_acl_out:
                        Name of the IPv4 Access-list to be assigned in the egress direction.
                        The access-list must be defined
                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                       Mutually
+                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                       raises an error.
+                    ipv4_standard_acl_in:
+                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                       The access-list must
+                       be defined under `ipv4_standard_acls`.
+                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                       Mutually exclusive
+                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                    ipv4_standard_acl_out:
+                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                       The access-list must
+                       be defined under `ipv4_standard_acls`.
+                       Mutually exclusive with `ipv4_acl_out`, setting both
+                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                       substitution for "interface_ip" or "peer_ip" is required.
                     ipv6_acl_in:
                        Name of the IPv6 access-list to be assigned in the ingress direction.
                        The access-list must be
@@ -27578,7 +30255,7 @@ class EosDesigns(EosDesignsRootModel):
                        This is used to infer the path-groups in which this
                        interface should be configured.
                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                       `ipv4_acl_in` is also required on all WAN interfaces.
+                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                     wan_circuit_id:
                        The WAN circuit ID for this interface.
                        This is not rendered in the configuration but used for WAN
@@ -28161,6 +30838,8 @@ class EosDesigns(EosDesignsRootModel):
     class MgmtInterfaceSettings(AvdModel):
         """Subclass of AvdModel."""
 
+        Shutdown: TypeAlias = Literal["true", "false", "auto"]
+
         class Lldp(AvdModel):
             """Subclass of AvdModel."""
 
@@ -28199,6 +30878,7 @@ class EosDesigns(EosDesignsRootModel):
             "vrf": {"type": str, "default": "MGMT"},
             "vrf_routing": {"type": bool, "default": False},
             "interface": {"type": str, "default": "Management1"},
+            "shutdown": {"type": str, "default": "false"},
             "lldp": {"type": Lldp},
         }
         description: str
@@ -28225,6 +30905,22 @@ class EosDesigns(EosDesignsRootModel):
 
         Default value: `"Management1"`
         """
+        shutdown: Shutdown
+        """
+        Control the management interface shutdown state.
+        - "true": Always shut down the interface, even when
+        management addressing is configured.
+        - "false": Configure "no shutdown" when management addressing
+        is configured; otherwise, generate no interface configuration.
+        - "auto": Configure "no shutdown"
+        when management addressing is configured; otherwise, shut down the interface.
+        Management addressing
+        is determined by node `mgmt_ip` or `ipv6_mgmt_ip`, including DHCP and SLAAC.
+        When shutting down an
+        interface without node management addressing, only its name and shutdown state are configured.
+
+        Default value: `"false"`
+        """
         lldp: Lldp
         """
         LLDP settings for the management interface.
@@ -28241,6 +30937,7 @@ class EosDesigns(EosDesignsRootModel):
                 vrf: str | UndefinedType = Undefined,
                 vrf_routing: bool | UndefinedType = Undefined,
                 interface: str | UndefinedType = Undefined,
+                shutdown: Shutdown | UndefinedType = Undefined,
                 lldp: Lldp | UndefinedType = Undefined,
             ) -> None:
                 """
@@ -28254,6 +30951,18 @@ class EosDesigns(EosDesignsRootModel):
                     vrf: VRF name used for the management interface.
                     vrf_routing: Enable IP routing in the management VRF.
                     interface: Name of the management interface (e.g. Management0, Management1).
+                    shutdown:
+                       Control the management interface shutdown state.
+                       - "true": Always shut down the interface, even when
+                       management addressing is configured.
+                       - "false": Configure "no shutdown" when management addressing
+                       is configured; otherwise, generate no interface configuration.
+                       - "auto": Configure "no shutdown"
+                       when management addressing is configured; otherwise, shut down the interface.
+                       Management addressing
+                       is determined by node `mgmt_ip` or `ipv6_mgmt_ip`, including DHCP and SLAAC.
+                       When shutting down an
+                       interface without node management addressing, only its name and shutdown state are configured.
                     lldp:
                        LLDP settings for the management interface.
 
@@ -31550,6 +34259,7 @@ class EosDesigns(EosDesignsRootModel):
                 "description": {"type": str},
                 "shutdown": {"type": bool},
                 "as_path": {"type": AsPath},
+                "received_attribute_discard": {"type": EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard},
                 "remove_private_as": {"type": RemovePrivateAs},
                 "remove_private_as_ingress": {"type": RemovePrivateAsIngress},
                 "next_hop_unchanged": {"type": bool},
@@ -31644,6 +34354,8 @@ class EosDesigns(EosDesignsRootModel):
 
             Subclass of AvdModel.
             """
+            received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard
+            """Received path attribute configuration."""
             remove_private_as: RemovePrivateAs
             """
             Remove private AS numbers in outbound AS path.
@@ -31743,6 +34455,7 @@ class EosDesigns(EosDesignsRootModel):
                     description: str | UndefinedType | None = Undefined,
                     shutdown: bool | UndefinedType | None = Undefined,
                     as_path: AsPath | UndefinedType = Undefined,
+                    received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard | UndefinedType = Undefined,
                     remove_private_as: RemovePrivateAs | UndefinedType = Undefined,
                     remove_private_as_ingress: RemovePrivateAsIngress | UndefinedType = Undefined,
                     next_hop_unchanged: bool | UndefinedType | None = Undefined,
@@ -31826,6 +34539,7 @@ class EosDesigns(EosDesignsRootModel):
                            BGP AS-PATH options.
 
                            Subclass of AvdModel.
+                        received_attribute_discard: Received path attribute configuration.
                         remove_private_as:
                            Remove private AS numbers in outbound AS path.
 
@@ -32828,6 +35542,130 @@ class EosDesigns(EosDesignsRootModel):
                             structured_config:
                                Custom structured config added under router_ospf.process_ids.[process_id=<process_id>] for the EOS
                                Config schema.
+
+                        """
+
+            class Ospfv3(AvdModel):
+                """Subclass of AvdModel."""
+
+                class RedistributeBgp(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}}
+                    enabled: bool
+                    """
+                    Redistribute BGP into OSPFv3.
+                    Ignored on devices where BGP is not configured for this VRF.
+
+                    Default value: `True`
+                    """
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                            """
+                            RedistributeBgp.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled:
+                                   Redistribute BGP into OSPFv3.
+                                   Ignored on devices where BGP is not configured for this VRF.
+
+                            """
+
+                class RedistributeConnected(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": False}}
+                    enabled: bool
+                    """
+                    Redistribute connected routes into OSPFv3.
+
+                    Default value: `False`
+                    """
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                            """
+                            RedistributeConnected.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: Redistribute connected routes into OSPFv3.
+
+                            """
+
+                _fields: ClassVar[dict] = {
+                    "router_id": {"type": str, "default": "main_router_id"},
+                    "redistribute_bgp": {"type": RedistributeBgp},
+                    "redistribute_connected": {"type": RedistributeConnected},
+                    "structured_config": {"type": EosCliConfigGen.RouterOspfv3.VrfsItem},
+                }
+                router_id: str
+                """
+                Router ID to use for OSPFv3 in this VRF.
+                This can be an IPv4 address, "main_router_id", "none" or
+                "diagnostic_loopback".
+                - "main_router_id" will use the IP address of Loopback0 or the common `router
+                general` Router ID if `use_router_general_for_router_id` is set.
+                - "none" will not configure an
+                OSPFv3 Router ID for this VRF.
+                  EOS then uses the `router general` Router ID or an IPv4 address of
+                an interface in the VRF.
+                  If neither exists, for example in an IPv6-only VRF, the OSPFv3 instance
+                does not start.
+                - "diagnostic_loopback" will use the IP address of the VRF Diagnostic Loopback
+                interface.
+
+                Default value: `"main_router_id"`
+                """
+                redistribute_bgp: RedistributeBgp
+                """Subclass of AvdModel."""
+                redistribute_connected: RedistributeConnected
+                """Subclass of AvdModel."""
+                structured_config: EosCliConfigGen.RouterOspfv3.VrfsItem
+                """Custom structured config added under router_ospfv3.vrfs.[name=<vrf>] for the EOS Config schema."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        router_id: str | UndefinedType = Undefined,
+                        redistribute_bgp: RedistributeBgp | UndefinedType = Undefined,
+                        redistribute_connected: RedistributeConnected | UndefinedType = Undefined,
+                        structured_config: EosCliConfigGen.RouterOspfv3.VrfsItem | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        Ospfv3.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            router_id:
+                               Router ID to use for OSPFv3 in this VRF.
+                               This can be an IPv4 address, "main_router_id", "none" or
+                               "diagnostic_loopback".
+                               - "main_router_id" will use the IP address of Loopback0 or the common `router
+                               general` Router ID if `use_router_general_for_router_id` is set.
+                               - "none" will not configure an
+                               OSPFv3 Router ID for this VRF.
+                                 EOS then uses the `router general` Router ID or an IPv4 address of
+                               an interface in the VRF.
+                                 If neither exists, for example in an IPv6-only VRF, the OSPFv3 instance
+                               does not start.
+                               - "diagnostic_loopback" will use the IP address of the VRF Diagnostic Loopback
+                               interface.
+                            redistribute_bgp: Subclass of AvdModel.
+                            redistribute_connected: Subclass of AvdModel.
+                            structured_config: Custom structured config added under router_ospfv3.vrfs.[name=<vrf>] for the EOS Config schema.
 
                         """
 
@@ -33892,6 +36730,101 @@ class EosDesigns(EosDesignsRootModel):
 
                                 """
 
+                    class Ospfv3(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class Ipv4(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                            enabled: bool | None
+                            """
+                            Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                            The
+                            IPv4 address family is not supported yet, so `true` raises an error.
+                            An SVI with IPv4 addressing
+                            also raises an error unless this is set to `false`.
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                                    """
+                                    Ipv4.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled:
+                                           Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                           The
+                                           IPv4 address family is not supported yet, so `true` raises an error.
+                                           An SVI with IPv4 addressing
+                                           also raises an error unless this is set to `false`.
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "enabled": {"type": bool},
+                            "area": {"type": str, "default": "0.0.0.0"},
+                            "point_to_point": {"type": bool, "default": False},
+                            "passive": {"type": bool, "default": False},
+                            "ipv4": {"type": Ipv4},
+                        }
+                        enabled: bool | None
+                        area: str
+                        """
+                        OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+                        Default value: `"0.0.0.0"`
+                        """
+                        point_to_point: bool
+                        """
+                        Configure the OSPFv3 network type as point-to-point.
+
+                        Default value: `False`
+                        """
+                        passive: bool
+                        """
+                        Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                        By default, OSPFv3-enabled SVIs
+                        are configured with `no ospfv3 passive-interface`.
+
+                        Default value: `False`
+                        """
+                        ipv4: Ipv4
+                        """Subclass of AvdModel."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                enabled: bool | UndefinedType | None = Undefined,
+                                area: str | UndefinedType = Undefined,
+                                point_to_point: bool | UndefinedType = Undefined,
+                                passive: bool | UndefinedType = Undefined,
+                                ipv4: Ipv4 | UndefinedType = Undefined,
+                            ) -> None:
+                                """
+                                Ospfv3.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: enabled
+                                    area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                                    point_to_point: Configure the OSPFv3 network type as point-to-point.
+                                    passive:
+                                       Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                                       By default, OSPFv3-enabled SVIs
+                                       are configured with `no ospfv3 passive-interface`.
+                                    ipv4: Subclass of AvdModel.
+
+                                """
+
                     class Bgp(AvdModel):
                         """Subclass of AvdModel."""
 
@@ -33951,6 +36884,8 @@ class EosDesigns(EosDesignsRootModel):
                         "ipv4_acl_out": {"type": str},
                         "ipv6_acl_in": {"type": str},
                         "ipv6_acl_out": {"type": str},
+                        "ipv4_standard_acl_in": {"type": str},
+                        "ipv4_standard_acl_out": {"type": str},
                         "ip_helpers": {"type": IpHelpers},
                         "static_routes": {"type": StaticRoutes},
                         "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -33969,6 +36904,7 @@ class EosDesigns(EosDesignsRootModel):
                         "spanning_tree_priority": {"type": int},
                         "mtu": {"type": int},
                         "ospf": {"type": Ospf},
+                        "ospfv3": {"type": Ospfv3},
                         "bgp": {"type": Bgp},
                         "raw_eos_cli": {"type": str},
                         "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -34067,12 +37003,16 @@ class EosDesigns(EosDesignsRootModel):
                     Name of the IPv4 access-list to be assigned in the ingress direction.
                     The access-list must be
                     defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                    Mutually exclusive
+                    with `ipv4_standard_acl_in`. Setting both raises an error.
                     """
                     ipv4_acl_out: str | None
                     """
                     Name of the IPv4 Access-list to be assigned in the egress direction.
                     The access-list must be defined
                     under `ipv4_acls` and supports substitution of the field "interface_ip".
+                    Mutually exclusive with
+                    `ipv4_standard_acl_out`. Setting both raises an error.
                     """
                     ipv6_acl_in: str | None
                     """
@@ -34093,6 +37033,22 @@ class EosDesigns(EosDesignsRootModel):
                     `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                     Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                     removed in AVD 7.0.0.
+                    """
+                    ipv4_standard_acl_in: str | None
+                    """
+                    Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                    The access-list must
+                    be defined under `ipv4_standard_acls`.
+                    Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                    instead when field substitution for "interface_ip" is required, setting both raises an error.
+                    """
+                    ipv4_standard_acl_out: str | None
+                    """
+                    Name of the IPv4 standard access-list to be assigned in the egress direction.
+                    The access-list must
+                    be defined under `ipv4_standard_acls`.
+                    Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                    instead when field substitution for "interface_ip" is required, setting both raises an error.
                     """
                     ip_helpers: IpHelpers
                     """
@@ -34207,6 +37163,26 @@ class EosDesigns(EosDesignsRootModel):
 
                     Subclass of AvdModel.
                     """
+                    ospfv3: Ospfv3
+                    """
+                    OSPFv3 interface configuration.
+                    Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                    configuration for the VRF of the SVI on the device.
+                    Only the IPv6 address family is currently
+                    supported.
+                    SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                    OSPFv3 uses the IPv6
+                    link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                    `ipv6_address` (`ipv6_enable: false` is not supported).
+                    Anycast IPv6 (`ipv6_address_virtuals`) is
+                    not supported.
+                    SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                    VRF
+                    `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                    Subclass of
+                    AvdModel.
+                    """
                     bgp: Bgp
                     """Subclass of AvdModel."""
                     raw_eos_cli: str | None
@@ -34251,6 +37227,8 @@ class EosDesigns(EosDesignsRootModel):
                             ipv4_acl_out: str | UndefinedType | None = Undefined,
                             ipv6_acl_in: str | UndefinedType | None = Undefined,
                             ipv6_acl_out: str | UndefinedType | None = Undefined,
+                            ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                            ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                             ip_helpers: IpHelpers | UndefinedType = Undefined,
                             static_routes: StaticRoutes | UndefinedType = Undefined,
                             ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -34269,6 +37247,7 @@ class EosDesigns(EosDesignsRootModel):
                             spanning_tree_priority: int | UndefinedType | None = Undefined,
                             mtu: int | UndefinedType | None = Undefined,
                             ospf: Ospf | UndefinedType = Undefined,
+                            ospfv3: Ospfv3 | UndefinedType = Undefined,
                             bgp: Bgp | UndefinedType = Undefined,
                             raw_eos_cli: str | UndefinedType | None = Undefined,
                             structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -34342,10 +37321,14 @@ class EosDesigns(EosDesignsRootModel):
                                    Name of the IPv4 access-list to be assigned in the ingress direction.
                                    The access-list must be
                                    defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                   Mutually exclusive
+                                   with `ipv4_standard_acl_in`. Setting both raises an error.
                                 ipv4_acl_out:
                                    Name of the IPv4 Access-list to be assigned in the egress direction.
                                    The access-list must be defined
                                    under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                   Mutually exclusive with
+                                   `ipv4_standard_acl_out`. Setting both raises an error.
                                 ipv6_acl_in:
                                    Name of the IPv6 access-list to be assigned in the ingress direction.
                                    The access-list must be
@@ -34362,6 +37345,18 @@ class EosDesigns(EosDesignsRootModel):
                                    `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                                    Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                                    removed in AVD 7.0.0.
+                                ipv4_standard_acl_in:
+                                   Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                   The access-list must
+                                   be defined under `ipv4_standard_acls`.
+                                   Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                                   instead when field substitution for "interface_ip" is required, setting both raises an error.
+                                ipv4_standard_acl_out:
+                                   Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                   The access-list must
+                                   be defined under `ipv4_standard_acls`.
+                                   Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                                   instead when field substitution for "interface_ip" is required, setting both raises an error.
                                 ip_helpers:
                                    IP helper for DHCP relay.
 
@@ -34439,6 +37434,24 @@ class EosDesigns(EosDesignsRootModel):
                                    OSPF interface configuration.
 
                                    Subclass of AvdModel.
+                                ospfv3:
+                                   OSPFv3 interface configuration.
+                                   Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                                   configuration for the VRF of the SVI on the device.
+                                   Only the IPv6 address family is currently
+                                   supported.
+                                   SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                                   OSPFv3 uses the IPv6
+                                   link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                                   `ipv6_address` (`ipv6_enable: false` is not supported).
+                                   Anycast IPv6 (`ipv6_address_virtuals`) is
+                                   not supported.
+                                   SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                                   VRF
+                                   `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                                   Subclass of
+                                   AvdModel.
                                 bgp: Subclass of AvdModel.
                                 raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                                 structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -35322,6 +38335,101 @@ class EosDesigns(EosDesignsRootModel):
 
                             """
 
+                class Ospfv3(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    class Ipv4(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                        enabled: bool | None
+                        """
+                        Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                        The
+                        IPv4 address family is not supported yet, so `true` raises an error.
+                        An SVI with IPv4 addressing
+                        also raises an error unless this is set to `false`.
+                        """
+
+                        if TYPE_CHECKING:
+
+                            def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                                """
+                                Ipv4.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled:
+                                       Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                       The
+                                       IPv4 address family is not supported yet, so `true` raises an error.
+                                       An SVI with IPv4 addressing
+                                       also raises an error unless this is set to `false`.
+
+                                """
+
+                    _fields: ClassVar[dict] = {
+                        "enabled": {"type": bool},
+                        "area": {"type": str, "default": "0.0.0.0"},
+                        "point_to_point": {"type": bool, "default": False},
+                        "passive": {"type": bool, "default": False},
+                        "ipv4": {"type": Ipv4},
+                    }
+                    enabled: bool | None
+                    area: str
+                    """
+                    OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+                    Default value: `"0.0.0.0"`
+                    """
+                    point_to_point: bool
+                    """
+                    Configure the OSPFv3 network type as point-to-point.
+
+                    Default value: `False`
+                    """
+                    passive: bool
+                    """
+                    Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                    By default, OSPFv3-enabled SVIs
+                    are configured with `no ospfv3 passive-interface`.
+
+                    Default value: `False`
+                    """
+                    ipv4: Ipv4
+                    """Subclass of AvdModel."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            enabled: bool | UndefinedType | None = Undefined,
+                            area: str | UndefinedType = Undefined,
+                            point_to_point: bool | UndefinedType = Undefined,
+                            passive: bool | UndefinedType = Undefined,
+                            ipv4: Ipv4 | UndefinedType = Undefined,
+                        ) -> None:
+                            """
+                            Ospfv3.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled: enabled
+                                area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                                point_to_point: Configure the OSPFv3 network type as point-to-point.
+                                passive:
+                                   Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                                   By default, OSPFv3-enabled SVIs
+                                   are configured with `no ospfv3 passive-interface`.
+                                ipv4: Subclass of AvdModel.
+
+                            """
+
                 class Bgp(AvdModel):
                     """Subclass of AvdModel."""
 
@@ -35385,6 +38493,8 @@ class EosDesigns(EosDesignsRootModel):
                     "ipv4_acl_out": {"type": str},
                     "ipv6_acl_in": {"type": str},
                     "ipv6_acl_out": {"type": str},
+                    "ipv4_standard_acl_in": {"type": str},
+                    "ipv4_standard_acl_out": {"type": str},
                     "ip_helpers": {"type": IpHelpers},
                     "static_routes": {"type": StaticRoutes},
                     "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -35403,6 +38513,7 @@ class EosDesigns(EosDesignsRootModel):
                     "spanning_tree_priority": {"type": int},
                     "mtu": {"type": int},
                     "ospf": {"type": Ospf},
+                    "ospfv3": {"type": Ospfv3},
                     "bgp": {"type": Bgp},
                     "raw_eos_cli": {"type": str},
                     "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -35535,12 +38646,16 @@ class EosDesigns(EosDesignsRootModel):
                 Name of the IPv4 access-list to be assigned in the ingress direction.
                 The access-list must be
                 defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                Mutually exclusive
+                with `ipv4_standard_acl_in`. Setting both raises an error.
                 """
                 ipv4_acl_out: str | None
                 """
                 Name of the IPv4 Access-list to be assigned in the egress direction.
                 The access-list must be defined
                 under `ipv4_acls` and supports substitution of the field "interface_ip".
+                Mutually exclusive with
+                `ipv4_standard_acl_out`. Setting both raises an error.
                 """
                 ipv6_acl_in: str | None
                 """
@@ -35561,6 +38676,22 @@ class EosDesigns(EosDesignsRootModel):
                 `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                 Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                 removed in AVD 7.0.0.
+                """
+                ipv4_standard_acl_in: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                instead when field substitution for "interface_ip" is required, setting both raises an error.
+                """
+                ipv4_standard_acl_out: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the egress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                instead when field substitution for "interface_ip" is required, setting both raises an error.
                 """
                 ip_helpers: IpHelpers
                 """
@@ -35675,6 +38806,26 @@ class EosDesigns(EosDesignsRootModel):
 
                 Subclass of AvdModel.
                 """
+                ospfv3: Ospfv3
+                """
+                OSPFv3 interface configuration.
+                Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                configuration for the VRF of the SVI on the device.
+                Only the IPv6 address family is currently
+                supported.
+                SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                OSPFv3 uses the IPv6
+                link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                `ipv6_address` (`ipv6_enable: false` is not supported).
+                Anycast IPv6 (`ipv6_address_virtuals`) is
+                not supported.
+                SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                VRF
+                `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                Subclass of
+                AvdModel.
+                """
                 bgp: Bgp
                 """Subclass of AvdModel."""
                 raw_eos_cli: str | None
@@ -35723,6 +38874,8 @@ class EosDesigns(EosDesignsRootModel):
                         ipv4_acl_out: str | UndefinedType | None = Undefined,
                         ipv6_acl_in: str | UndefinedType | None = Undefined,
                         ipv6_acl_out: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                         ip_helpers: IpHelpers | UndefinedType = Undefined,
                         static_routes: StaticRoutes | UndefinedType = Undefined,
                         ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -35741,6 +38894,7 @@ class EosDesigns(EosDesignsRootModel):
                         spanning_tree_priority: int | UndefinedType | None = Undefined,
                         mtu: int | UndefinedType | None = Undefined,
                         ospf: Ospf | UndefinedType = Undefined,
+                        ospfv3: Ospfv3 | UndefinedType = Undefined,
                         bgp: Bgp | UndefinedType = Undefined,
                         raw_eos_cli: str | UndefinedType | None = Undefined,
                         structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -35840,10 +38994,14 @@ class EosDesigns(EosDesignsRootModel):
                                Name of the IPv4 access-list to be assigned in the ingress direction.
                                The access-list must be
                                defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                               Mutually exclusive
+                               with `ipv4_standard_acl_in`. Setting both raises an error.
                             ipv4_acl_out:
                                Name of the IPv4 Access-list to be assigned in the egress direction.
                                The access-list must be defined
                                under `ipv4_acls` and supports substitution of the field "interface_ip".
+                               Mutually exclusive with
+                               `ipv4_standard_acl_out`. Setting both raises an error.
                             ipv6_acl_in:
                                Name of the IPv6 access-list to be assigned in the ingress direction.
                                The access-list must be
@@ -35860,6 +39018,18 @@ class EosDesigns(EosDesignsRootModel):
                                `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                                Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                                removed in AVD 7.0.0.
+                            ipv4_standard_acl_in:
+                               Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                               instead when field substitution for "interface_ip" is required, setting both raises an error.
+                            ipv4_standard_acl_out:
+                               Name of the IPv4 standard access-list to be assigned in the egress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                               instead when field substitution for "interface_ip" is required, setting both raises an error.
                             ip_helpers:
                                IP helper for DHCP relay.
 
@@ -35937,6 +39107,24 @@ class EosDesigns(EosDesignsRootModel):
                                OSPF interface configuration.
 
                                Subclass of AvdModel.
+                            ospfv3:
+                               OSPFv3 interface configuration.
+                               Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                               configuration for the VRF of the SVI on the device.
+                               Only the IPv6 address family is currently
+                               supported.
+                               SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                               OSPFv3 uses the IPv6
+                               link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                               `ipv6_address` (`ipv6_enable: false` is not supported).
+                               Anycast IPv6 (`ipv6_address_virtuals`) is
+                               not supported.
+                               SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                               VRF
+                               `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                               Subclass of
+                               AvdModel.
                             bgp: Subclass of AvdModel.
                             raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                             structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -36580,6 +39768,8 @@ class EosDesigns(EosDesignsRootModel):
                     "mtu": {"type": int},
                     "ipv4_acl_in": {"type": str},
                     "ipv4_acl_out": {"type": str},
+                    "ipv4_standard_acl_in": {"type": str},
+                    "ipv4_standard_acl_out": {"type": str},
                     "ipv6_acl_in": {"type": str},
                     "ipv6_acl_out": {"type": str},
                     "ospf": {"type": Ospf},
@@ -36640,7 +39830,39 @@ class EosDesigns(EosDesignsRootModel):
                 """Default value: `True`"""
                 mtu: int | None
                 ipv4_acl_in: str | None
+                """
+                Name of the IPv4 access-list to be assigned in the ingress direction.
+                The access-list must be
+                defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                Mutually exclusive
+                with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                """
                 ipv4_acl_out: str | None
+                """
+                Name of the IPv4 access-list to be assigned in the egress direction.
+                The access-list must be defined
+                under `ipv4_acls` and supports field substitution for "interface_ip".
+                Mutually exclusive with
+                `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                """
+                ipv4_standard_acl_in: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_in`, setting both
+                `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                substitution for "interface_ip" is required.
+                """
+                ipv4_standard_acl_out: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the egress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_out`, setting both
+                `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                substitution for "interface_ip" is required.
+                """
                 ipv6_acl_in: str | None
                 """
                 Name of the IPv6 access-list to be assigned in the ingress direction.
@@ -36734,6 +39956,8 @@ class EosDesigns(EosDesignsRootModel):
                         mtu: int | UndefinedType | None = Undefined,
                         ipv4_acl_in: str | UndefinedType | None = Undefined,
                         ipv4_acl_out: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                         ipv6_acl_in: str | UndefinedType | None = Undefined,
                         ipv6_acl_out: str | UndefinedType | None = Undefined,
                         ospf: Ospf | UndefinedType = Undefined,
@@ -36785,8 +40009,32 @@ class EosDesigns(EosDesignsRootModel):
                                Subclass of AvdList with `str` items.
                             enabled: enabled
                             mtu: mtu
-                            ipv4_acl_in: ipv4_acl_in
-                            ipv4_acl_out: ipv4_acl_out
+                            ipv4_acl_in:
+                               Name of the IPv4 access-list to be assigned in the ingress direction.
+                               The access-list must be
+                               defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                               Mutually exclusive
+                               with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                            ipv4_acl_out:
+                               Name of the IPv4 access-list to be assigned in the egress direction.
+                               The access-list must be defined
+                               under `ipv4_acls` and supports field substitution for "interface_ip".
+                               Mutually exclusive with
+                               `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                            ipv4_standard_acl_in:
+                               Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_in`, setting both
+                               `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                               substitution for "interface_ip" is required.
+                            ipv4_standard_acl_out:
+                               Name of the IPv4 standard access-list to be assigned in the egress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_out`, setting both
+                               `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                               substitution for "interface_ip" is required.
                             ipv6_acl_in:
                                Name of the IPv6 access-list to be assigned in the ingress direction.
                                The access-list must be
@@ -37344,6 +40592,8 @@ class EosDesigns(EosDesignsRootModel):
                     "mtu": {"type": int},
                     "ipv4_acl_in": {"type": str},
                     "ipv4_acl_out": {"type": str},
+                    "ipv4_standard_acl_in": {"type": str},
+                    "ipv4_standard_acl_out": {"type": str},
                     "ipv6_acl_in": {"type": str},
                     "ipv6_acl_out": {"type": str},
                     "static_routes": {"type": StaticRoutes},
@@ -37414,9 +40664,39 @@ class EosDesigns(EosDesignsRootModel):
                 mtu: int | None
                 """MTU can only be set on the parent Port-Channel."""
                 ipv4_acl_in: str | None
-                """Name of the IPv4 access-list to be assigned in the ingress direction."""
+                """
+                Name of the IPv4 access-list to be assigned in the ingress direction.
+                The access-list must be
+                defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                Mutually exclusive
+                with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                """
                 ipv4_acl_out: str | None
-                """Name of the IPv4 Access-list to be assigned in the egress direction."""
+                """
+                Name of the IPv4 Access-list to be assigned in the egress direction.
+                The access-list must be defined
+                under `ipv4_acls` and supports field substitution for "interface_ip".
+                Mutually exclusive with
+                `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                """
+                ipv4_standard_acl_in: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_in`, setting both
+                `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                substitution for "interface_ip" is required.
+                """
+                ipv4_standard_acl_out: str | None
+                """
+                Name of the IPv4 standard access-list to be assigned in the egress direction.
+                The access-list must
+                be defined under `ipv4_standard_acls`.
+                Mutually exclusive with `ipv4_acl_out`, setting both
+                `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                substitution for "interface_ip" is required.
+                """
                 ipv6_acl_in: str | None
                 """
                 Name of the IPv6 access-list to be assigned in the ingress direction.
@@ -37489,6 +40769,8 @@ class EosDesigns(EosDesignsRootModel):
                         mtu: int | UndefinedType | None = Undefined,
                         ipv4_acl_in: str | UndefinedType | None = Undefined,
                         ipv4_acl_out: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                        ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                         ipv6_acl_in: str | UndefinedType | None = Undefined,
                         ipv6_acl_out: str | UndefinedType | None = Undefined,
                         static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -37539,8 +40821,32 @@ class EosDesigns(EosDesignsRootModel):
                             peer: The peer device name. Used for description and documentation.
                             peer_port_channel: The peer device port-channel interface. Used for description and documentation.
                             mtu: MTU can only be set on the parent Port-Channel.
-                            ipv4_acl_in: Name of the IPv4 access-list to be assigned in the ingress direction.
-                            ipv4_acl_out: Name of the IPv4 Access-list to be assigned in the egress direction.
+                            ipv4_acl_in:
+                               Name of the IPv4 access-list to be assigned in the ingress direction.
+                               The access-list must be
+                               defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                               Mutually exclusive
+                               with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                            ipv4_acl_out:
+                               Name of the IPv4 Access-list to be assigned in the egress direction.
+                               The access-list must be defined
+                               under `ipv4_acls` and supports field substitution for "interface_ip".
+                               Mutually exclusive with
+                               `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                            ipv4_standard_acl_in:
+                               Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_in`, setting both
+                               `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                               substitution for "interface_ip" is required.
+                            ipv4_standard_acl_out:
+                               Name of the IPv4 standard access-list to be assigned in the egress direction.
+                               The access-list must
+                               be defined under `ipv4_standard_acls`.
+                               Mutually exclusive with `ipv4_acl_out`, setting both
+                               `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                               substitution for "interface_ip" is required.
                             ipv6_acl_in:
                                Name of the IPv6 access-list to be assigned in the ingress direction.
                                The access-list must be
@@ -37587,6 +40893,11 @@ class EosDesigns(EosDesignsRootModel):
             class LoopbacksItem(AvdModel):
                 """Subclass of AvdModel."""
 
+                class Ipv6Addresses(AvdList[str]):
+                    """Subclass of AvdList with `str` items."""
+
+                Ipv6Addresses._item_type = str
+
                 class Ospf(AvdModel):
                     """Subclass of AvdModel."""
 
@@ -37619,6 +40930,7 @@ class EosDesigns(EosDesignsRootModel):
                     "node": {"type": str},
                     "loopback": {"type": int},
                     "ip_address": {"type": str},
+                    "ipv6_addresses": {"type": Ipv6Addresses},
                     "description": {"type": str},
                     "enabled": {"type": bool, "default": True},
                     "ospf": {"type": Ospf},
@@ -37627,13 +40939,25 @@ class EosDesigns(EosDesignsRootModel):
                 }
                 node: str
                 loopback: int
-                ip_address: str
+                ip_address: str | None
+                """IPv4 address/Mask."""
+                ipv6_addresses: Ipv6Addresses
+                """
+                IPv6 addresses with prefix length, e.g., '2001:db8::1/64'.
+                At least one of `ip_address` or
+                `ipv6_addresses` must be set.
+                The first address in this list is used for the IPv6 virtual source-nat
+                of the VRF, unless the VTEP diagnostic loopback or an earlier loopback in the VRF already sets it.
+                Subclass of AvdList with `str` items.
+                """
                 description: str | None
                 enabled: bool
                 """Default value: `True`"""
                 ospf: Ospf
                 """
-                OSPF interface configuration.
+                OSPFv2 interface configuration.
+                Requires `ip_address` to be set when OSPF is enabled on both the VRF
+                and this loopback.
 
                 Subclass of AvdModel.
                 """
@@ -37652,7 +40976,8 @@ class EosDesigns(EosDesignsRootModel):
                         *,
                         node: str | UndefinedType = Undefined,
                         loopback: int | UndefinedType = Undefined,
-                        ip_address: str | UndefinedType = Undefined,
+                        ip_address: str | UndefinedType | None = Undefined,
+                        ipv6_addresses: Ipv6Addresses | UndefinedType = Undefined,
                         description: str | UndefinedType | None = Undefined,
                         enabled: bool | UndefinedType = Undefined,
                         ospf: Ospf | UndefinedType = Undefined,
@@ -37668,11 +40993,20 @@ class EosDesigns(EosDesignsRootModel):
                         Args:
                             node: node
                             loopback: loopback
-                            ip_address: ip_address
+                            ip_address: IPv4 address/Mask.
+                            ipv6_addresses:
+                               IPv6 addresses with prefix length, e.g., '2001:db8::1/64'.
+                               At least one of `ip_address` or
+                               `ipv6_addresses` must be set.
+                               The first address in this list is used for the IPv6 virtual source-nat
+                               of the VRF, unless the VTEP diagnostic loopback or an earlier loopback in the VRF already sets it.
+                               Subclass of AvdList with `str` items.
                             description: description
                             enabled: enabled
                             ospf:
-                               OSPF interface configuration.
+                               OSPFv2 interface configuration.
+                               Requires `ip_address` to be set when OSPF is enabled on both the VRF
+                               and this loopback.
 
                                Subclass of AvdModel.
                             hardware_forwarding:
@@ -38173,10 +41507,212 @@ class EosDesigns(EosDesignsRootModel):
 
                             """
 
+                class RedistributeOspfv3(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    class Internal(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}}
+                        enabled: bool
+                        """
+                        Redistribute OSPFv3 internal routes into BGP.
+
+                        Default value: `True`
+                        """
+
+                        if TYPE_CHECKING:
+
+                            def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                                """
+                                Internal.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: Redistribute OSPFv3 internal routes into BGP.
+
+                                """
+
+                    _fields: ClassVar[dict] = {"internal": {"type": Internal}}
+                    internal: Internal
+                    """Subclass of AvdModel."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, internal: Internal | UndefinedType = Undefined) -> None:
+                            """
+                            RedistributeOspfv3.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                internal: Subclass of AvdModel.
+
+                            """
+
+                class RedistributeOspf(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    class Internal(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}, "include_leaked": {"type": bool}, "route_map": {"type": str}}
+                        enabled: bool
+                        """
+                        Redistribute OSPF internal routes into BGP.
+
+                        Default value: `True`
+                        """
+                        include_leaked: bool | None
+                        """Include OSPF leaked routes into BGP."""
+                        route_map: str | None
+                        """Route-map name."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                enabled: bool | UndefinedType = Undefined,
+                                include_leaked: bool | UndefinedType | None = Undefined,
+                                route_map: str | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                Internal.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: Redistribute OSPF internal routes into BGP.
+                                    include_leaked: Include OSPF leaked routes into BGP.
+                                    route_map: Route-map name.
+
+                                """
+
+                    class External(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": False}, "include_leaked": {"type": bool}, "route_map": {"type": str}}
+                        enabled: bool
+                        """
+                        Redistribute OSPF external routes into BGP.
+
+                        Default value: `False`
+                        """
+                        include_leaked: bool | None
+                        """Include OSPF leaked routes into BGP."""
+                        route_map: str | None
+                        """Route-map name."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                enabled: bool | UndefinedType = Undefined,
+                                include_leaked: bool | UndefinedType | None = Undefined,
+                                route_map: str | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                External.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: Redistribute OSPF external routes into BGP.
+                                    include_leaked: Include OSPF leaked routes into BGP.
+                                    route_map: Route-map name.
+
+                                """
+
+                    class NssaExternal(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        NssaType: TypeAlias = Literal[1, 2]
+                        _fields: ClassVar[dict] = {
+                            "enabled": {"type": bool, "default": False},
+                            "nssa_type": {"type": int},
+                            "include_leaked": {"type": bool},
+                            "route_map": {"type": str},
+                        }
+                        enabled: bool
+                        """
+                        Redistribute OSPF NSSA external routes into BGP.
+
+                        Default value: `False`
+                        """
+                        nssa_type: NssaType | None
+                        """NSSA type for the redistributed routes."""
+                        include_leaked: bool | None
+                        """Include OSPF leaked routes into BGP."""
+                        route_map: str | None
+                        """Route-map name."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                enabled: bool | UndefinedType = Undefined,
+                                nssa_type: NssaType | UndefinedType | None = Undefined,
+                                include_leaked: bool | UndefinedType | None = Undefined,
+                                route_map: str | UndefinedType | None = Undefined,
+                            ) -> None:
+                                """
+                                NssaExternal.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    enabled: Redistribute OSPF NSSA external routes into BGP.
+                                    nssa_type: NSSA type for the redistributed routes.
+                                    include_leaked: Include OSPF leaked routes into BGP.
+                                    route_map: Route-map name.
+
+                                """
+
+                    _fields: ClassVar[dict] = {"internal": {"type": Internal}, "external": {"type": External}, "nssa_external": {"type": NssaExternal}}
+                    internal: Internal
+                    """Subclass of AvdModel."""
+                    external: External
+                    """Subclass of AvdModel."""
+                    nssa_external: NssaExternal
+                    """Subclass of AvdModel."""
+
+                    if TYPE_CHECKING:
+
+                        def __init__(
+                            self,
+                            *,
+                            internal: Internal | UndefinedType = Undefined,
+                            external: External | UndefinedType = Undefined,
+                            nssa_external: NssaExternal | UndefinedType = Undefined,
+                        ) -> None:
+                            """
+                            RedistributeOspf.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                internal: Subclass of AvdModel.
+                                external: Subclass of AvdModel.
+                                nssa_external: Subclass of AvdModel.
+
+                            """
+
                 _fields: ClassVar[dict] = {
                     "enabled": {"type": bool},
                     "router_id": {"type": str, "default": "main_router_id"},
                     "graceful_restart": {"type": GracefulRestart},
+                    "redistribute_ospfv3": {"type": RedistributeOspfv3},
+                    "redistribute_ospf": {"type": RedistributeOspf},
                     "raw_eos_cli": {"type": str},
                     "structured_config": {"type": EosCliConfigGen.RouterBgp.VrfsItem},
                 }
@@ -38215,6 +41751,22 @@ class EosDesigns(EosDesignsRootModel):
 
                 Subclass of AvdModel.
                 """
+                redistribute_ospfv3: RedistributeOspfv3
+                """
+                Redistribution of OSPFv3 routes into BGP for this VRF.
+                Ignored on devices where BGP is not
+                configured for this VRF or where the VRF has no OSPFv3 instance.
+
+                Subclass of AvdModel.
+                """
+                redistribute_ospf: RedistributeOspf
+                """
+                Redistribution of OSPF routes into BGP for this VRF.
+                Ignored on devices where BGP is not configured
+                for this VRF or where the VRF has no OSPF instance.
+
+                Subclass of AvdModel.
+                """
                 raw_eos_cli: str | None
                 """EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration."""
                 structured_config: EosCliConfigGen.RouterBgp.VrfsItem
@@ -38228,6 +41780,8 @@ class EosDesigns(EosDesignsRootModel):
                         enabled: bool | UndefinedType | None = Undefined,
                         router_id: str | UndefinedType = Undefined,
                         graceful_restart: GracefulRestart | UndefinedType = Undefined,
+                        redistribute_ospfv3: RedistributeOspfv3 | UndefinedType = Undefined,
+                        redistribute_ospf: RedistributeOspf | UndefinedType = Undefined,
                         raw_eos_cli: str | UndefinedType | None = Undefined,
                         structured_config: EosCliConfigGen.RouterBgp.VrfsItem | UndefinedType = Undefined,
                     ) -> None:
@@ -38263,6 +41817,18 @@ class EosDesigns(EosDesignsRootModel):
                                This setting is not supported for VRF default. Use
                                `bgp_graceful_restart` instead.
 
+
+                               Subclass of AvdModel.
+                            redistribute_ospfv3:
+                               Redistribution of OSPFv3 routes into BGP for this VRF.
+                               Ignored on devices where BGP is not
+                               configured for this VRF or where the VRF has no OSPFv3 instance.
+
+                               Subclass of AvdModel.
+                            redistribute_ospf:
+                               Redistribution of OSPF routes into BGP for this VRF.
+                               Ignored on devices where BGP is not configured
+                               for this VRF or where the VRF has no OSPF instance.
 
                                Subclass of AvdModel.
                             raw_eos_cli: EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration.
@@ -38983,6 +42549,7 @@ class EosDesigns(EosDesignsRootModel):
                     "description": {"type": str},
                     "shutdown": {"type": bool},
                     "as_path": {"type": AsPath},
+                    "received_attribute_discard": {"type": EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard},
                     "remove_private_as": {"type": RemovePrivateAs},
                     "remove_private_as_ingress": {"type": RemovePrivateAsIngress},
                     "next_hop_unchanged": {"type": bool},
@@ -39081,6 +42648,8 @@ class EosDesigns(EosDesignsRootModel):
 
                 Subclass of AvdModel.
                 """
+                received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard
+                """Received path attribute configuration."""
                 remove_private_as: RemovePrivateAs
                 """
                 Remove private AS numbers in outbound AS path.
@@ -39180,6 +42749,7 @@ class EosDesigns(EosDesignsRootModel):
                         description: str | UndefinedType | None = Undefined,
                         shutdown: bool | UndefinedType | None = Undefined,
                         as_path: AsPath | UndefinedType = Undefined,
+                        received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard | UndefinedType = Undefined,
                         remove_private_as: RemovePrivateAs | UndefinedType = Undefined,
                         remove_private_as_ingress: RemovePrivateAsIngress | UndefinedType = Undefined,
                         next_hop_unchanged: bool | UndefinedType | None = Undefined,
@@ -39267,6 +42837,7 @@ class EosDesigns(EosDesignsRootModel):
                                BGP AS-PATH options.
 
                                Subclass of AvdModel.
+                            received_attribute_discard: Received path attribute configuration.
                             remove_private_as:
                                Remove private AS numbers in outbound AS path.
 
@@ -39499,6 +43070,7 @@ class EosDesigns(EosDesignsRootModel):
                 "mlag_ibgp_peering_vlan": {"type": int},
                 "vtep_diagnostic": {"type": VtepDiagnostic},
                 "ospf": {"type": Ospf},
+                "ospfv3": {"type": Ospfv3},
                 "redistribute_ospf": {"type": bool, "default": True},
                 "evpn_l3_multicast": {"type": EvpnL3Multicast},
                 "pim_rp_addresses": {"type": PimRpAddresses},
@@ -39691,9 +43263,21 @@ class EosDesigns(EosDesignsRootModel):
             no nodes definition, the OSPF instance will be
             created on all leafs where the VRF is deployed. This
             will also cause automatic OSPF redistribution into BGP unless
-            explicitly turned off with
-            "redistribute_ospf: false".
+            `bgp.redistribute_ospf.internal.enabled` is set to `false`.
 
+            Subclass of AvdModel.
+            """
+            ospfv3: Ospfv3
+            """
+            Router OSPFv3 settings for the VRF.
+            The OSPFv3 configuration is created automatically on a device
+            when at least one OSPFv3-enabled SVI in this VRF is configured on that device.
+            If BGP is configured
+            for the VRF, OSPFv3 internal routes are redistributed into BGP unless
+            `bgp.redistribute_ospfv3.internal.enabled` is set to `false`.
+            These settings only override the
+            defaults.
+            VRF `default` is not supported yet.
 
             Subclass of AvdModel.
             """
@@ -39868,6 +43452,7 @@ class EosDesigns(EosDesignsRootModel):
                     mlag_ibgp_peering_vlan: int | UndefinedType | None = Undefined,
                     vtep_diagnostic: VtepDiagnostic | UndefinedType = Undefined,
                     ospf: Ospf | UndefinedType = Undefined,
+                    ospfv3: Ospfv3 | UndefinedType = Undefined,
                     redistribute_ospf: bool | UndefinedType = Undefined,
                     evpn_l3_multicast: EvpnL3Multicast | UndefinedType = Undefined,
                     pim_rp_addresses: PimRpAddresses | UndefinedType = Undefined,
@@ -40020,9 +43605,19 @@ class EosDesigns(EosDesignsRootModel):
                            no nodes definition, the OSPF instance will be
                            created on all leafs where the VRF is deployed. This
                            will also cause automatic OSPF redistribution into BGP unless
-                           explicitly turned off with
-                           "redistribute_ospf: false".
+                           `bgp.redistribute_ospf.internal.enabled` is set to `false`.
 
+                           Subclass of AvdModel.
+                        ospfv3:
+                           Router OSPFv3 settings for the VRF.
+                           The OSPFv3 configuration is created automatically on a device
+                           when at least one OSPFv3-enabled SVI in this VRF is configured on that device.
+                           If BGP is configured
+                           for the VRF, OSPFv3 internal routes are redistributed into BGP unless
+                           `bgp.redistribute_ospfv3.internal.enabled` is set to `false`.
+                           These settings only override the
+                           defaults.
+                           VRF `default` is not supported yet.
 
                            Subclass of AvdModel.
                         redistribute_ospf: Non-selectively enabling or disabling redistribute ospf inside the VRF.
@@ -42815,6 +46410,312 @@ class EosDesigns(EosDesignsRootModel):
 
                 """
 
+    class NtpSettingsProfilesItem(AvdModel):
+        """Subclass of AvdModel."""
+
+        class ServersItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            _fields: ClassVar[dict] = {
+                "name": {"type": str},
+                "burst": {"type": bool},
+                "iburst": {"type": bool},
+                "key": {"type": int},
+                "maxpoll": {"type": int},
+                "minpoll": {"type": int},
+                "version": {"type": int},
+                "source_address": {"type": str},
+            }
+            name: str
+            """IP or hostname e.g., 2.2.2.55, 2001:db8::55, ie.pool.ntp.org."""
+            burst: bool | None
+            iburst: bool | None
+            key: int | None
+            maxpoll: int | None
+            """Value of maxpoll between 3 - 17 (Logarithmic)."""
+            minpoll: int | None
+            """Value of minpoll between 3 - 17 (Logarithmic)."""
+            version: int | None
+            source_address: str | None
+            """
+            - `use_mgmt_interface_ipv4` configures the source address as the IPv4 address of the management
+            interface.
+            - `use_mgmt_interface_ipv6` configures the source address as the IPv6 address of the
+            management interface.
+            - `use_inband_mgmt_interface_ipv4` configures the source address as the IPv4
+            address of the inband management interface.
+            - `use_inband_mgmt_interface_ipv6` configures the source
+            address as the IPv6 address of the inband management interface.
+            - Any other string is used directly
+            as the source address (for example, an IPv4 or IPv6 address).
+            `use_*` values fail validation when
+            the management address is missing/dhcp, ntp_settings.server_vrf is not the expected management VRF.
+            """
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    name: str | UndefinedType = Undefined,
+                    burst: bool | UndefinedType | None = Undefined,
+                    iburst: bool | UndefinedType | None = Undefined,
+                    key: int | UndefinedType | None = Undefined,
+                    maxpoll: int | UndefinedType | None = Undefined,
+                    minpoll: int | UndefinedType | None = Undefined,
+                    version: int | UndefinedType | None = Undefined,
+                    source_address: str | UndefinedType | None = Undefined,
+                ) -> None:
+                    """
+                    ServersItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        name: IP or hostname e.g., 2.2.2.55, 2001:db8::55, ie.pool.ntp.org.
+                        burst: burst
+                        iburst: iburst
+                        key: key
+                        maxpoll: Value of maxpoll between 3 - 17 (Logarithmic).
+                        minpoll: Value of minpoll between 3 - 17 (Logarithmic).
+                        version: version
+                        source_address:
+                           - `use_mgmt_interface_ipv4` configures the source address as the IPv4 address of the management
+                           interface.
+                           - `use_mgmt_interface_ipv6` configures the source address as the IPv6 address of the
+                           management interface.
+                           - `use_inband_mgmt_interface_ipv4` configures the source address as the IPv4
+                           address of the inband management interface.
+                           - `use_inband_mgmt_interface_ipv6` configures the source
+                           address as the IPv6 address of the inband management interface.
+                           - Any other string is used directly
+                           as the source address (for example, an IPv4 or IPv6 address).
+                           `use_*` values fail validation when
+                           the management address is missing/dhcp, ntp_settings.server_vrf is not the expected management VRF.
+
+                    """
+
+        class Servers(AvdIndexedList[str, ServersItem]):
+            """Subclass of AvdIndexedList with `ServersItem` items. Primary key is `name` (`str`)."""
+
+            _primary_key: ClassVar[str] = "name"
+
+        Servers._item_type = ServersItem
+
+        class AuthenticationKeysItem(AvdModel):
+            """Subclass of AvdModel."""
+
+            KeyType: TypeAlias = Literal["0", "7", "8a"]
+            HashAlgorithm: TypeAlias = Literal["md5", "sha1"]
+            _fields: ClassVar[dict] = {
+                "id": {"type": int},
+                "key": {"type": str},
+                "cleartext_key": {"type": str},
+                "key_type": {"type": str},
+                "hash_algorithm": {"type": str},
+            }
+            id: int
+            """Key identifier."""
+            key: str | None
+            """
+            Authentication provided using the `key_type` format.
+            Will be rendered as such.
+            Takes precedence over
+            `cleartext_key`.
+            """
+            cleartext_key: str | None
+            """
+            Cleartext key for the NTP authentication key. Encrypted to Type 7 by AVD.
+            `key_type` does not
+            influence this key.
+            To protect the password at rest it is strongly recommended to make use of a
+            vault or similar.
+            """
+            key_type: KeyType | None
+            """
+            Key type of the `key`.
+            Does not have any influence on `cleartext_key`.
+            """
+            hash_algorithm: HashAlgorithm
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    id: int | UndefinedType = Undefined,
+                    key: str | UndefinedType | None = Undefined,
+                    cleartext_key: str | UndefinedType | None = Undefined,
+                    key_type: KeyType | UndefinedType | None = Undefined,
+                    hash_algorithm: HashAlgorithm | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    AuthenticationKeysItem.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        id: Key identifier.
+                        key:
+                           Authentication provided using the `key_type` format.
+                           Will be rendered as such.
+                           Takes precedence over
+                           `cleartext_key`.
+                        cleartext_key:
+                           Cleartext key for the NTP authentication key. Encrypted to Type 7 by AVD.
+                           `key_type` does not
+                           influence this key.
+                           To protect the password at rest it is strongly recommended to make use of a
+                           vault or similar.
+                        key_type:
+                           Key type of the `key`.
+                           Does not have any influence on `cleartext_key`.
+                        hash_algorithm: hash_algorithm
+
+                    """
+
+        class AuthenticationKeys(AvdIndexedList[int, AuthenticationKeysItem]):
+            """Subclass of AvdIndexedList with `AuthenticationKeysItem` items. Primary key is `id` (`int`)."""
+
+            _primary_key: ClassVar[str] = "id"
+
+        AuthenticationKeys._item_type = AuthenticationKeysItem
+
+        _fields: ClassVar[dict] = {
+            "profile": {"type": str},
+            "parent_profile": {"type": str},
+            "server_vrf": {"type": str, "default": "use_default_mgmt_method_vrf"},
+            "set_first_ntp_server_as_preferred": {"type": bool, "default": True},
+            "servers": {"type": Servers},
+            "authenticate": {"type": bool},
+            "authenticate_servers_only": {"type": bool},
+            "authentication_keys": {"type": AuthenticationKeys},
+            "trusted_keys": {"type": str},
+        }
+        profile: str
+        """NTP settings profile name."""
+        parent_profile: str | None
+        """
+        Inherit settings from a parent profile defined under `ntp_settings_profiles`.
+        The settings from this
+        profile override settings inherited from the parent profile.
+        """
+        server_vrf: str
+        """
+        EOS only supports NTP servers in one VRF, so this VRF is used for all NTP servers and one local-
+        interface.
+        - `use_mgmt_interface_vrf` will configure the NTP server(s) under the VRF set with
+        `mgmt_interface_vrf` and set the `mgmt_interface` as NTP local-interface.
+          An error will be raised
+        if `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+        - `use_inband_mgmt_vrf` will
+        configure the NTP server(s) under the VRF set with `inband_mgmt_vrf` and set the
+        `inband_mgmt_interface` as NTP local-interface.
+          An error will be raised if inband management is
+        not configured for the device.
+        - `use_default_mgmt_method_vrf` will configure the VRF for NTP
+        server(s) and local-interface for NTP depending on the value of `default_mgmt_method`.
+        - Any other
+        string will be used directly as the VRF name but local interface must be set with
+        `custom_structured_configuration_ntp` if needed.
+
+        Default value: `"use_default_mgmt_method_vrf"`
+        """
+        set_first_ntp_server_as_preferred: bool
+        """
+        If 'true', AVD marks the first entry under 'ntp_settings.servers' as 'preferred'.
+        Set to 'false' to
+        avoid automatically setting any server as 'preferred'.
+
+        Default value: `True`
+        """
+        servers: Servers
+        """
+        By default, AVD marks the first server as `preferred`.
+        Set
+        'ntp_settings.set_first_ntp_server_as_preferred: false' to disable this behavior.
+
+        Subclass of
+        AvdIndexedList with `ServersItem` items. Primary key is `name` (`str`).
+        """
+        authenticate: bool | None
+        authenticate_servers_only: bool | None
+        authentication_keys: AuthenticationKeys
+        """Subclass of AvdIndexedList with `AuthenticationKeysItem` items. Primary key is `id` (`int`)."""
+        trusted_keys: str | None
+        """List of trusted-keys as string ex. 10-12,15."""
+
+        if TYPE_CHECKING:
+
+            def __init__(
+                self,
+                *,
+                profile: str | UndefinedType = Undefined,
+                parent_profile: str | UndefinedType | None = Undefined,
+                server_vrf: str | UndefinedType = Undefined,
+                set_first_ntp_server_as_preferred: bool | UndefinedType = Undefined,
+                servers: Servers | UndefinedType = Undefined,
+                authenticate: bool | UndefinedType | None = Undefined,
+                authenticate_servers_only: bool | UndefinedType | None = Undefined,
+                authentication_keys: AuthenticationKeys | UndefinedType = Undefined,
+                trusted_keys: str | UndefinedType | None = Undefined,
+            ) -> None:
+                """
+                NtpSettingsProfilesItem.
+
+
+                Subclass of AvdModel.
+
+                Args:
+                    profile: NTP settings profile name.
+                    parent_profile:
+                       Inherit settings from a parent profile defined under `ntp_settings_profiles`.
+                       The settings from this
+                       profile override settings inherited from the parent profile.
+                    server_vrf:
+                       EOS only supports NTP servers in one VRF, so this VRF is used for all NTP servers and one local-
+                       interface.
+                       - `use_mgmt_interface_vrf` will configure the NTP server(s) under the VRF set with
+                       `mgmt_interface_vrf` and set the `mgmt_interface` as NTP local-interface.
+                         An error will be raised
+                       if `mgmt_ip` or `ipv6_mgmt_ip` are not configured for the device.
+                       - `use_inband_mgmt_vrf` will
+                       configure the NTP server(s) under the VRF set with `inband_mgmt_vrf` and set the
+                       `inband_mgmt_interface` as NTP local-interface.
+                         An error will be raised if inband management is
+                       not configured for the device.
+                       - `use_default_mgmt_method_vrf` will configure the VRF for NTP
+                       server(s) and local-interface for NTP depending on the value of `default_mgmt_method`.
+                       - Any other
+                       string will be used directly as the VRF name but local interface must be set with
+                       `custom_structured_configuration_ntp` if needed.
+                    set_first_ntp_server_as_preferred:
+                       If 'true', AVD marks the first entry under 'ntp_settings.servers' as 'preferred'.
+                       Set to 'false' to
+                       avoid automatically setting any server as 'preferred'.
+                    servers:
+                       By default, AVD marks the first server as `preferred`.
+                       Set
+                       'ntp_settings.set_first_ntp_server_as_preferred: false' to disable this behavior.
+
+                       Subclass of
+                       AvdIndexedList with `ServersItem` items. Primary key is `name` (`str`).
+                    authenticate: authenticate
+                    authenticate_servers_only: authenticate_servers_only
+                    authentication_keys: Subclass of AvdIndexedList with `AuthenticationKeysItem` items. Primary key is `id` (`int`).
+                    trusted_keys: List of trusted-keys as string ex. 10-12,15.
+
+                """
+
+    class NtpSettingsProfiles(AvdIndexedList[str, NtpSettingsProfilesItem]):
+        """Subclass of AvdIndexedList with `NtpSettingsProfilesItem` items. Primary key is `profile` (`str`)."""
+
+        _primary_key: ClassVar[str] = "profile"
+
+    NtpSettingsProfiles._item_type = NtpSettingsProfilesItem
+
     class OverlayCvxServers(AvdList[str]):
         """Subclass of AvdList with `str` items."""
 
@@ -44386,10 +48287,13 @@ class EosDesigns(EosDesignsRootModel):
                         """
 
             _fields: ClassVar[dict] = {
+                "dot1x_bpdu_bypass": {"type": bool, "default": True},
+                "dot1x_mac_based_access_list": {"type": bool, "default": True},
                 "address_locking": {"type": AddressLocking},
                 "queue_monitor": {"type": bool, "default": True},
                 "queue_monitor_length_notify": {"type": bool, "default": True},
                 "interface_storm_control": {"type": bool, "default": True},
+                "explicit_interface_speed_auto_mode": {"type": bool, "default": True},
                 "poe": {"type": bool, "default": False},
                 "subinterface_mtu": {"type": bool, "default": True},
                 "subinterface_monitor_session": {"type": bool, "default": True},
@@ -44412,6 +48316,21 @@ class EosDesigns(EosDesignsRootModel):
                 "hardware_validation": {"type": bool, "default": True},
                 "errdisable_causes": {"type": ErrdisableCauses},
             }
+            dot1x_bpdu_bypass: bool
+            """
+            Support for 802.1X BPDU bypass.
+            The feature will be ignored on platforms where this is false.
+
+            Default value: `True`
+            """
+            dot1x_mac_based_access_list: bool
+            """
+            Support for 802.1X Per-MAC ACL mode on the interfaces.
+            The feature will be ignored on platforms
+            where this is false.
+
+            Default value: `True`
+            """
             address_locking: AddressLocking
             """Subclass of AvdModel."""
             queue_monitor: bool
@@ -44433,6 +48352,15 @@ class EosDesigns(EosDesignsRootModel):
             """
             Support for storm-control.
             The feature will be ignored on platforms where this is false.
+
+            Default value: `True`
+            """
+            explicit_interface_speed_auto_mode: bool
+            """
+            Support for `speed sfp-1000baset auto 100full` and `speed auto <mode>` commands on Ethernet
+            interfaces.
+            When set to false, these commands are omitted while `speed auto`, `speed <mode>` and
+            `speed forced <mode>` commands are preserved.
 
             Default value: `True`
             """
@@ -44620,10 +48548,13 @@ class EosDesigns(EosDesignsRootModel):
                 def __init__(
                     self,
                     *,
+                    dot1x_bpdu_bypass: bool | UndefinedType = Undefined,
+                    dot1x_mac_based_access_list: bool | UndefinedType = Undefined,
                     address_locking: AddressLocking | UndefinedType = Undefined,
                     queue_monitor: bool | UndefinedType = Undefined,
                     queue_monitor_length_notify: bool | UndefinedType = Undefined,
                     interface_storm_control: bool | UndefinedType = Undefined,
+                    explicit_interface_speed_auto_mode: bool | UndefinedType = Undefined,
                     poe: bool | UndefinedType = Undefined,
                     subinterface_mtu: bool | UndefinedType = Undefined,
                     subinterface_monitor_session: bool | UndefinedType = Undefined,
@@ -44653,6 +48584,13 @@ class EosDesigns(EosDesignsRootModel):
                     Subclass of AvdModel.
 
                     Args:
+                        dot1x_bpdu_bypass:
+                           Support for 802.1X BPDU bypass.
+                           The feature will be ignored on platforms where this is false.
+                        dot1x_mac_based_access_list:
+                           Support for 802.1X Per-MAC ACL mode on the interfaces.
+                           The feature will be ignored on platforms
+                           where this is false.
                         address_locking: Subclass of AvdModel.
                         queue_monitor:
                            Support for LANZ.
@@ -44664,6 +48602,11 @@ class EosDesigns(EosDesignsRootModel):
                         interface_storm_control:
                            Support for storm-control.
                            The feature will be ignored on platforms where this is false.
+                        explicit_interface_speed_auto_mode:
+                           Support for `speed sfp-1000baset auto 100full` and `speed auto <mode>` commands on Ethernet
+                           interfaces.
+                           When set to false, these commands are omitted while `speed auto`, `speed <mode>` and
+                           `speed forced <mode>` commands are preserved.
                         poe:
                            Support for PoE.
                            The feature will be ignored on platforms where this is false.
@@ -46271,10 +50214,13 @@ class EosDesigns(EosDesignsRootModel):
                         """
 
             _fields: ClassVar[dict] = {
+                "dot1x_bpdu_bypass": {"type": bool, "default": True},
+                "dot1x_mac_based_access_list": {"type": bool, "default": True},
                 "address_locking": {"type": AddressLocking},
                 "queue_monitor": {"type": bool, "default": True},
                 "queue_monitor_length_notify": {"type": bool, "default": True},
                 "interface_storm_control": {"type": bool, "default": True},
+                "explicit_interface_speed_auto_mode": {"type": bool, "default": True},
                 "poe": {"type": bool, "default": False},
                 "subinterface_mtu": {"type": bool, "default": True},
                 "subinterface_monitor_session": {"type": bool, "default": True},
@@ -46297,6 +50243,21 @@ class EosDesigns(EosDesignsRootModel):
                 "hardware_validation": {"type": bool, "default": True},
                 "errdisable_causes": {"type": ErrdisableCauses},
             }
+            dot1x_bpdu_bypass: bool
+            """
+            Support for 802.1X BPDU bypass.
+            The feature will be ignored on platforms where this is false.
+
+            Default value: `True`
+            """
+            dot1x_mac_based_access_list: bool
+            """
+            Support for 802.1X Per-MAC ACL mode on the interfaces.
+            The feature will be ignored on platforms
+            where this is false.
+
+            Default value: `True`
+            """
             address_locking: AddressLocking
             """Subclass of AvdModel."""
             queue_monitor: bool
@@ -46318,6 +50279,15 @@ class EosDesigns(EosDesignsRootModel):
             """
             Support for storm-control.
             The feature will be ignored on platforms where this is false.
+
+            Default value: `True`
+            """
+            explicit_interface_speed_auto_mode: bool
+            """
+            Support for `speed sfp-1000baset auto 100full` and `speed auto <mode>` commands on Ethernet
+            interfaces.
+            When set to false, these commands are omitted while `speed auto`, `speed <mode>` and
+            `speed forced <mode>` commands are preserved.
 
             Default value: `True`
             """
@@ -46505,10 +50475,13 @@ class EosDesigns(EosDesignsRootModel):
                 def __init__(
                     self,
                     *,
+                    dot1x_bpdu_bypass: bool | UndefinedType = Undefined,
+                    dot1x_mac_based_access_list: bool | UndefinedType = Undefined,
                     address_locking: AddressLocking | UndefinedType = Undefined,
                     queue_monitor: bool | UndefinedType = Undefined,
                     queue_monitor_length_notify: bool | UndefinedType = Undefined,
                     interface_storm_control: bool | UndefinedType = Undefined,
+                    explicit_interface_speed_auto_mode: bool | UndefinedType = Undefined,
                     poe: bool | UndefinedType = Undefined,
                     subinterface_mtu: bool | UndefinedType = Undefined,
                     subinterface_monitor_session: bool | UndefinedType = Undefined,
@@ -46538,6 +50511,13 @@ class EosDesigns(EosDesignsRootModel):
                     Subclass of AvdModel.
 
                     Args:
+                        dot1x_bpdu_bypass:
+                           Support for 802.1X BPDU bypass.
+                           The feature will be ignored on platforms where this is false.
+                        dot1x_mac_based_access_list:
+                           Support for 802.1X Per-MAC ACL mode on the interfaces.
+                           The feature will be ignored on platforms
+                           where this is false.
                         address_locking: Subclass of AvdModel.
                         queue_monitor:
                            Support for LANZ.
@@ -46549,6 +50529,11 @@ class EosDesigns(EosDesignsRootModel):
                         interface_storm_control:
                            Support for storm-control.
                            The feature will be ignored on platforms where this is false.
+                        explicit_interface_speed_auto_mode:
+                           Support for `speed sfp-1000baset auto 100full` and `speed auto <mode>` commands on Ethernet
+                           interfaces.
+                           When set to false, these commands are omitted while `speed auto`, `speed <mode>` and
+                           `speed forced <mode>` commands are preserved.
                         poe:
                            Support for PoE.
                            The feature will be ignored on platforms where this is false.
@@ -49627,6 +53612,82 @@ class EosDesigns(EosDesignsRootModel):
 
                 """
 
+    class QueueMonitorStreaming(AvdModel):
+        """Subclass of AvdModel."""
+
+        _fields: ClassVar[dict] = {
+            "enable": {"type": bool},
+            "ip_access_group": {"type": str},
+            "ipv4_acl": {"type": str},
+            "ipv4_standard_acl": {"type": str},
+            "ipv6_access_group": {"type": str},
+            "max_connections": {"type": int},
+            "vrf": {"type": str},
+        }
+        enable: bool | None
+        ip_access_group: str | None
+        """Name of IP ACL."""
+        ipv4_acl: str | None
+        """
+        IPv4 extended access-list name. The access-list must be defined under `ipv4_acls`.
+        Field
+        substitution is not supported for queue-monitor streaming references.
+        Mutually exclusive with
+        `ipv4_standard_acl` and the deprecated `ip_access_group`.
+        """
+        ipv4_standard_acl: str | None
+        """
+        IPv4 standard access-list name. The access-list must be defined under `ipv4_standard_acls`.
+        Field
+        substitution is not supported for queue-monitor streaming references.
+        Mutually exclusive with
+        `ipv4_acl` and the deprecated `ip_access_group`.
+        """
+        ipv6_access_group: str | None
+        """Name of IPv6 ACL."""
+        max_connections: int | None
+        vrf: str | None
+
+        if TYPE_CHECKING:
+
+            def __init__(
+                self,
+                *,
+                enable: bool | UndefinedType | None = Undefined,
+                ip_access_group: str | UndefinedType | None = Undefined,
+                ipv4_acl: str | UndefinedType | None = Undefined,
+                ipv4_standard_acl: str | UndefinedType | None = Undefined,
+                ipv6_access_group: str | UndefinedType | None = Undefined,
+                max_connections: int | UndefinedType | None = Undefined,
+                vrf: str | UndefinedType | None = Undefined,
+            ) -> None:
+                """
+                QueueMonitorStreaming.
+
+
+                Subclass of AvdModel.
+
+                Args:
+                    enable: enable
+                    ip_access_group: Name of IP ACL.
+                    ipv4_acl:
+                       IPv4 extended access-list name. The access-list must be defined under `ipv4_acls`.
+                       Field
+                       substitution is not supported for queue-monitor streaming references.
+                       Mutually exclusive with
+                       `ipv4_standard_acl` and the deprecated `ip_access_group`.
+                    ipv4_standard_acl:
+                       IPv4 standard access-list name. The access-list must be defined under `ipv4_standard_acls`.
+                       Field
+                       substitution is not supported for queue-monitor streaming references.
+                       Mutually exclusive with
+                       `ipv4_acl` and the deprecated `ip_access_group`.
+                    ipv6_access_group: Name of IPv6 ACL.
+                    max_connections: max_connections
+                    vrf: vrf
+
+                """
+
     class Redundancy(AvdModel):
         """Subclass of AvdModel."""
 
@@ -50030,6 +54091,7 @@ class EosDesigns(EosDesignsRootModel):
 
             Version: TypeAlias = Literal["v1", "v2c", "v3"]
             Auth: TypeAlias = Literal["md5", "sha", "sha256", "sha384", "sha512"]
+            KeyType: TypeAlias = Literal["disabled", "7"]
             Priv: TypeAlias = Literal["des", "aes", "aes192", "aes256"]
             _fields: ClassVar[dict] = {
                 "name": {"type": str},
@@ -50037,6 +54099,7 @@ class EosDesigns(EosDesignsRootModel):
                 "version": {"type": str},
                 "auth": {"type": str},
                 "auth_passphrase": {"type": str},
+                "key_type": {"type": str, "default": "disabled"},
                 "priv": {"type": str},
                 "priv_passphrase": {"type": str},
             }
@@ -50048,6 +54111,22 @@ class EosDesigns(EosDesignsRootModel):
             auth: Auth | None
             auth_passphrase: str | None
             """Cleartext passphrase so the recommendation is to use vault. Requires 'auth' to be set."""
+            key_type: KeyType
+            """
+            Key type for the computed localized SNMPv3 auth and priv keys.
+            Used only when
+            `compute_v3_user_localized_key` is `true`.
+            Supported starting 4.33.10M, 4.34.8M, 4.35.6M, and
+            4.36.2F.
+            When set to `7`, AVD renders the computed localized keys using EOS `key <type> <key>`
+            syntax for both auth and priv.
+            - `disabled`: Use legacy syntax without key type (auth_passphrase
+            rendered directly). Default for backward compatibility.
+            - `7`: Type-7 encrypted (HIDDEN) key. AVD
+            applies Type-7 obfuscation to the computed localized key before rendering.
+
+            Default value: `"disabled"`
+            """
             priv: Priv | None
             priv_passphrase: str | None
             """Cleartext passphrase so the recommendation is to use vault. Requires 'priv' to be set."""
@@ -50062,6 +54141,7 @@ class EosDesigns(EosDesignsRootModel):
                     version: Version | UndefinedType | None = Undefined,
                     auth: Auth | UndefinedType | None = Undefined,
                     auth_passphrase: str | UndefinedType | None = Undefined,
+                    key_type: KeyType | UndefinedType = Undefined,
                     priv: Priv | UndefinedType | None = Undefined,
                     priv_passphrase: str | UndefinedType | None = Undefined,
                 ) -> None:
@@ -50077,6 +54157,18 @@ class EosDesigns(EosDesignsRootModel):
                         version: version
                         auth: auth
                         auth_passphrase: Cleartext passphrase so the recommendation is to use vault. Requires 'auth' to be set.
+                        key_type:
+                           Key type for the computed localized SNMPv3 auth and priv keys.
+                           Used only when
+                           `compute_v3_user_localized_key` is `true`.
+                           Supported starting 4.33.10M, 4.34.8M, 4.35.6M, and
+                           4.36.2F.
+                           When set to `7`, AVD renders the computed localized keys using EOS `key <type> <key>`
+                           syntax for both auth and priv.
+                           - `disabled`: Use legacy syntax without key type (auth_passphrase
+                           rendered directly). Default for backward compatibility.
+                           - `7`: Type-7 encrypted (HIDDEN) key. AVD
+                           applies Type-7 obfuscation to the computed localized key before rendering.
                         priv: priv
                         priv_passphrase: Cleartext passphrase so the recommendation is to use vault. Requires 'priv' to be set.
 
@@ -51892,6 +55984,101 @@ class EosDesigns(EosDesignsRootModel):
 
                         """
 
+            class Ospfv3(AvdModel):
+                """Subclass of AvdModel."""
+
+                class Ipv4(AvdModel):
+                    """Subclass of AvdModel."""
+
+                    _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                    enabled: bool | None
+                    """
+                    Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                    The
+                    IPv4 address family is not supported yet, so `true` raises an error.
+                    An SVI with IPv4 addressing
+                    also raises an error unless this is set to `false`.
+                    """
+
+                    if TYPE_CHECKING:
+
+                        def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                            """
+                            Ipv4.
+
+
+                            Subclass of AvdModel.
+
+                            Args:
+                                enabled:
+                                   Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                   The
+                                   IPv4 address family is not supported yet, so `true` raises an error.
+                                   An SVI with IPv4 addressing
+                                   also raises an error unless this is set to `false`.
+
+                            """
+
+                _fields: ClassVar[dict] = {
+                    "enabled": {"type": bool},
+                    "area": {"type": str, "default": "0.0.0.0"},
+                    "point_to_point": {"type": bool, "default": False},
+                    "passive": {"type": bool, "default": False},
+                    "ipv4": {"type": Ipv4},
+                }
+                enabled: bool | None
+                area: str
+                """
+                OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+                Default value: `"0.0.0.0"`
+                """
+                point_to_point: bool
+                """
+                Configure the OSPFv3 network type as point-to-point.
+
+                Default value: `False`
+                """
+                passive: bool
+                """
+                Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                By default, OSPFv3-enabled SVIs
+                are configured with `no ospfv3 passive-interface`.
+
+                Default value: `False`
+                """
+                ipv4: Ipv4
+                """Subclass of AvdModel."""
+
+                if TYPE_CHECKING:
+
+                    def __init__(
+                        self,
+                        *,
+                        enabled: bool | UndefinedType | None = Undefined,
+                        area: str | UndefinedType = Undefined,
+                        point_to_point: bool | UndefinedType = Undefined,
+                        passive: bool | UndefinedType = Undefined,
+                        ipv4: Ipv4 | UndefinedType = Undefined,
+                    ) -> None:
+                        """
+                        Ospfv3.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            enabled: enabled
+                            area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                            point_to_point: Configure the OSPFv3 network type as point-to-point.
+                            passive:
+                               Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                               By default, OSPFv3-enabled SVIs
+                               are configured with `no ospfv3 passive-interface`.
+                            ipv4: Subclass of AvdModel.
+
+                        """
+
             class Bgp(AvdModel):
                 """Subclass of AvdModel."""
 
@@ -51950,6 +56137,8 @@ class EosDesigns(EosDesignsRootModel):
                 "ipv4_acl_out": {"type": str},
                 "ipv6_acl_in": {"type": str},
                 "ipv6_acl_out": {"type": str},
+                "ipv4_standard_acl_in": {"type": str},
+                "ipv4_standard_acl_out": {"type": str},
                 "ip_helpers": {"type": IpHelpers},
                 "static_routes": {"type": StaticRoutes},
                 "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -51968,6 +56157,7 @@ class EosDesigns(EosDesignsRootModel):
                 "spanning_tree_priority": {"type": int},
                 "mtu": {"type": int},
                 "ospf": {"type": Ospf},
+                "ospfv3": {"type": Ospfv3},
                 "bgp": {"type": Bgp},
                 "raw_eos_cli": {"type": str},
                 "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -52056,12 +56246,16 @@ class EosDesigns(EosDesignsRootModel):
             Name of the IPv4 access-list to be assigned in the ingress direction.
             The access-list must be
             defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+            Mutually exclusive
+            with `ipv4_standard_acl_in`. Setting both raises an error.
             """
             ipv4_acl_out: str | None
             """
             Name of the IPv4 Access-list to be assigned in the egress direction.
             The access-list must be defined
             under `ipv4_acls` and supports substitution of the field "interface_ip".
+            Mutually exclusive with
+            `ipv4_standard_acl_out`. Setting both raises an error.
             """
             ipv6_acl_in: str | None
             """
@@ -52082,6 +56276,22 @@ class EosDesigns(EosDesignsRootModel):
             `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
             Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
             removed in AVD 7.0.0.
+            """
+            ipv4_standard_acl_in: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+            instead when field substitution for "interface_ip" is required, setting both raises an error.
+            """
+            ipv4_standard_acl_out: str | None
+            """
+            Name of the IPv4 standard access-list to be assigned in the egress direction.
+            The access-list must
+            be defined under `ipv4_standard_acls`.
+            Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+            instead when field substitution for "interface_ip" is required, setting both raises an error.
             """
             ip_helpers: IpHelpers
             """
@@ -52196,6 +56406,26 @@ class EosDesigns(EosDesignsRootModel):
 
             Subclass of AvdModel.
             """
+            ospfv3: Ospfv3
+            """
+            OSPFv3 interface configuration.
+            Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+            configuration for the VRF of the SVI on the device.
+            Only the IPv6 address family is currently
+            supported.
+            SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+            OSPFv3 uses the IPv6
+            link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+            `ipv6_address` (`ipv6_enable: false` is not supported).
+            Anycast IPv6 (`ipv6_address_virtuals`) is
+            not supported.
+            SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+            VRF
+            `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+            Subclass of
+            AvdModel.
+            """
             bgp: Bgp
             """Subclass of AvdModel."""
             raw_eos_cli: str | None
@@ -52239,6 +56469,8 @@ class EosDesigns(EosDesignsRootModel):
                     ipv4_acl_out: str | UndefinedType | None = Undefined,
                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                     ipv6_acl_out: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                     ip_helpers: IpHelpers | UndefinedType = Undefined,
                     static_routes: StaticRoutes | UndefinedType = Undefined,
                     ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -52257,6 +56489,7 @@ class EosDesigns(EosDesignsRootModel):
                     spanning_tree_priority: int | UndefinedType | None = Undefined,
                     mtu: int | UndefinedType | None = Undefined,
                     ospf: Ospf | UndefinedType = Undefined,
+                    ospfv3: Ospfv3 | UndefinedType = Undefined,
                     bgp: Bgp | UndefinedType = Undefined,
                     raw_eos_cli: str | UndefinedType | None = Undefined,
                     structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -52324,10 +56557,14 @@ class EosDesigns(EosDesignsRootModel):
                            Name of the IPv4 access-list to be assigned in the ingress direction.
                            The access-list must be
                            defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                           Mutually exclusive
+                           with `ipv4_standard_acl_in`. Setting both raises an error.
                         ipv4_acl_out:
                            Name of the IPv4 Access-list to be assigned in the egress direction.
                            The access-list must be defined
                            under `ipv4_acls` and supports substitution of the field "interface_ip".
+                           Mutually exclusive with
+                           `ipv4_standard_acl_out`. Setting both raises an error.
                         ipv6_acl_in:
                            Name of the IPv6 access-list to be assigned in the ingress direction.
                            The access-list must be
@@ -52344,6 +56581,18 @@ class EosDesigns(EosDesignsRootModel):
                            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                            removed in AVD 7.0.0.
+                        ipv4_standard_acl_in:
+                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                           instead when field substitution for "interface_ip" is required, setting both raises an error.
+                        ipv4_standard_acl_out:
+                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                           The access-list must
+                           be defined under `ipv4_standard_acls`.
+                           Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                           instead when field substitution for "interface_ip" is required, setting both raises an error.
                         ip_helpers:
                            IP helper for DHCP relay.
 
@@ -52421,6 +56670,24 @@ class EosDesigns(EosDesignsRootModel):
                            OSPF interface configuration.
 
                            Subclass of AvdModel.
+                        ospfv3:
+                           OSPFv3 interface configuration.
+                           Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                           configuration for the VRF of the SVI on the device.
+                           Only the IPv6 address family is currently
+                           supported.
+                           SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                           OSPFv3 uses the IPv6
+                           link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                           `ipv6_address` (`ipv6_enable: false` is not supported).
+                           Anycast IPv6 (`ipv6_address_virtuals`) is
+                           not supported.
+                           SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                           VRF
+                           `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                           Subclass of
+                           AvdModel.
                         bgp: Subclass of AvdModel.
                         raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                         structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -53297,6 +57564,101 @@ class EosDesigns(EosDesignsRootModel):
 
                     """
 
+        class Ospfv3(AvdModel):
+            """Subclass of AvdModel."""
+
+            class Ipv4(AvdModel):
+                """Subclass of AvdModel."""
+
+                _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                enabled: bool | None
+                """
+                Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                The
+                IPv4 address family is not supported yet, so `true` raises an error.
+                An SVI with IPv4 addressing
+                also raises an error unless this is set to `false`.
+                """
+
+                if TYPE_CHECKING:
+
+                    def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                        """
+                        Ipv4.
+
+
+                        Subclass of AvdModel.
+
+                        Args:
+                            enabled:
+                               Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                               The
+                               IPv4 address family is not supported yet, so `true` raises an error.
+                               An SVI with IPv4 addressing
+                               also raises an error unless this is set to `false`.
+
+                        """
+
+            _fields: ClassVar[dict] = {
+                "enabled": {"type": bool},
+                "area": {"type": str, "default": "0.0.0.0"},
+                "point_to_point": {"type": bool, "default": False},
+                "passive": {"type": bool, "default": False},
+                "ipv4": {"type": Ipv4},
+            }
+            enabled: bool | None
+            area: str
+            """
+            OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+            Default value: `"0.0.0.0"`
+            """
+            point_to_point: bool
+            """
+            Configure the OSPFv3 network type as point-to-point.
+
+            Default value: `False`
+            """
+            passive: bool
+            """
+            Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+            By default, OSPFv3-enabled SVIs
+            are configured with `no ospfv3 passive-interface`.
+
+            Default value: `False`
+            """
+            ipv4: Ipv4
+            """Subclass of AvdModel."""
+
+            if TYPE_CHECKING:
+
+                def __init__(
+                    self,
+                    *,
+                    enabled: bool | UndefinedType | None = Undefined,
+                    area: str | UndefinedType = Undefined,
+                    point_to_point: bool | UndefinedType = Undefined,
+                    passive: bool | UndefinedType = Undefined,
+                    ipv4: Ipv4 | UndefinedType = Undefined,
+                ) -> None:
+                    """
+                    Ospfv3.
+
+
+                    Subclass of AvdModel.
+
+                    Args:
+                        enabled: enabled
+                        area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                        point_to_point: Configure the OSPFv3 network type as point-to-point.
+                        passive:
+                           Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                           By default, OSPFv3-enabled SVIs
+                           are configured with `no ospfv3 passive-interface`.
+                        ipv4: Subclass of AvdModel.
+
+                    """
+
         class Bgp(AvdModel):
             """Subclass of AvdModel."""
 
@@ -53357,6 +57719,8 @@ class EosDesigns(EosDesignsRootModel):
             "ipv4_acl_out": {"type": str},
             "ipv6_acl_in": {"type": str},
             "ipv6_acl_out": {"type": str},
+            "ipv4_standard_acl_in": {"type": str},
+            "ipv4_standard_acl_out": {"type": str},
             "ip_helpers": {"type": IpHelpers},
             "static_routes": {"type": StaticRoutes},
             "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -53375,6 +57739,7 @@ class EosDesigns(EosDesignsRootModel):
             "spanning_tree_priority": {"type": int},
             "mtu": {"type": int},
             "ospf": {"type": Ospf},
+            "ospfv3": {"type": Ospfv3},
             "bgp": {"type": Bgp},
             "raw_eos_cli": {"type": str},
             "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -53483,12 +57848,16 @@ class EosDesigns(EosDesignsRootModel):
         Name of the IPv4 access-list to be assigned in the ingress direction.
         The access-list must be
         defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+        Mutually exclusive
+        with `ipv4_standard_acl_in`. Setting both raises an error.
         """
         ipv4_acl_out: str | None
         """
         Name of the IPv4 Access-list to be assigned in the egress direction.
         The access-list must be defined
         under `ipv4_acls` and supports substitution of the field "interface_ip".
+        Mutually exclusive with
+        `ipv4_standard_acl_out`. Setting both raises an error.
         """
         ipv6_acl_in: str | None
         """
@@ -53509,6 +57878,22 @@ class EosDesigns(EosDesignsRootModel):
         `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
         Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
         removed in AVD 7.0.0.
+        """
+        ipv4_standard_acl_in: str | None
+        """
+        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+        The access-list must
+        be defined under `ipv4_standard_acls`.
+        Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+        instead when field substitution for "interface_ip" is required, setting both raises an error.
+        """
+        ipv4_standard_acl_out: str | None
+        """
+        Name of the IPv4 standard access-list to be assigned in the egress direction.
+        The access-list must
+        be defined under `ipv4_standard_acls`.
+        Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+        instead when field substitution for "interface_ip" is required, setting both raises an error.
         """
         ip_helpers: IpHelpers
         """
@@ -53623,6 +58008,26 @@ class EosDesigns(EosDesignsRootModel):
 
         Subclass of AvdModel.
         """
+        ospfv3: Ospfv3
+        """
+        OSPFv3 interface configuration.
+        Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+        configuration for the VRF of the SVI on the device.
+        Only the IPv6 address family is currently
+        supported.
+        SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+        OSPFv3 uses the IPv6
+        link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+        `ipv6_address` (`ipv6_enable: false` is not supported).
+        Anycast IPv6 (`ipv6_address_virtuals`) is
+        not supported.
+        SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+        VRF
+        `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+        Subclass of
+        AvdModel.
+        """
         bgp: Bgp
         """Subclass of AvdModel."""
         raw_eos_cli: str | None
@@ -53668,6 +58073,8 @@ class EosDesigns(EosDesignsRootModel):
                 ipv4_acl_out: str | UndefinedType | None = Undefined,
                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                 ipv6_acl_out: str | UndefinedType | None = Undefined,
+                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                 ip_helpers: IpHelpers | UndefinedType = Undefined,
                 static_routes: StaticRoutes | UndefinedType = Undefined,
                 ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -53686,6 +58093,7 @@ class EosDesigns(EosDesignsRootModel):
                 spanning_tree_priority: int | UndefinedType | None = Undefined,
                 mtu: int | UndefinedType | None = Undefined,
                 ospf: Ospf | UndefinedType = Undefined,
+                ospfv3: Ospfv3 | UndefinedType = Undefined,
                 bgp: Bgp | UndefinedType = Undefined,
                 raw_eos_cli: str | UndefinedType | None = Undefined,
                 structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -53769,10 +58177,14 @@ class EosDesigns(EosDesignsRootModel):
                        Name of the IPv4 access-list to be assigned in the ingress direction.
                        The access-list must be
                        defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                       Mutually exclusive
+                       with `ipv4_standard_acl_in`. Setting both raises an error.
                     ipv4_acl_out:
                        Name of the IPv4 Access-list to be assigned in the egress direction.
                        The access-list must be defined
                        under `ipv4_acls` and supports substitution of the field "interface_ip".
+                       Mutually exclusive with
+                       `ipv4_standard_acl_out`. Setting both raises an error.
                     ipv6_acl_in:
                        Name of the IPv6 access-list to be assigned in the ingress direction.
                        The access-list must be
@@ -53789,6 +58201,18 @@ class EosDesigns(EosDesignsRootModel):
                        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                        removed in AVD 7.0.0.
+                    ipv4_standard_acl_in:
+                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                       The access-list must
+                       be defined under `ipv4_standard_acls`.
+                       Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                       instead when field substitution for "interface_ip" is required, setting both raises an error.
+                    ipv4_standard_acl_out:
+                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                       The access-list must
+                       be defined under `ipv4_standard_acls`.
+                       Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                       instead when field substitution for "interface_ip" is required, setting both raises an error.
                     ip_helpers:
                        IP helper for DHCP relay.
 
@@ -53866,6 +58290,24 @@ class EosDesigns(EosDesignsRootModel):
                        OSPF interface configuration.
 
                        Subclass of AvdModel.
+                    ospfv3:
+                       OSPFv3 interface configuration.
+                       Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                       configuration for the VRF of the SVI on the device.
+                       Only the IPv6 address family is currently
+                       supported.
+                       SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                       OSPFv3 uses the IPv6
+                       link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                       `ipv6_address` (`ipv6_enable: false` is not supported).
+                       Anycast IPv6 (`ipv6_address_virtuals`) is
+                       not supported.
+                       SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                       VRF
+                       `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                       Subclass of
+                       AvdModel.
                     bgp: Subclass of AvdModel.
                     raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                     structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -58435,6 +62877,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -58552,13 +62996,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -58593,7 +63062,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -58657,6 +63126,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -58744,11 +63215,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -58774,7 +63266,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -59207,6 +63699,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -59321,13 +63815,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -59362,7 +63881,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -59411,6 +63930,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -59495,11 +64016,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -59525,7 +64067,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -59760,6 +64302,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -59791,6 +64336,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -59801,6 +64395,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -59831,6 +64428,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -59932,6 +64572,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -59962,6 +64603,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     id: int | None
                     """Unique identifier used for IP addressing and other algorithms."""
@@ -60699,15 +65344,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -60933,6 +65595,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -61037,6 +65730,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -61067,6 +65761,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             Defaults.
@@ -61608,15 +66306,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -61767,6 +66478,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -64029,6 +68763,8 @@ class EosDesigns(EosDesignsRootModel):
                                 "bgp": {"type": Bgp},
                                 "ipv4_acl_in": {"type": str},
                                 "ipv4_acl_out": {"type": str},
+                                "ipv4_standard_acl_in": {"type": str},
+                                "ipv4_standard_acl_out": {"type": str},
                                 "ipv6_acl_in": {"type": str},
                                 "ipv6_acl_out": {"type": str},
                                 "static_routes": {"type": StaticRoutes},
@@ -64146,13 +68882,38 @@ class EosDesigns(EosDesignsRootModel):
                             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                             Required
                             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                            `wan_carriers`.
+                            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                            Mutually exclusive with `ipv4_standard_acl_in`,
+                            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                             """
                             ipv4_acl_out: str | None
                             """
                             Name of the IPv4 Access-list to be assigned in the egress direction.
                             The access-list must be defined
                             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                            Mutually
+                            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                            raises an error.
+                            """
+                            ipv4_standard_acl_in: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Required for all WAN interfaces (`wan_carrier` is set) unless
+                            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                            Mutually exclusive
+                            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                            """
+                            ipv4_standard_acl_out: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the egress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_out`, setting both
+                            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                            substitution for "interface_ip" or "peer_ip" is required.
                             """
                             ipv6_acl_in: str | None
                             """
@@ -64187,7 +68948,7 @@ class EosDesigns(EosDesignsRootModel):
                             This is used to infer the path-groups in which this
                             interface should be configured.
                             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                            `ipv4_acl_in` is also required on all WAN interfaces.
+                            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                             """
                             wan_circuit_id: str | None
                             """
@@ -64251,6 +69012,8 @@ class EosDesigns(EosDesignsRootModel):
                                     bgp: Bgp | UndefinedType = Undefined,
                                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -64338,11 +69101,32 @@ class EosDesigns(EosDesignsRootModel):
                                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                            Required
                                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                           `wan_carriers`.
+                                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                           Mutually exclusive with `ipv4_standard_acl_in`,
+                                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                         ipv4_acl_out:
                                            Name of the IPv4 Access-list to be assigned in the egress direction.
                                            The access-list must be defined
                                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                           Mutually
+                                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                           raises an error.
+                                        ipv4_standard_acl_in:
+                                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                           Mutually exclusive
+                                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                        ipv4_standard_acl_out:
+                                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_out`, setting both
+                                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                           substitution for "interface_ip" or "peer_ip" is required.
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
@@ -64368,7 +69152,7 @@ class EosDesigns(EosDesignsRootModel):
                                            This is used to infer the path-groups in which this
                                            interface should be configured.
                                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                           `ipv4_acl_in` is also required on all WAN interfaces.
+                                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                         wan_circuit_id:
                                            The WAN circuit ID for this interface.
                                            This is not rendered in the configuration but used for WAN
@@ -64803,6 +69587,8 @@ class EosDesigns(EosDesignsRootModel):
                                 "bgp": {"type": Bgp},
                                 "ipv4_acl_in": {"type": str},
                                 "ipv4_acl_out": {"type": str},
+                                "ipv4_standard_acl_in": {"type": str},
+                                "ipv4_standard_acl_out": {"type": str},
                                 "ipv6_acl_in": {"type": str},
                                 "ipv6_acl_out": {"type": str},
                                 "static_routes": {"type": StaticRoutes},
@@ -64917,13 +69703,38 @@ class EosDesigns(EosDesignsRootModel):
                             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                             Required
                             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                            `wan_carriers`.
+                            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                            Mutually exclusive with `ipv4_standard_acl_in`,
+                            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                             """
                             ipv4_acl_out: str | None
                             """
                             Name of the IPv4 Access-list to be assigned in the egress direction.
                             The access-list must be defined
                             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                            Mutually
+                            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                            raises an error.
+                            """
+                            ipv4_standard_acl_in: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Required for all WAN interfaces (`wan_carrier` is set) unless
+                            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                            Mutually exclusive
+                            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                            """
+                            ipv4_standard_acl_out: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the egress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_out`, setting both
+                            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                            substitution for "interface_ip" or "peer_ip" is required.
                             """
                             ipv6_acl_in: str | None
                             """
@@ -64958,7 +69769,7 @@ class EosDesigns(EosDesignsRootModel):
                             This is used to infer the path-groups in which this
                             interface should be configured.
                             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                            `ipv4_acl_in` is also required on all WAN interfaces.
+                            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                             """
                             wan_circuit_id: str | None
                             """
@@ -65007,6 +69818,8 @@ class EosDesigns(EosDesignsRootModel):
                                     bgp: Bgp | UndefinedType = Undefined,
                                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -65091,11 +69904,32 @@ class EosDesigns(EosDesignsRootModel):
                                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                            Required
                                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                           `wan_carriers`.
+                                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                           Mutually exclusive with `ipv4_standard_acl_in`,
+                                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                         ipv4_acl_out:
                                            Name of the IPv4 Access-list to be assigned in the egress direction.
                                            The access-list must be defined
                                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                           Mutually
+                                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                           raises an error.
+                                        ipv4_standard_acl_in:
+                                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                           Mutually exclusive
+                                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                        ipv4_standard_acl_out:
+                                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_out`, setting both
+                                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                           substitution for "interface_ip" or "peer_ip" is required.
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
@@ -65121,7 +69955,7 @@ class EosDesigns(EosDesignsRootModel):
                                            This is used to infer the path-groups in which this
                                            interface should be configured.
                                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                           `ipv4_acl_in` is also required on all WAN interfaces.
+                                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                         wan_circuit_id:
                                            The WAN circuit ID for this interface.
                                            This is not rendered in the configuration but used for WAN
@@ -65356,6 +70190,9 @@ class EosDesigns(EosDesignsRootModel):
                                 "mgmt_ip": {"type": str},
                                 "mgmt_gateway": {"type": str},
                                 "act_internet_access": {"type": bool},
+                                "serial_number": {"type": str},
+                                "system_mac_address": {"type": str},
+                                "ztp": {"type": bool},
                             }
                             act_os_version: str | None
                             """
@@ -65387,6 +70224,55 @@ class EosDesigns(EosDesignsRootModel):
                             Overrides
                             global `digital_twin.fabric.act_internet_access` flag.
                             """
+                            serial_number: str | None
+                            """
+                            Serial number or AVD string formatter template for this ACT Digital Twin device.
+                            Overrides the
+                            global `digital_twin.fabric.serial_number_template` for this device.
+                            When set, the rendered value is
+                            written into the device metadata and provided as the serial number in the ACT topology.
+                            Supports the
+                            same AVD string formatter template syntax and variables as
+                            `digital_twin.fabric.serial_number_template`.
+                            The rendered value should be unique across all devices
+                            in the fabric. AVD does not enforce uniqueness automatically.
+                            Applies only to `veos` and `cloudeos`
+                            node types. Ignored for all other ACT node types.
+                            Ignored when `digital_twin.environment` is
+                            `containerlab`.
+                            """
+                            system_mac_address: str | None
+                            """
+                            System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                            Overrides the
+                            global `digital_twin.fabric.system_mac_address_template` for this device.
+                            When set, the rendered
+                            value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                            device metadata, and provided as the system MAC address in the ACT topology.
+                            Supports the same AVD
+                            string formatter template syntax, variables, MAC address formats, and normalization as
+                            `digital_twin.fabric.system_mac_address_template`.
+                            The rendered value must be a unicast MAC address
+                            in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                            digit). The all-zero address is reserved and not accepted by EOS.
+                            Regardless of the input format,
+                            the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                            The rendered value should be unique
+                            across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                            Applies only to
+                            `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                            Ignored when
+                            `digital_twin.environment` is `containerlab`.
+                            """
+                            ztp: bool | None
+                            """
+                            Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                            Supported Digital Twin
+                            environments:
+                            - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                            types.
+                            Overrides global `digital_twin.fabric.ztp` when defined.
+                            """
 
                             if TYPE_CHECKING:
 
@@ -65397,6 +70283,9 @@ class EosDesigns(EosDesignsRootModel):
                                     mgmt_ip: str | UndefinedType | None = Undefined,
                                     mgmt_gateway: str | UndefinedType | None = Undefined,
                                     act_internet_access: bool | UndefinedType | None = Undefined,
+                                    serial_number: str | UndefinedType | None = Undefined,
+                                    system_mac_address: str | UndefinedType | None = Undefined,
+                                    ztp: bool | UndefinedType | None = Undefined,
                                 ) -> None:
                                     """
                                     DigitalTwin.
@@ -65427,6 +70316,49 @@ class EosDesigns(EosDesignsRootModel):
                                            ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                            Overrides
                                            global `digital_twin.fabric.act_internet_access` flag.
+                                        serial_number:
+                                           Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                           Overrides the
+                                           global `digital_twin.fabric.serial_number_template` for this device.
+                                           When set, the rendered value is
+                                           written into the device metadata and provided as the serial number in the ACT topology.
+                                           Supports the
+                                           same AVD string formatter template syntax and variables as
+                                           `digital_twin.fabric.serial_number_template`.
+                                           The rendered value should be unique across all devices
+                                           in the fabric. AVD does not enforce uniqueness automatically.
+                                           Applies only to `veos` and `cloudeos`
+                                           node types. Ignored for all other ACT node types.
+                                           Ignored when `digital_twin.environment` is
+                                           `containerlab`.
+                                        system_mac_address:
+                                           System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                           Overrides the
+                                           global `digital_twin.fabric.system_mac_address_template` for this device.
+                                           When set, the rendered
+                                           value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                           device metadata, and provided as the system MAC address in the ACT topology.
+                                           Supports the same AVD
+                                           string formatter template syntax, variables, MAC address formats, and normalization as
+                                           `digital_twin.fabric.system_mac_address_template`.
+                                           The rendered value must be a unicast MAC address
+                                           in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                           digit). The all-zero address is reserved and not accepted by EOS.
+                                           Regardless of the input format,
+                                           the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                           The rendered value should be unique
+                                           across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                           Applies only to
+                                           `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                           Ignored when
+                                           `digital_twin.environment` is `containerlab`.
+                                        ztp:
+                                           Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                           Supported Digital Twin
+                                           environments:
+                                           - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                           types.
+                                           Overrides global `digital_twin.fabric.ztp` when defined.
 
                                     """
 
@@ -65530,6 +70462,7 @@ class EosDesigns(EosDesignsRootModel):
                             "inband_mgmt_gateway": {"type": str},
                             "inband_mgmt_ipv6_address": {"type": str},
                             "inband_mgmt_ipv6_subnet": {"type": str},
+                            "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                             "inband_mgmt_ipv6_gateway": {"type": str},
                             "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                             "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -65560,6 +70493,10 @@ class EosDesigns(EosDesignsRootModel):
                             "cv_tags_topology_type": {"type": str},
                             "digital_twin": {"type": DigitalTwin},
                             "validation_profile": {"type": str},
+                            "aaa_settings_profile": {"type": str},
+                            "cv_settings_profile": {"type": str},
+                            "dns_settings_profile": {"type": str},
+                            "ntp_settings_profile": {"type": str},
                         }
                         name: str
                         """The Node Name is used as "hostname"."""
@@ -66307,15 +71244,32 @@ class EosDesigns(EosDesignsRootModel):
                         l3leaf A      :
                         <subnet> + 2 (same IP on all l3leaf A)
                         l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                        l2leafs       : <subnet> + 3 + <l2leaf id>
-                        GW on l2leafs : <subnet> + 1
-                        Assign range larger than
-                        total l2leafs + 5
+                        l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                        GW on l2leafs :
+                        <subnet> + 1
+                        Assign range larger than total l2leafs + 5
 
-                        Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                        Setting is ignored if
+                        'inband_mgmt_ipv6_address' is set.
 
-                        This setting is
-                        applicable to L2 switches (switches using L2 trunks as uplinks).
+                        This setting is applicable to L2 switches (switches using L2
+                        trunks as uplinks).
+                        """
+                        inband_mgmt_ipv6_subnet_offset: int
+                        """
+                        Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                        The assigned
+                        IPv6 address will be computed by adding this offset to the device ID.
+                        Choose an IPv6 subnet large
+                        enough to contain all calculated addresses.
+                        The highest L2 leaf address is:
+                        <subnet> + 3 + <highest
+                        l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                        If the calculated address falls outside the subnet,
+                        address allocation
+                        fails with "address out of range".
+
+                        Default value: `0`
                         """
                         inband_mgmt_ipv6_gateway: str | None
                         """
@@ -66541,6 +71495,37 @@ class EosDesigns(EosDesignsRootModel):
                         Validation profiles define requirements (e.g., hardware and logging) used by
                         the `anta_runner` role during post-deployment validation.
                         """
+                        aaa_settings_profile: str | None
+                        """
+                        Name of the AAA settings profile to apply to this device.
+                        The profile must be defined under
+                        `aaa_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `aaa_settings`.
+                        """
+                        cv_settings_profile: str | None
+                        """
+                        Name of the CloudVision settings profile to apply to this device.
+                        The profile must be defined under
+                        `cv_settings_profiles`.
+                        The selected profile settings will be merged over the general `cv_settings`.
+                        """
+                        dns_settings_profile: str | None
+                        """
+                        Name of the DNS settings profile to apply to this device.
+                        The profile must be defined under
+                        `dns_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `dns_settings`.
+                        """
+                        ntp_settings_profile: str | None
+                        """
+                        Name of the NTP settings profile to apply to this device.
+                        The profile must be defined under
+                        `ntp_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `ntp_settings`.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -66647,6 +71632,7 @@ class EosDesigns(EosDesignsRootModel):
                                 inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                                 inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                                 inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                                inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                                 inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                                 inband_mgmt_description: str | UndefinedType = Undefined,
                                 inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -66677,6 +71663,10 @@ class EosDesigns(EosDesignsRootModel):
                                 cv_tags_topology_type: str | UndefinedType | None = Undefined,
                                 digital_twin: DigitalTwin | UndefinedType = Undefined,
                                 validation_profile: str | UndefinedType | None = Undefined,
+                                aaa_settings_profile: str | UndefinedType | None = Undefined,
+                                cv_settings_profile: str | UndefinedType | None = Undefined,
+                                dns_settings_profile: str | UndefinedType | None = Undefined,
+                                ntp_settings_profile: str | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 NodesItem.
@@ -67225,15 +72215,28 @@ class EosDesigns(EosDesignsRootModel):
                                        l3leaf A      :
                                        <subnet> + 2 (same IP on all l3leaf A)
                                        l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                       l2leafs       : <subnet> + 3 + <l2leaf id>
-                                       GW on l2leafs : <subnet> + 1
-                                       Assign range larger than
-                                       total l2leafs + 5
+                                       l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                       GW on l2leafs :
+                                       <subnet> + 1
+                                       Assign range larger than total l2leafs + 5
 
-                                       Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                       Setting is ignored if
+                                       'inband_mgmt_ipv6_address' is set.
 
-                                       This setting is
-                                       applicable to L2 switches (switches using L2 trunks as uplinks).
+                                       This setting is applicable to L2 switches (switches using L2
+                                       trunks as uplinks).
+                                    inband_mgmt_ipv6_subnet_offset:
+                                       Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                       The assigned
+                                       IPv6 address will be computed by adding this offset to the device ID.
+                                       Choose an IPv6 subnet large
+                                       enough to contain all calculated addresses.
+                                       The highest L2 leaf address is:
+                                       <subnet> + 3 + <highest
+                                       l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                       If the calculated address falls outside the subnet,
+                                       address allocation
+                                       fails with "address out of range".
                                     inband_mgmt_ipv6_gateway:
                                        Default gateway configured in the 'inband_mgmt_vrf'.
                                        Used when `inband_mgmt_ipv6_address` is set.
@@ -67384,6 +72387,29 @@ class EosDesigns(EosDesignsRootModel):
                                        `validation_profiles`.
                                        Validation profiles define requirements (e.g., hardware and logging) used by
                                        the `anta_runner` role during post-deployment validation.
+                                    aaa_settings_profile:
+                                       Name of the AAA settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `aaa_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `aaa_settings`.
+                                    cv_settings_profile:
+                                       Name of the CloudVision settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `cv_settings_profiles`.
+                                       The selected profile settings will be merged over the general `cv_settings`.
+                                    dns_settings_profile:
+                                       Name of the DNS settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `dns_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `dns_settings`.
+                                    ntp_settings_profile:
+                                       Name of the NTP settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `ntp_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `ntp_settings`.
 
                                 """
 
@@ -69564,6 +74590,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -69681,13 +74709,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -69722,7 +74775,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -69786,6 +74839,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -69873,11 +74928,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -69903,7 +74979,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -70336,6 +75412,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -70450,13 +75528,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -70491,7 +75594,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -70540,6 +75643,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -70624,11 +75729,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -70654,7 +75780,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -70889,6 +76015,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -70920,6 +76049,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -70930,6 +76108,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -70960,6 +76141,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -71063,6 +76287,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -71093,6 +76318,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     group: str
                     """
@@ -71843,15 +77072,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -72077,6 +77323,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -72183,6 +77460,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -72213,6 +77491,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             NodeGroupsItem.
@@ -72763,15 +78045,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -72922,6 +78217,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -75177,6 +80495,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -75294,13 +80614,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -75335,7 +80680,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -75399,6 +80744,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -75486,11 +80833,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -75516,7 +80884,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -75949,6 +81317,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -76063,13 +81433,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -76104,7 +81499,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -76153,6 +81548,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -76237,11 +81634,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -76267,7 +81685,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -76502,6 +81920,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -76533,6 +81954,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -76543,6 +82013,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -76573,6 +82046,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -76676,6 +82192,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -76706,6 +82223,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     name: str
                     """The Node Name is used as "hostname"."""
@@ -77453,15 +82974,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -77687,6 +83225,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -77793,6 +83362,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -77823,6 +83393,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             NodesItem.
@@ -78371,15 +83945,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -78530,6 +84117,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -84482,6 +90092,7 @@ class EosDesigns(EosDesignsRootModel):
                         "description": {"type": str},
                         "shutdown": {"type": bool},
                         "as_path": {"type": AsPath},
+                        "received_attribute_discard": {"type": EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard},
                         "remove_private_as": {"type": RemovePrivateAs},
                         "remove_private_as_ingress": {"type": RemovePrivateAsIngress},
                         "next_hop_unchanged": {"type": bool},
@@ -84576,6 +90187,8 @@ class EosDesigns(EosDesignsRootModel):
 
                     Subclass of AvdModel.
                     """
+                    received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard
+                    """Received path attribute configuration."""
                     remove_private_as: RemovePrivateAs
                     """
                     Remove private AS numbers in outbound AS path.
@@ -84675,6 +90288,7 @@ class EosDesigns(EosDesignsRootModel):
                             description: str | UndefinedType | None = Undefined,
                             shutdown: bool | UndefinedType | None = Undefined,
                             as_path: AsPath | UndefinedType = Undefined,
+                            received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard | UndefinedType = Undefined,
                             remove_private_as: RemovePrivateAs | UndefinedType = Undefined,
                             remove_private_as_ingress: RemovePrivateAsIngress | UndefinedType = Undefined,
                             next_hop_unchanged: bool | UndefinedType | None = Undefined,
@@ -84758,6 +90372,7 @@ class EosDesigns(EosDesignsRootModel):
                                    BGP AS-PATH options.
 
                                    Subclass of AvdModel.
+                                received_attribute_discard: Received path attribute configuration.
                                 remove_private_as:
                                    Remove private AS numbers in outbound AS path.
 
@@ -85772,6 +91387,130 @@ class EosDesigns(EosDesignsRootModel):
                                     structured_config:
                                        Custom structured config added under router_ospf.process_ids.[process_id=<process_id>] for the EOS
                                        Config schema.
+
+                                """
+
+                    class Ospfv3(AvdModel):
+                        """Subclass of AvdModel."""
+
+                        class RedistributeBgp(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}}
+                            enabled: bool
+                            """
+                            Redistribute BGP into OSPFv3.
+                            Ignored on devices where BGP is not configured for this VRF.
+
+                            Default value: `True`
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                                    """
+                                    RedistributeBgp.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled:
+                                           Redistribute BGP into OSPFv3.
+                                           Ignored on devices where BGP is not configured for this VRF.
+
+                                    """
+
+                        class RedistributeConnected(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": False}}
+                            enabled: bool
+                            """
+                            Redistribute connected routes into OSPFv3.
+
+                            Default value: `False`
+                            """
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                                    """
+                                    RedistributeConnected.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: Redistribute connected routes into OSPFv3.
+
+                                    """
+
+                        _fields: ClassVar[dict] = {
+                            "router_id": {"type": str, "default": "main_router_id"},
+                            "redistribute_bgp": {"type": RedistributeBgp},
+                            "redistribute_connected": {"type": RedistributeConnected},
+                            "structured_config": {"type": EosCliConfigGen.RouterOspfv3.VrfsItem},
+                        }
+                        router_id: str
+                        """
+                        Router ID to use for OSPFv3 in this VRF.
+                        This can be an IPv4 address, "main_router_id", "none" or
+                        "diagnostic_loopback".
+                        - "main_router_id" will use the IP address of Loopback0 or the common `router
+                        general` Router ID if `use_router_general_for_router_id` is set.
+                        - "none" will not configure an
+                        OSPFv3 Router ID for this VRF.
+                          EOS then uses the `router general` Router ID or an IPv4 address of
+                        an interface in the VRF.
+                          If neither exists, for example in an IPv6-only VRF, the OSPFv3 instance
+                        does not start.
+                        - "diagnostic_loopback" will use the IP address of the VRF Diagnostic Loopback
+                        interface.
+
+                        Default value: `"main_router_id"`
+                        """
+                        redistribute_bgp: RedistributeBgp
+                        """Subclass of AvdModel."""
+                        redistribute_connected: RedistributeConnected
+                        """Subclass of AvdModel."""
+                        structured_config: EosCliConfigGen.RouterOspfv3.VrfsItem
+                        """Custom structured config added under router_ospfv3.vrfs.[name=<vrf>] for the EOS Config schema."""
+
+                        if TYPE_CHECKING:
+
+                            def __init__(
+                                self,
+                                *,
+                                router_id: str | UndefinedType = Undefined,
+                                redistribute_bgp: RedistributeBgp | UndefinedType = Undefined,
+                                redistribute_connected: RedistributeConnected | UndefinedType = Undefined,
+                                structured_config: EosCliConfigGen.RouterOspfv3.VrfsItem | UndefinedType = Undefined,
+                            ) -> None:
+                                """
+                                Ospfv3.
+
+
+                                Subclass of AvdModel.
+
+                                Args:
+                                    router_id:
+                                       Router ID to use for OSPFv3 in this VRF.
+                                       This can be an IPv4 address, "main_router_id", "none" or
+                                       "diagnostic_loopback".
+                                       - "main_router_id" will use the IP address of Loopback0 or the common `router
+                                       general` Router ID if `use_router_general_for_router_id` is set.
+                                       - "none" will not configure an
+                                       OSPFv3 Router ID for this VRF.
+                                         EOS then uses the `router general` Router ID or an IPv4 address of
+                                       an interface in the VRF.
+                                         If neither exists, for example in an IPv6-only VRF, the OSPFv3 instance
+                                       does not start.
+                                       - "diagnostic_loopback" will use the IP address of the VRF Diagnostic Loopback
+                                       interface.
+                                    redistribute_bgp: Subclass of AvdModel.
+                                    redistribute_connected: Subclass of AvdModel.
+                                    structured_config: Custom structured config added under router_ospfv3.vrfs.[name=<vrf>] for the EOS Config schema.
 
                                 """
 
@@ -86849,6 +92588,101 @@ class EosDesigns(EosDesignsRootModel):
 
                                         """
 
+                            class Ospfv3(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                class Ipv4(AvdModel):
+                                    """Subclass of AvdModel."""
+
+                                    _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                                    enabled: bool | None
+                                    """
+                                    Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                    The
+                                    IPv4 address family is not supported yet, so `true` raises an error.
+                                    An SVI with IPv4 addressing
+                                    also raises an error unless this is set to `false`.
+                                    """
+
+                                    if TYPE_CHECKING:
+
+                                        def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                                            """
+                                            Ipv4.
+
+
+                                            Subclass of AvdModel.
+
+                                            Args:
+                                                enabled:
+                                                   Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                                   The
+                                                   IPv4 address family is not supported yet, so `true` raises an error.
+                                                   An SVI with IPv4 addressing
+                                                   also raises an error unless this is set to `false`.
+
+                                            """
+
+                                _fields: ClassVar[dict] = {
+                                    "enabled": {"type": bool},
+                                    "area": {"type": str, "default": "0.0.0.0"},
+                                    "point_to_point": {"type": bool, "default": False},
+                                    "passive": {"type": bool, "default": False},
+                                    "ipv4": {"type": Ipv4},
+                                }
+                                enabled: bool | None
+                                area: str
+                                """
+                                OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+                                Default value: `"0.0.0.0"`
+                                """
+                                point_to_point: bool
+                                """
+                                Configure the OSPFv3 network type as point-to-point.
+
+                                Default value: `False`
+                                """
+                                passive: bool
+                                """
+                                Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                                By default, OSPFv3-enabled SVIs
+                                are configured with `no ospfv3 passive-interface`.
+
+                                Default value: `False`
+                                """
+                                ipv4: Ipv4
+                                """Subclass of AvdModel."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        enabled: bool | UndefinedType | None = Undefined,
+                                        area: str | UndefinedType = Undefined,
+                                        point_to_point: bool | UndefinedType = Undefined,
+                                        passive: bool | UndefinedType = Undefined,
+                                        ipv4: Ipv4 | UndefinedType = Undefined,
+                                    ) -> None:
+                                        """
+                                        Ospfv3.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: enabled
+                                            area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                                            point_to_point: Configure the OSPFv3 network type as point-to-point.
+                                            passive:
+                                               Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                                               By default, OSPFv3-enabled SVIs
+                                               are configured with `no ospfv3 passive-interface`.
+                                            ipv4: Subclass of AvdModel.
+
+                                        """
+
                             class Bgp(AvdModel):
                                 """Subclass of AvdModel."""
 
@@ -86908,6 +92742,8 @@ class EosDesigns(EosDesignsRootModel):
                                 "ipv4_acl_out": {"type": str},
                                 "ipv6_acl_in": {"type": str},
                                 "ipv6_acl_out": {"type": str},
+                                "ipv4_standard_acl_in": {"type": str},
+                                "ipv4_standard_acl_out": {"type": str},
                                 "ip_helpers": {"type": IpHelpers},
                                 "static_routes": {"type": StaticRoutes},
                                 "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -86926,6 +92762,7 @@ class EosDesigns(EosDesignsRootModel):
                                 "spanning_tree_priority": {"type": int},
                                 "mtu": {"type": int},
                                 "ospf": {"type": Ospf},
+                                "ospfv3": {"type": Ospfv3},
                                 "bgp": {"type": Bgp},
                                 "raw_eos_cli": {"type": str},
                                 "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -87024,12 +92861,16 @@ class EosDesigns(EosDesignsRootModel):
                             Name of the IPv4 access-list to be assigned in the ingress direction.
                             The access-list must be
                             defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                            Mutually exclusive
+                            with `ipv4_standard_acl_in`. Setting both raises an error.
                             """
                             ipv4_acl_out: str | None
                             """
                             Name of the IPv4 Access-list to be assigned in the egress direction.
                             The access-list must be defined
                             under `ipv4_acls` and supports substitution of the field "interface_ip".
+                            Mutually exclusive with
+                            `ipv4_standard_acl_out`. Setting both raises an error.
                             """
                             ipv6_acl_in: str | None
                             """
@@ -87050,6 +92891,22 @@ class EosDesigns(EosDesignsRootModel):
                             `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                             Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                             removed in AVD 7.0.0.
+                            """
+                            ipv4_standard_acl_in: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                            instead when field substitution for "interface_ip" is required, setting both raises an error.
+                            """
+                            ipv4_standard_acl_out: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the egress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                            instead when field substitution for "interface_ip" is required, setting both raises an error.
                             """
                             ip_helpers: IpHelpers
                             """
@@ -87164,6 +93021,26 @@ class EosDesigns(EosDesignsRootModel):
 
                             Subclass of AvdModel.
                             """
+                            ospfv3: Ospfv3
+                            """
+                            OSPFv3 interface configuration.
+                            Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                            configuration for the VRF of the SVI on the device.
+                            Only the IPv6 address family is currently
+                            supported.
+                            SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                            OSPFv3 uses the IPv6
+                            link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                            `ipv6_address` (`ipv6_enable: false` is not supported).
+                            Anycast IPv6 (`ipv6_address_virtuals`) is
+                            not supported.
+                            SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                            VRF
+                            `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                            Subclass of
+                            AvdModel.
+                            """
                             bgp: Bgp
                             """Subclass of AvdModel."""
                             raw_eos_cli: str | None
@@ -87208,6 +93085,8 @@ class EosDesigns(EosDesignsRootModel):
                                     ipv4_acl_out: str | UndefinedType | None = Undefined,
                                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                                     ipv6_acl_out: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                     ip_helpers: IpHelpers | UndefinedType = Undefined,
                                     static_routes: StaticRoutes | UndefinedType = Undefined,
                                     ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -87226,6 +93105,7 @@ class EosDesigns(EosDesignsRootModel):
                                     spanning_tree_priority: int | UndefinedType | None = Undefined,
                                     mtu: int | UndefinedType | None = Undefined,
                                     ospf: Ospf | UndefinedType = Undefined,
+                                    ospfv3: Ospfv3 | UndefinedType = Undefined,
                                     bgp: Bgp | UndefinedType = Undefined,
                                     raw_eos_cli: str | UndefinedType | None = Undefined,
                                     structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -87299,10 +93179,14 @@ class EosDesigns(EosDesignsRootModel):
                                            Name of the IPv4 access-list to be assigned in the ingress direction.
                                            The access-list must be
                                            defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                           Mutually exclusive
+                                           with `ipv4_standard_acl_in`. Setting both raises an error.
                                         ipv4_acl_out:
                                            Name of the IPv4 Access-list to be assigned in the egress direction.
                                            The access-list must be defined
                                            under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                           Mutually exclusive with
+                                           `ipv4_standard_acl_out`. Setting both raises an error.
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
@@ -87319,6 +93203,18 @@ class EosDesigns(EosDesignsRootModel):
                                            `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                                            Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                                            removed in AVD 7.0.0.
+                                        ipv4_standard_acl_in:
+                                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                                           instead when field substitution for "interface_ip" is required, setting both raises an error.
+                                        ipv4_standard_acl_out:
+                                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                                           instead when field substitution for "interface_ip" is required, setting both raises an error.
                                         ip_helpers:
                                            IP helper for DHCP relay.
 
@@ -87396,6 +93292,24 @@ class EosDesigns(EosDesignsRootModel):
                                            OSPF interface configuration.
 
                                            Subclass of AvdModel.
+                                        ospfv3:
+                                           OSPFv3 interface configuration.
+                                           Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                                           configuration for the VRF of the SVI on the device.
+                                           Only the IPv6 address family is currently
+                                           supported.
+                                           SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                                           OSPFv3 uses the IPv6
+                                           link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                                           `ipv6_address` (`ipv6_enable: false` is not supported).
+                                           Anycast IPv6 (`ipv6_address_virtuals`) is
+                                           not supported.
+                                           SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                                           VRF
+                                           `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                                           Subclass of
+                                           AvdModel.
                                         bgp: Subclass of AvdModel.
                                         raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                                         structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -88281,6 +94195,101 @@ class EosDesigns(EosDesignsRootModel):
 
                                     """
 
+                        class Ospfv3(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class Ipv4(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {"enabled": {"type": bool}}
+                                enabled: bool | None
+                                """
+                                Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                The
+                                IPv4 address family is not supported yet, so `true` raises an error.
+                                An SVI with IPv4 addressing
+                                also raises an error unless this is set to `false`.
+                                """
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(self, *, enabled: bool | UndefinedType | None = Undefined) -> None:
+                                        """
+                                        Ipv4.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled:
+                                               Set to `false` to exclude the IPv4 address family from OSPFv3 on an SVI with IPv4 addressing.
+                                               The
+                                               IPv4 address family is not supported yet, so `true` raises an error.
+                                               An SVI with IPv4 addressing
+                                               also raises an error unless this is set to `false`.
+
+                                        """
+
+                            _fields: ClassVar[dict] = {
+                                "enabled": {"type": bool},
+                                "area": {"type": str, "default": "0.0.0.0"},
+                                "point_to_point": {"type": bool, "default": False},
+                                "passive": {"type": bool, "default": False},
+                                "ipv4": {"type": Ipv4},
+                            }
+                            enabled: bool | None
+                            area: str
+                            """
+                            OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+
+                            Default value: `"0.0.0.0"`
+                            """
+                            point_to_point: bool
+                            """
+                            Configure the OSPFv3 network type as point-to-point.
+
+                            Default value: `False`
+                            """
+                            passive: bool
+                            """
+                            Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                            By default, OSPFv3-enabled SVIs
+                            are configured with `no ospfv3 passive-interface`.
+
+                            Default value: `False`
+                            """
+                            ipv4: Ipv4
+                            """Subclass of AvdModel."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    enabled: bool | UndefinedType | None = Undefined,
+                                    area: str | UndefinedType = Undefined,
+                                    point_to_point: bool | UndefinedType = Undefined,
+                                    passive: bool | UndefinedType = Undefined,
+                                    ipv4: Ipv4 | UndefinedType = Undefined,
+                                ) -> None:
+                                    """
+                                    Ospfv3.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        enabled: enabled
+                                        area: OSPFv3 area ID in IPv4 address or decimal format (range 0 to 4294967295).
+                                        point_to_point: Configure the OSPFv3 network type as point-to-point.
+                                        passive:
+                                           Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+                                           By default, OSPFv3-enabled SVIs
+                                           are configured with `no ospfv3 passive-interface`.
+                                        ipv4: Subclass of AvdModel.
+
+                                    """
+
                         class Bgp(AvdModel):
                             """Subclass of AvdModel."""
 
@@ -88344,6 +94353,8 @@ class EosDesigns(EosDesignsRootModel):
                             "ipv4_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ip_helpers": {"type": IpHelpers},
                             "static_routes": {"type": StaticRoutes},
                             "ipv6_static_routes": {"type": Ipv6StaticRoutes},
@@ -88362,6 +94373,7 @@ class EosDesigns(EosDesignsRootModel):
                             "spanning_tree_priority": {"type": int},
                             "mtu": {"type": int},
                             "ospf": {"type": Ospf},
+                            "ospfv3": {"type": Ospfv3},
                             "bgp": {"type": Bgp},
                             "raw_eos_cli": {"type": str},
                             "structured_config": {"type": EosCliConfigGen.VlanInterfacesItem},
@@ -88494,12 +94506,16 @@ class EosDesigns(EosDesignsRootModel):
                         Name of the IPv4 access-list to be assigned in the ingress direction.
                         The access-list must be
                         defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                        Mutually exclusive
+                        with `ipv4_standard_acl_in`. Setting both raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports substitution of the field "interface_ip".
+                        Mutually exclusive with
+                        `ipv4_standard_acl_out`. Setting both raises an error.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -88520,6 +94536,22 @@ class EosDesigns(EosDesignsRootModel):
                         `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                         Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                         removed in AVD 7.0.0.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                        instead when field substitution for "interface_ip" is required, setting both raises an error.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                        instead when field substitution for "interface_ip" is required, setting both raises an error.
                         """
                         ip_helpers: IpHelpers
                         """
@@ -88634,6 +94666,26 @@ class EosDesigns(EosDesignsRootModel):
 
                         Subclass of AvdModel.
                         """
+                        ospfv3: Ospfv3
+                        """
+                        OSPFv3 interface configuration.
+                        Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                        configuration for the VRF of the SVI on the device.
+                        Only the IPv6 address family is currently
+                        supported.
+                        SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                        OSPFv3 uses the IPv6
+                        link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                        `ipv6_address` (`ipv6_enable: false` is not supported).
+                        Anycast IPv6 (`ipv6_address_virtuals`) is
+                        not supported.
+                        SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                        VRF
+                        `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                        Subclass of
+                        AvdModel.
+                        """
                         bgp: Bgp
                         """Subclass of AvdModel."""
                         raw_eos_cli: str | None
@@ -88682,6 +94734,8 @@ class EosDesigns(EosDesignsRootModel):
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ip_helpers: IpHelpers | UndefinedType = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
                                 ipv6_static_routes: Ipv6StaticRoutes | UndefinedType = Undefined,
@@ -88700,6 +94754,7 @@ class EosDesigns(EosDesignsRootModel):
                                 spanning_tree_priority: int | UndefinedType | None = Undefined,
                                 mtu: int | UndefinedType | None = Undefined,
                                 ospf: Ospf | UndefinedType = Undefined,
+                                ospfv3: Ospfv3 | UndefinedType = Undefined,
                                 bgp: Bgp | UndefinedType = Undefined,
                                 raw_eos_cli: str | UndefinedType | None = Undefined,
                                 structured_config: EosCliConfigGen.VlanInterfacesItem | UndefinedType = Undefined,
@@ -88799,10 +94854,14 @@ class EosDesigns(EosDesignsRootModel):
                                        Name of the IPv4 access-list to be assigned in the ingress direction.
                                        The access-list must be
                                        defined under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                       Mutually exclusive
+                                       with `ipv4_standard_acl_in`. Setting both raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports substitution of the field "interface_ip".
+                                       Mutually exclusive with
+                                       `ipv4_standard_acl_out`. Setting both raises an error.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -88819,6 +94878,18 @@ class EosDesigns(EosDesignsRootModel):
                                        `ipv6_address`. If not set, the first entry of `ipv6_address_virtuals` is used as a fallback.
                                        Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6" and will be
                                        removed in AVD 7.0.0.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in`
+                                       instead when field substitution for "interface_ip" is required, setting both raises an error.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out`
+                                       instead when field substitution for "interface_ip" is required, setting both raises an error.
                                     ip_helpers:
                                        IP helper for DHCP relay.
 
@@ -88896,6 +94967,24 @@ class EosDesigns(EosDesignsRootModel):
                                        OSPF interface configuration.
 
                                        Subclass of AvdModel.
+                                    ospfv3:
+                                       OSPFv3 interface configuration.
+                                       Enabling OSPFv3 on an SVI automatically creates the OSPFv3
+                                       configuration for the VRF of the SVI on the device.
+                                       Only the IPv6 address family is currently
+                                       supported.
+                                       SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+                                       OSPFv3 uses the IPv6
+                                       link-local address of the SVI, so `ipv6_enable: true` is set automatically on SVIs without
+                                       `ipv6_address` (`ipv6_enable: false` is not supported).
+                                       Anycast IPv6 (`ipv6_address_virtuals`) is
+                                       not supported.
+                                       SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+                                       VRF
+                                       `default` and SVIs deployed as subinterfaces with `uplink_type: lan` are not supported.
+
+                                       Subclass of
+                                       AvdModel.
                                     bgp: Subclass of AvdModel.
                                     raw_eos_cli: EOS CLI rendered directly on the VLAN interface in the final EOS configuration.
                                     structured_config: Custom structured config added under vlan_interfaces.[name=<interface>] for the EOS Config schema.
@@ -89543,6 +95632,8 @@ class EosDesigns(EosDesignsRootModel):
                             "mtu": {"type": int},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "ospf": {"type": Ospf},
@@ -89603,7 +95694,39 @@ class EosDesigns(EosDesignsRootModel):
                         """Default value: `True`"""
                         mtu: int | None
                         ipv4_acl_in: str | None
+                        """
+                        Name of the IPv4 access-list to be assigned in the ingress direction.
+                        The access-list must be
+                        defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                        Mutually exclusive
+                        with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                        """
                         ipv4_acl_out: str | None
+                        """
+                        Name of the IPv4 access-list to be assigned in the egress direction.
+                        The access-list must be defined
+                        under `ipv4_acls` and supports field substitution for "interface_ip".
+                        Mutually exclusive with
+                        `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_in`, setting both
+                        `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                        substitution for "interface_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" is required.
+                        """
                         ipv6_acl_in: str | None
                         """
                         Name of the IPv6 access-list to be assigned in the ingress direction.
@@ -89697,6 +95820,8 @@ class EosDesigns(EosDesignsRootModel):
                                 mtu: int | UndefinedType | None = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 ospf: Ospf | UndefinedType = Undefined,
@@ -89748,8 +95873,32 @@ class EosDesigns(EosDesignsRootModel):
                                        Subclass of AvdList with `str` items.
                                     enabled: enabled
                                     mtu: mtu
-                                    ipv4_acl_in: ipv4_acl_in
-                                    ipv4_acl_out: ipv4_acl_out
+                                    ipv4_acl_in:
+                                       Name of the IPv4 access-list to be assigned in the ingress direction.
+                                       The access-list must be
+                                       defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                                       Mutually exclusive
+                                       with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                                    ipv4_acl_out:
+                                       Name of the IPv4 access-list to be assigned in the egress direction.
+                                       The access-list must be defined
+                                       under `ipv4_acls` and supports field substitution for "interface_ip".
+                                       Mutually exclusive with
+                                       `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_in`, setting both
+                                       `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                                       substitution for "interface_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -90307,6 +96456,8 @@ class EosDesigns(EosDesignsRootModel):
                             "mtu": {"type": int},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -90377,9 +96528,39 @@ class EosDesigns(EosDesignsRootModel):
                         mtu: int | None
                         """MTU can only be set on the parent Port-Channel."""
                         ipv4_acl_in: str | None
-                        """Name of the IPv4 access-list to be assigned in the ingress direction."""
+                        """
+                        Name of the IPv4 access-list to be assigned in the ingress direction.
+                        The access-list must be
+                        defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                        Mutually exclusive
+                        with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                        """
                         ipv4_acl_out: str | None
-                        """Name of the IPv4 Access-list to be assigned in the egress direction."""
+                        """
+                        Name of the IPv4 Access-list to be assigned in the egress direction.
+                        The access-list must be defined
+                        under `ipv4_acls` and supports field substitution for "interface_ip".
+                        Mutually exclusive with
+                        `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_in`, setting both
+                        `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                        substitution for "interface_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" is required.
+                        """
                         ipv6_acl_in: str | None
                         """
                         Name of the IPv6 access-list to be assigned in the ingress direction.
@@ -90452,6 +96633,8 @@ class EosDesigns(EosDesignsRootModel):
                                 mtu: int | UndefinedType | None = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -90502,8 +96685,32 @@ class EosDesigns(EosDesignsRootModel):
                                     peer: The peer device name. Used for description and documentation.
                                     peer_port_channel: The peer device port-channel interface. Used for description and documentation.
                                     mtu: MTU can only be set on the parent Port-Channel.
-                                    ipv4_acl_in: Name of the IPv4 access-list to be assigned in the ingress direction.
-                                    ipv4_acl_out: Name of the IPv4 Access-list to be assigned in the egress direction.
+                                    ipv4_acl_in:
+                                       Name of the IPv4 access-list to be assigned in the ingress direction.
+                                       The access-list must be
+                                       defined under `ipv4_acls` and supports field substitution for "interface_ip".
+                                       Mutually exclusive
+                                       with `ipv4_standard_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
+                                    ipv4_acl_out:
+                                       Name of the IPv4 Access-list to be assigned in the egress direction.
+                                       The access-list must be defined
+                                       under `ipv4_acls` and supports field substitution for "interface_ip".
+                                       Mutually exclusive with
+                                       `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_in`, setting both
+                                       `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when field
+                                       substitution for "interface_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -90550,6 +96757,11 @@ class EosDesigns(EosDesignsRootModel):
                     class LoopbacksItem(AvdModel):
                         """Subclass of AvdModel."""
 
+                        class Ipv6Addresses(AvdList[str]):
+                            """Subclass of AvdList with `str` items."""
+
+                        Ipv6Addresses._item_type = str
+
                         class Ospf(AvdModel):
                             """Subclass of AvdModel."""
 
@@ -90582,6 +96794,7 @@ class EosDesigns(EosDesignsRootModel):
                             "node": {"type": str},
                             "loopback": {"type": int},
                             "ip_address": {"type": str},
+                            "ipv6_addresses": {"type": Ipv6Addresses},
                             "description": {"type": str},
                             "enabled": {"type": bool, "default": True},
                             "ospf": {"type": Ospf},
@@ -90590,13 +96803,25 @@ class EosDesigns(EosDesignsRootModel):
                         }
                         node: str
                         loopback: int
-                        ip_address: str
+                        ip_address: str | None
+                        """IPv4 address/Mask."""
+                        ipv6_addresses: Ipv6Addresses
+                        """
+                        IPv6 addresses with prefix length, e.g., '2001:db8::1/64'.
+                        At least one of `ip_address` or
+                        `ipv6_addresses` must be set.
+                        The first address in this list is used for the IPv6 virtual source-nat
+                        of the VRF, unless the VTEP diagnostic loopback or an earlier loopback in the VRF already sets it.
+                        Subclass of AvdList with `str` items.
+                        """
                         description: str | None
                         enabled: bool
                         """Default value: `True`"""
                         ospf: Ospf
                         """
-                        OSPF interface configuration.
+                        OSPFv2 interface configuration.
+                        Requires `ip_address` to be set when OSPF is enabled on both the VRF
+                        and this loopback.
 
                         Subclass of AvdModel.
                         """
@@ -90615,7 +96840,8 @@ class EosDesigns(EosDesignsRootModel):
                                 *,
                                 node: str | UndefinedType = Undefined,
                                 loopback: int | UndefinedType = Undefined,
-                                ip_address: str | UndefinedType = Undefined,
+                                ip_address: str | UndefinedType | None = Undefined,
+                                ipv6_addresses: Ipv6Addresses | UndefinedType = Undefined,
                                 description: str | UndefinedType | None = Undefined,
                                 enabled: bool | UndefinedType = Undefined,
                                 ospf: Ospf | UndefinedType = Undefined,
@@ -90631,11 +96857,20 @@ class EosDesigns(EosDesignsRootModel):
                                 Args:
                                     node: node
                                     loopback: loopback
-                                    ip_address: ip_address
+                                    ip_address: IPv4 address/Mask.
+                                    ipv6_addresses:
+                                       IPv6 addresses with prefix length, e.g., '2001:db8::1/64'.
+                                       At least one of `ip_address` or
+                                       `ipv6_addresses` must be set.
+                                       The first address in this list is used for the IPv6 virtual source-nat
+                                       of the VRF, unless the VTEP diagnostic loopback or an earlier loopback in the VRF already sets it.
+                                       Subclass of AvdList with `str` items.
                                     description: description
                                     enabled: enabled
                                     ospf:
-                                       OSPF interface configuration.
+                                       OSPFv2 interface configuration.
+                                       Requires `ip_address` to be set when OSPF is enabled on both the VRF
+                                       and this loopback.
 
                                        Subclass of AvdModel.
                                     hardware_forwarding:
@@ -91136,10 +97371,220 @@ class EosDesigns(EosDesignsRootModel):
 
                                     """
 
+                        class RedistributeOspfv3(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class Internal(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {"enabled": {"type": bool, "default": True}}
+                                enabled: bool
+                                """
+                                Redistribute OSPFv3 internal routes into BGP.
+
+                                Default value: `True`
+                                """
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(self, *, enabled: bool | UndefinedType = Undefined) -> None:
+                                        """
+                                        Internal.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: Redistribute OSPFv3 internal routes into BGP.
+
+                                        """
+
+                            _fields: ClassVar[dict] = {"internal": {"type": Internal}}
+                            internal: Internal
+                            """Subclass of AvdModel."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(self, *, internal: Internal | UndefinedType = Undefined) -> None:
+                                    """
+                                    RedistributeOspfv3.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        internal: Subclass of AvdModel.
+
+                                    """
+
+                        class RedistributeOspf(AvdModel):
+                            """Subclass of AvdModel."""
+
+                            class Internal(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {
+                                    "enabled": {"type": bool, "default": True},
+                                    "include_leaked": {"type": bool},
+                                    "route_map": {"type": str},
+                                }
+                                enabled: bool
+                                """
+                                Redistribute OSPF internal routes into BGP.
+
+                                Default value: `True`
+                                """
+                                include_leaked: bool | None
+                                """Include OSPF leaked routes into BGP."""
+                                route_map: str | None
+                                """Route-map name."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        enabled: bool | UndefinedType = Undefined,
+                                        include_leaked: bool | UndefinedType | None = Undefined,
+                                        route_map: str | UndefinedType | None = Undefined,
+                                    ) -> None:
+                                        """
+                                        Internal.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: Redistribute OSPF internal routes into BGP.
+                                            include_leaked: Include OSPF leaked routes into BGP.
+                                            route_map: Route-map name.
+
+                                        """
+
+                            class External(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                _fields: ClassVar[dict] = {
+                                    "enabled": {"type": bool, "default": False},
+                                    "include_leaked": {"type": bool},
+                                    "route_map": {"type": str},
+                                }
+                                enabled: bool
+                                """
+                                Redistribute OSPF external routes into BGP.
+
+                                Default value: `False`
+                                """
+                                include_leaked: bool | None
+                                """Include OSPF leaked routes into BGP."""
+                                route_map: str | None
+                                """Route-map name."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        enabled: bool | UndefinedType = Undefined,
+                                        include_leaked: bool | UndefinedType | None = Undefined,
+                                        route_map: str | UndefinedType | None = Undefined,
+                                    ) -> None:
+                                        """
+                                        External.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: Redistribute OSPF external routes into BGP.
+                                            include_leaked: Include OSPF leaked routes into BGP.
+                                            route_map: Route-map name.
+
+                                        """
+
+                            class NssaExternal(AvdModel):
+                                """Subclass of AvdModel."""
+
+                                NssaType: TypeAlias = Literal[1, 2]
+                                _fields: ClassVar[dict] = {
+                                    "enabled": {"type": bool, "default": False},
+                                    "nssa_type": {"type": int},
+                                    "include_leaked": {"type": bool},
+                                    "route_map": {"type": str},
+                                }
+                                enabled: bool
+                                """
+                                Redistribute OSPF NSSA external routes into BGP.
+
+                                Default value: `False`
+                                """
+                                nssa_type: NssaType | None
+                                """NSSA type for the redistributed routes."""
+                                include_leaked: bool | None
+                                """Include OSPF leaked routes into BGP."""
+                                route_map: str | None
+                                """Route-map name."""
+
+                                if TYPE_CHECKING:
+
+                                    def __init__(
+                                        self,
+                                        *,
+                                        enabled: bool | UndefinedType = Undefined,
+                                        nssa_type: NssaType | UndefinedType | None = Undefined,
+                                        include_leaked: bool | UndefinedType | None = Undefined,
+                                        route_map: str | UndefinedType | None = Undefined,
+                                    ) -> None:
+                                        """
+                                        NssaExternal.
+
+
+                                        Subclass of AvdModel.
+
+                                        Args:
+                                            enabled: Redistribute OSPF NSSA external routes into BGP.
+                                            nssa_type: NSSA type for the redistributed routes.
+                                            include_leaked: Include OSPF leaked routes into BGP.
+                                            route_map: Route-map name.
+
+                                        """
+
+                            _fields: ClassVar[dict] = {"internal": {"type": Internal}, "external": {"type": External}, "nssa_external": {"type": NssaExternal}}
+                            internal: Internal
+                            """Subclass of AvdModel."""
+                            external: External
+                            """Subclass of AvdModel."""
+                            nssa_external: NssaExternal
+                            """Subclass of AvdModel."""
+
+                            if TYPE_CHECKING:
+
+                                def __init__(
+                                    self,
+                                    *,
+                                    internal: Internal | UndefinedType = Undefined,
+                                    external: External | UndefinedType = Undefined,
+                                    nssa_external: NssaExternal | UndefinedType = Undefined,
+                                ) -> None:
+                                    """
+                                    RedistributeOspf.
+
+
+                                    Subclass of AvdModel.
+
+                                    Args:
+                                        internal: Subclass of AvdModel.
+                                        external: Subclass of AvdModel.
+                                        nssa_external: Subclass of AvdModel.
+
+                                    """
+
                         _fields: ClassVar[dict] = {
                             "enabled": {"type": bool},
                             "router_id": {"type": str, "default": "main_router_id"},
                             "graceful_restart": {"type": GracefulRestart},
+                            "redistribute_ospfv3": {"type": RedistributeOspfv3},
+                            "redistribute_ospf": {"type": RedistributeOspf},
                             "raw_eos_cli": {"type": str},
                             "structured_config": {"type": EosCliConfigGen.RouterBgp.VrfsItem},
                         }
@@ -91178,6 +97623,22 @@ class EosDesigns(EosDesignsRootModel):
 
                         Subclass of AvdModel.
                         """
+                        redistribute_ospfv3: RedistributeOspfv3
+                        """
+                        Redistribution of OSPFv3 routes into BGP for this VRF.
+                        Ignored on devices where BGP is not
+                        configured for this VRF or where the VRF has no OSPFv3 instance.
+
+                        Subclass of AvdModel.
+                        """
+                        redistribute_ospf: RedistributeOspf
+                        """
+                        Redistribution of OSPF routes into BGP for this VRF.
+                        Ignored on devices where BGP is not configured
+                        for this VRF or where the VRF has no OSPF instance.
+
+                        Subclass of AvdModel.
+                        """
                         raw_eos_cli: str | None
                         """EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration."""
                         structured_config: EosCliConfigGen.RouterBgp.VrfsItem
@@ -91191,6 +97652,8 @@ class EosDesigns(EosDesignsRootModel):
                                 enabled: bool | UndefinedType | None = Undefined,
                                 router_id: str | UndefinedType = Undefined,
                                 graceful_restart: GracefulRestart | UndefinedType = Undefined,
+                                redistribute_ospfv3: RedistributeOspfv3 | UndefinedType = Undefined,
+                                redistribute_ospf: RedistributeOspf | UndefinedType = Undefined,
                                 raw_eos_cli: str | UndefinedType | None = Undefined,
                                 structured_config: EosCliConfigGen.RouterBgp.VrfsItem | UndefinedType = Undefined,
                             ) -> None:
@@ -91226,6 +97689,18 @@ class EosDesigns(EosDesignsRootModel):
                                        This setting is not supported for VRF default. Use
                                        `bgp_graceful_restart` instead.
 
+
+                                       Subclass of AvdModel.
+                                    redistribute_ospfv3:
+                                       Redistribution of OSPFv3 routes into BGP for this VRF.
+                                       Ignored on devices where BGP is not
+                                       configured for this VRF or where the VRF has no OSPFv3 instance.
+
+                                       Subclass of AvdModel.
+                                    redistribute_ospf:
+                                       Redistribution of OSPF routes into BGP for this VRF.
+                                       Ignored on devices where BGP is not configured
+                                       for this VRF or where the VRF has no OSPF instance.
 
                                        Subclass of AvdModel.
                                     raw_eos_cli: EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration.
@@ -91954,6 +98429,7 @@ class EosDesigns(EosDesignsRootModel):
                             "description": {"type": str},
                             "shutdown": {"type": bool},
                             "as_path": {"type": AsPath},
+                            "received_attribute_discard": {"type": EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard},
                             "remove_private_as": {"type": RemovePrivateAs},
                             "remove_private_as_ingress": {"type": RemovePrivateAsIngress},
                             "next_hop_unchanged": {"type": bool},
@@ -92052,6 +98528,8 @@ class EosDesigns(EosDesignsRootModel):
 
                         Subclass of AvdModel.
                         """
+                        received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard
+                        """Received path attribute configuration."""
                         remove_private_as: RemovePrivateAs
                         """
                         Remove private AS numbers in outbound AS path.
@@ -92151,6 +98629,7 @@ class EosDesigns(EosDesignsRootModel):
                                 description: str | UndefinedType | None = Undefined,
                                 shutdown: bool | UndefinedType | None = Undefined,
                                 as_path: AsPath | UndefinedType = Undefined,
+                                received_attribute_discard: EosCliConfigGen.RouterBgp.NeighborsItem.ReceivedAttributeDiscard | UndefinedType = Undefined,
                                 remove_private_as: RemovePrivateAs | UndefinedType = Undefined,
                                 remove_private_as_ingress: RemovePrivateAsIngress | UndefinedType = Undefined,
                                 next_hop_unchanged: bool | UndefinedType | None = Undefined,
@@ -92238,6 +98717,7 @@ class EosDesigns(EosDesignsRootModel):
                                        BGP AS-PATH options.
 
                                        Subclass of AvdModel.
+                                    received_attribute_discard: Received path attribute configuration.
                                     remove_private_as:
                                        Remove private AS numbers in outbound AS path.
 
@@ -92475,6 +98955,7 @@ class EosDesigns(EosDesignsRootModel):
                         "mlag_ibgp_peering_vlan": {"type": int},
                         "vtep_diagnostic": {"type": VtepDiagnostic},
                         "ospf": {"type": Ospf},
+                        "ospfv3": {"type": Ospfv3},
                         "redistribute_ospf": {"type": bool, "default": True},
                         "evpn_l3_multicast": {"type": EvpnL3Multicast},
                         "pim_rp_addresses": {"type": PimRpAddresses},
@@ -92667,9 +99148,21 @@ class EosDesigns(EosDesignsRootModel):
                     no nodes definition, the OSPF instance will be
                     created on all leafs where the VRF is deployed. This
                     will also cause automatic OSPF redistribution into BGP unless
-                    explicitly turned off with
-                    "redistribute_ospf: false".
+                    `bgp.redistribute_ospf.internal.enabled` is set to `false`.
 
+                    Subclass of AvdModel.
+                    """
+                    ospfv3: Ospfv3
+                    """
+                    Router OSPFv3 settings for the VRF.
+                    The OSPFv3 configuration is created automatically on a device
+                    when at least one OSPFv3-enabled SVI in this VRF is configured on that device.
+                    If BGP is configured
+                    for the VRF, OSPFv3 internal routes are redistributed into BGP unless
+                    `bgp.redistribute_ospfv3.internal.enabled` is set to `false`.
+                    These settings only override the
+                    defaults.
+                    VRF `default` is not supported yet.
 
                     Subclass of AvdModel.
                     """
@@ -92844,6 +99337,7 @@ class EosDesigns(EosDesignsRootModel):
                             mlag_ibgp_peering_vlan: int | UndefinedType | None = Undefined,
                             vtep_diagnostic: VtepDiagnostic | UndefinedType = Undefined,
                             ospf: Ospf | UndefinedType = Undefined,
+                            ospfv3: Ospfv3 | UndefinedType = Undefined,
                             redistribute_ospf: bool | UndefinedType = Undefined,
                             evpn_l3_multicast: EvpnL3Multicast | UndefinedType = Undefined,
                             pim_rp_addresses: PimRpAddresses | UndefinedType = Undefined,
@@ -92996,9 +99490,19 @@ class EosDesigns(EosDesignsRootModel):
                                    no nodes definition, the OSPF instance will be
                                    created on all leafs where the VRF is deployed. This
                                    will also cause automatic OSPF redistribution into BGP unless
-                                   explicitly turned off with
-                                   "redistribute_ospf: false".
+                                   `bgp.redistribute_ospf.internal.enabled` is set to `false`.
 
+                                   Subclass of AvdModel.
+                                ospfv3:
+                                   Router OSPFv3 settings for the VRF.
+                                   The OSPFv3 configuration is created automatically on a device
+                                   when at least one OSPFv3-enabled SVI in this VRF is configured on that device.
+                                   If BGP is configured
+                                   for the VRF, OSPFv3 internal routes are redistributed into BGP unless
+                                   `bgp.redistribute_ospfv3.internal.enabled` is set to `false`.
+                                   These settings only override the
+                                   defaults.
+                                   VRF `default` is not supported yet.
 
                                    Subclass of AvdModel.
                                 redistribute_ospf: Non-selectively enabling or disabling redistribute ospf inside the VRF.
@@ -96596,6 +103100,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -96713,13 +103219,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -96754,7 +103285,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -96818,6 +103349,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -96905,11 +103438,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -96935,7 +103489,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -97368,6 +103922,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -97482,13 +104038,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -97523,7 +104104,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -97572,6 +104153,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -97656,11 +104239,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -97686,7 +104290,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -97921,6 +104525,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -97952,6 +104559,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -97962,6 +104618,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -97992,6 +104651,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -98093,6 +104795,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -98123,6 +104826,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     id: int | None
                     """Unique identifier used for IP addressing and other algorithms."""
@@ -98860,15 +105567,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -99094,6 +105818,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -99198,6 +105953,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -99228,6 +105984,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             Defaults.
@@ -99769,15 +106529,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -99928,6 +106701,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -102190,6 +108986,8 @@ class EosDesigns(EosDesignsRootModel):
                                 "bgp": {"type": Bgp},
                                 "ipv4_acl_in": {"type": str},
                                 "ipv4_acl_out": {"type": str},
+                                "ipv4_standard_acl_in": {"type": str},
+                                "ipv4_standard_acl_out": {"type": str},
                                 "ipv6_acl_in": {"type": str},
                                 "ipv6_acl_out": {"type": str},
                                 "static_routes": {"type": StaticRoutes},
@@ -102307,13 +109105,38 @@ class EosDesigns(EosDesignsRootModel):
                             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                             Required
                             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                            `wan_carriers`.
+                            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                            Mutually exclusive with `ipv4_standard_acl_in`,
+                            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                             """
                             ipv4_acl_out: str | None
                             """
                             Name of the IPv4 Access-list to be assigned in the egress direction.
                             The access-list must be defined
                             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                            Mutually
+                            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                            raises an error.
+                            """
+                            ipv4_standard_acl_in: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Required for all WAN interfaces (`wan_carrier` is set) unless
+                            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                            Mutually exclusive
+                            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                            """
+                            ipv4_standard_acl_out: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the egress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_out`, setting both
+                            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                            substitution for "interface_ip" or "peer_ip" is required.
                             """
                             ipv6_acl_in: str | None
                             """
@@ -102348,7 +109171,7 @@ class EosDesigns(EosDesignsRootModel):
                             This is used to infer the path-groups in which this
                             interface should be configured.
                             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                            `ipv4_acl_in` is also required on all WAN interfaces.
+                            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                             """
                             wan_circuit_id: str | None
                             """
@@ -102412,6 +109235,8 @@ class EosDesigns(EosDesignsRootModel):
                                     bgp: Bgp | UndefinedType = Undefined,
                                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -102499,11 +109324,32 @@ class EosDesigns(EosDesignsRootModel):
                                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                            Required
                                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                           `wan_carriers`.
+                                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                           Mutually exclusive with `ipv4_standard_acl_in`,
+                                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                         ipv4_acl_out:
                                            Name of the IPv4 Access-list to be assigned in the egress direction.
                                            The access-list must be defined
                                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                           Mutually
+                                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                           raises an error.
+                                        ipv4_standard_acl_in:
+                                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                           Mutually exclusive
+                                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                        ipv4_standard_acl_out:
+                                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_out`, setting both
+                                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                           substitution for "interface_ip" or "peer_ip" is required.
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
@@ -102529,7 +109375,7 @@ class EosDesigns(EosDesignsRootModel):
                                            This is used to infer the path-groups in which this
                                            interface should be configured.
                                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                           `ipv4_acl_in` is also required on all WAN interfaces.
+                                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                         wan_circuit_id:
                                            The WAN circuit ID for this interface.
                                            This is not rendered in the configuration but used for WAN
@@ -102964,6 +109810,8 @@ class EosDesigns(EosDesignsRootModel):
                                 "bgp": {"type": Bgp},
                                 "ipv4_acl_in": {"type": str},
                                 "ipv4_acl_out": {"type": str},
+                                "ipv4_standard_acl_in": {"type": str},
+                                "ipv4_standard_acl_out": {"type": str},
                                 "ipv6_acl_in": {"type": str},
                                 "ipv6_acl_out": {"type": str},
                                 "static_routes": {"type": StaticRoutes},
@@ -103078,13 +109926,38 @@ class EosDesigns(EosDesignsRootModel):
                             defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                             Required
                             for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                            `wan_carriers`.
+                            `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                            Mutually exclusive with `ipv4_standard_acl_in`,
+                            setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                             """
                             ipv4_acl_out: str | None
                             """
                             Name of the IPv4 Access-list to be assigned in the egress direction.
                             The access-list must be defined
                             under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                            Mutually
+                            exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                            raises an error.
+                            """
+                            ipv4_standard_acl_in: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Required for all WAN interfaces (`wan_carrier` is set) unless
+                            the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                            Mutually exclusive
+                            with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                            `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                            """
+                            ipv4_standard_acl_out: str | None
+                            """
+                            Name of the IPv4 standard access-list to be assigned in the egress direction.
+                            The access-list must
+                            be defined under `ipv4_standard_acls`.
+                            Mutually exclusive with `ipv4_acl_out`, setting both
+                            `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                            substitution for "interface_ip" or "peer_ip" is required.
                             """
                             ipv6_acl_in: str | None
                             """
@@ -103119,7 +109992,7 @@ class EosDesigns(EosDesignsRootModel):
                             This is used to infer the path-groups in which this
                             interface should be configured.
                             Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                            `ipv4_acl_in` is also required on all WAN interfaces.
+                            `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                             """
                             wan_circuit_id: str | None
                             """
@@ -103168,6 +110041,8 @@ class EosDesigns(EosDesignsRootModel):
                                     bgp: Bgp | UndefinedType = Undefined,
                                     ipv4_acl_in: str | UndefinedType | None = Undefined,
                                     ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                    ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                     ipv6_acl_in: str | UndefinedType | None = Undefined,
                                     ipv6_acl_out: str | UndefinedType | None = Undefined,
                                     static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -103252,11 +110127,32 @@ class EosDesigns(EosDesignsRootModel):
                                            defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                            Required
                                            for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                           `wan_carriers`.
+                                           `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                           Mutually exclusive with `ipv4_standard_acl_in`,
+                                           setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                         ipv4_acl_out:
                                            Name of the IPv4 Access-list to be assigned in the egress direction.
                                            The access-list must be defined
                                            under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                           Mutually
+                                           exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                           raises an error.
+                                        ipv4_standard_acl_in:
+                                           Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Required for all WAN interfaces (`wan_carrier` is set) unless
+                                           the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                           Mutually exclusive
+                                           with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                           `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                        ipv4_standard_acl_out:
+                                           Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                           The access-list must
+                                           be defined under `ipv4_standard_acls`.
+                                           Mutually exclusive with `ipv4_acl_out`, setting both
+                                           `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                           substitution for "interface_ip" or "peer_ip" is required.
                                         ipv6_acl_in:
                                            Name of the IPv6 access-list to be assigned in the ingress direction.
                                            The access-list must be
@@ -103282,7 +110178,7 @@ class EosDesigns(EosDesignsRootModel):
                                            This is used to infer the path-groups in which this
                                            interface should be configured.
                                            Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                           `ipv4_acl_in` is also required on all WAN interfaces.
+                                           `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                         wan_circuit_id:
                                            The WAN circuit ID for this interface.
                                            This is not rendered in the configuration but used for WAN
@@ -103517,6 +110413,9 @@ class EosDesigns(EosDesignsRootModel):
                                 "mgmt_ip": {"type": str},
                                 "mgmt_gateway": {"type": str},
                                 "act_internet_access": {"type": bool},
+                                "serial_number": {"type": str},
+                                "system_mac_address": {"type": str},
+                                "ztp": {"type": bool},
                             }
                             act_os_version: str | None
                             """
@@ -103548,6 +110447,55 @@ class EosDesigns(EosDesignsRootModel):
                             Overrides
                             global `digital_twin.fabric.act_internet_access` flag.
                             """
+                            serial_number: str | None
+                            """
+                            Serial number or AVD string formatter template for this ACT Digital Twin device.
+                            Overrides the
+                            global `digital_twin.fabric.serial_number_template` for this device.
+                            When set, the rendered value is
+                            written into the device metadata and provided as the serial number in the ACT topology.
+                            Supports the
+                            same AVD string formatter template syntax and variables as
+                            `digital_twin.fabric.serial_number_template`.
+                            The rendered value should be unique across all devices
+                            in the fabric. AVD does not enforce uniqueness automatically.
+                            Applies only to `veos` and `cloudeos`
+                            node types. Ignored for all other ACT node types.
+                            Ignored when `digital_twin.environment` is
+                            `containerlab`.
+                            """
+                            system_mac_address: str | None
+                            """
+                            System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                            Overrides the
+                            global `digital_twin.fabric.system_mac_address_template` for this device.
+                            When set, the rendered
+                            value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                            device metadata, and provided as the system MAC address in the ACT topology.
+                            Supports the same AVD
+                            string formatter template syntax, variables, MAC address formats, and normalization as
+                            `digital_twin.fabric.system_mac_address_template`.
+                            The rendered value must be a unicast MAC address
+                            in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                            digit). The all-zero address is reserved and not accepted by EOS.
+                            Regardless of the input format,
+                            the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                            The rendered value should be unique
+                            across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                            Applies only to
+                            `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                            Ignored when
+                            `digital_twin.environment` is `containerlab`.
+                            """
+                            ztp: bool | None
+                            """
+                            Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                            Supported Digital Twin
+                            environments:
+                            - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                            types.
+                            Overrides global `digital_twin.fabric.ztp` when defined.
+                            """
 
                             if TYPE_CHECKING:
 
@@ -103558,6 +110506,9 @@ class EosDesigns(EosDesignsRootModel):
                                     mgmt_ip: str | UndefinedType | None = Undefined,
                                     mgmt_gateway: str | UndefinedType | None = Undefined,
                                     act_internet_access: bool | UndefinedType | None = Undefined,
+                                    serial_number: str | UndefinedType | None = Undefined,
+                                    system_mac_address: str | UndefinedType | None = Undefined,
+                                    ztp: bool | UndefinedType | None = Undefined,
                                 ) -> None:
                                     """
                                     DigitalTwin.
@@ -103588,6 +110539,49 @@ class EosDesigns(EosDesignsRootModel):
                                            ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                            Overrides
                                            global `digital_twin.fabric.act_internet_access` flag.
+                                        serial_number:
+                                           Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                           Overrides the
+                                           global `digital_twin.fabric.serial_number_template` for this device.
+                                           When set, the rendered value is
+                                           written into the device metadata and provided as the serial number in the ACT topology.
+                                           Supports the
+                                           same AVD string formatter template syntax and variables as
+                                           `digital_twin.fabric.serial_number_template`.
+                                           The rendered value should be unique across all devices
+                                           in the fabric. AVD does not enforce uniqueness automatically.
+                                           Applies only to `veos` and `cloudeos`
+                                           node types. Ignored for all other ACT node types.
+                                           Ignored when `digital_twin.environment` is
+                                           `containerlab`.
+                                        system_mac_address:
+                                           System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                           Overrides the
+                                           global `digital_twin.fabric.system_mac_address_template` for this device.
+                                           When set, the rendered
+                                           value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                           device metadata, and provided as the system MAC address in the ACT topology.
+                                           Supports the same AVD
+                                           string formatter template syntax, variables, MAC address formats, and normalization as
+                                           `digital_twin.fabric.system_mac_address_template`.
+                                           The rendered value must be a unicast MAC address
+                                           in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                           digit). The all-zero address is reserved and not accepted by EOS.
+                                           Regardless of the input format,
+                                           the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                           The rendered value should be unique
+                                           across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                           Applies only to
+                                           `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                           Ignored when
+                                           `digital_twin.environment` is `containerlab`.
+                                        ztp:
+                                           Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                           Supported Digital Twin
+                                           environments:
+                                           - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                           types.
+                                           Overrides global `digital_twin.fabric.ztp` when defined.
 
                                     """
 
@@ -103691,6 +110685,7 @@ class EosDesigns(EosDesignsRootModel):
                             "inband_mgmt_gateway": {"type": str},
                             "inband_mgmt_ipv6_address": {"type": str},
                             "inband_mgmt_ipv6_subnet": {"type": str},
+                            "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                             "inband_mgmt_ipv6_gateway": {"type": str},
                             "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                             "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -103721,6 +110716,10 @@ class EosDesigns(EosDesignsRootModel):
                             "cv_tags_topology_type": {"type": str},
                             "digital_twin": {"type": DigitalTwin},
                             "validation_profile": {"type": str},
+                            "aaa_settings_profile": {"type": str},
+                            "cv_settings_profile": {"type": str},
+                            "dns_settings_profile": {"type": str},
+                            "ntp_settings_profile": {"type": str},
                         }
                         name: str
                         """The Node Name is used as "hostname"."""
@@ -104468,15 +111467,32 @@ class EosDesigns(EosDesignsRootModel):
                         l3leaf A      :
                         <subnet> + 2 (same IP on all l3leaf A)
                         l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                        l2leafs       : <subnet> + 3 + <l2leaf id>
-                        GW on l2leafs : <subnet> + 1
-                        Assign range larger than
-                        total l2leafs + 5
+                        l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                        GW on l2leafs :
+                        <subnet> + 1
+                        Assign range larger than total l2leafs + 5
 
-                        Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                        Setting is ignored if
+                        'inband_mgmt_ipv6_address' is set.
 
-                        This setting is
-                        applicable to L2 switches (switches using L2 trunks as uplinks).
+                        This setting is applicable to L2 switches (switches using L2
+                        trunks as uplinks).
+                        """
+                        inband_mgmt_ipv6_subnet_offset: int
+                        """
+                        Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                        The assigned
+                        IPv6 address will be computed by adding this offset to the device ID.
+                        Choose an IPv6 subnet large
+                        enough to contain all calculated addresses.
+                        The highest L2 leaf address is:
+                        <subnet> + 3 + <highest
+                        l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                        If the calculated address falls outside the subnet,
+                        address allocation
+                        fails with "address out of range".
+
+                        Default value: `0`
                         """
                         inband_mgmt_ipv6_gateway: str | None
                         """
@@ -104702,6 +111718,37 @@ class EosDesigns(EosDesignsRootModel):
                         Validation profiles define requirements (e.g., hardware and logging) used by
                         the `anta_runner` role during post-deployment validation.
                         """
+                        aaa_settings_profile: str | None
+                        """
+                        Name of the AAA settings profile to apply to this device.
+                        The profile must be defined under
+                        `aaa_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `aaa_settings`.
+                        """
+                        cv_settings_profile: str | None
+                        """
+                        Name of the CloudVision settings profile to apply to this device.
+                        The profile must be defined under
+                        `cv_settings_profiles`.
+                        The selected profile settings will be merged over the general `cv_settings`.
+                        """
+                        dns_settings_profile: str | None
+                        """
+                        Name of the DNS settings profile to apply to this device.
+                        The profile must be defined under
+                        `dns_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `dns_settings`.
+                        """
+                        ntp_settings_profile: str | None
+                        """
+                        Name of the NTP settings profile to apply to this device.
+                        The profile must be defined under
+                        `ntp_settings_profiles`.
+                        The selected profile settings will be merged over the general
+                        `ntp_settings`.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -104808,6 +111855,7 @@ class EosDesigns(EosDesignsRootModel):
                                 inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                                 inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                                 inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                                inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                                 inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                                 inband_mgmt_description: str | UndefinedType = Undefined,
                                 inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -104838,6 +111886,10 @@ class EosDesigns(EosDesignsRootModel):
                                 cv_tags_topology_type: str | UndefinedType | None = Undefined,
                                 digital_twin: DigitalTwin | UndefinedType = Undefined,
                                 validation_profile: str | UndefinedType | None = Undefined,
+                                aaa_settings_profile: str | UndefinedType | None = Undefined,
+                                cv_settings_profile: str | UndefinedType | None = Undefined,
+                                dns_settings_profile: str | UndefinedType | None = Undefined,
+                                ntp_settings_profile: str | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 NodesItem.
@@ -105386,15 +112438,28 @@ class EosDesigns(EosDesignsRootModel):
                                        l3leaf A      :
                                        <subnet> + 2 (same IP on all l3leaf A)
                                        l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                       l2leafs       : <subnet> + 3 + <l2leaf id>
-                                       GW on l2leafs : <subnet> + 1
-                                       Assign range larger than
-                                       total l2leafs + 5
+                                       l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                       GW on l2leafs :
+                                       <subnet> + 1
+                                       Assign range larger than total l2leafs + 5
 
-                                       Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                       Setting is ignored if
+                                       'inband_mgmt_ipv6_address' is set.
 
-                                       This setting is
-                                       applicable to L2 switches (switches using L2 trunks as uplinks).
+                                       This setting is applicable to L2 switches (switches using L2
+                                       trunks as uplinks).
+                                    inband_mgmt_ipv6_subnet_offset:
+                                       Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                       The assigned
+                                       IPv6 address will be computed by adding this offset to the device ID.
+                                       Choose an IPv6 subnet large
+                                       enough to contain all calculated addresses.
+                                       The highest L2 leaf address is:
+                                       <subnet> + 3 + <highest
+                                       l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                       If the calculated address falls outside the subnet,
+                                       address allocation
+                                       fails with "address out of range".
                                     inband_mgmt_ipv6_gateway:
                                        Default gateway configured in the 'inband_mgmt_vrf'.
                                        Used when `inband_mgmt_ipv6_address` is set.
@@ -105545,6 +112610,29 @@ class EosDesigns(EosDesignsRootModel):
                                        `validation_profiles`.
                                        Validation profiles define requirements (e.g., hardware and logging) used by
                                        the `anta_runner` role during post-deployment validation.
+                                    aaa_settings_profile:
+                                       Name of the AAA settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `aaa_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `aaa_settings`.
+                                    cv_settings_profile:
+                                       Name of the CloudVision settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `cv_settings_profiles`.
+                                       The selected profile settings will be merged over the general `cv_settings`.
+                                    dns_settings_profile:
+                                       Name of the DNS settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `dns_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `dns_settings`.
+                                    ntp_settings_profile:
+                                       Name of the NTP settings profile to apply to this device.
+                                       The profile must be defined under
+                                       `ntp_settings_profiles`.
+                                       The selected profile settings will be merged over the general
+                                       `ntp_settings`.
 
                                 """
 
@@ -107725,6 +114813,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -107842,13 +114932,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -107883,7 +114998,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -107947,6 +115062,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -108034,11 +115151,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -108064,7 +115202,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -108497,6 +115635,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -108611,13 +115751,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -108652,7 +115817,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -108701,6 +115866,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -108785,11 +115952,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -108815,7 +116003,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -109050,6 +116238,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -109081,6 +116272,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -109091,6 +116331,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -109121,6 +116364,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -109224,6 +116510,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -109254,6 +116541,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     group: str
                     """
@@ -110004,15 +117295,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -110238,6 +117546,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -110344,6 +117683,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -110374,6 +117714,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             NodeGroupsItem.
@@ -110924,15 +118268,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -111083,6 +118440,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -113338,6 +120718,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -113455,13 +120837,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -113496,7 +120903,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -113560,6 +120967,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -113647,11 +121056,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -113677,7 +121107,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -114110,6 +121540,8 @@ class EosDesigns(EosDesignsRootModel):
                             "bgp": {"type": Bgp},
                             "ipv4_acl_in": {"type": str},
                             "ipv4_acl_out": {"type": str},
+                            "ipv4_standard_acl_in": {"type": str},
+                            "ipv4_standard_acl_out": {"type": str},
                             "ipv6_acl_in": {"type": str},
                             "ipv6_acl_out": {"type": str},
                             "static_routes": {"type": StaticRoutes},
@@ -114224,13 +121656,38 @@ class EosDesigns(EosDesignsRootModel):
                         defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                         Required
                         for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                        `wan_carriers`.
+                        `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                        Mutually exclusive with `ipv4_standard_acl_in`,
+                        setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                         """
                         ipv4_acl_out: str | None
                         """
                         Name of the IPv4 Access-list to be assigned in the egress direction.
                         The access-list must be defined
                         under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                        Mutually
+                        exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                        raises an error.
+                        """
+                        ipv4_standard_acl_in: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Required for all WAN interfaces (`wan_carrier` is set) unless
+                        the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                        Mutually exclusive
+                        with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                        `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                        """
+                        ipv4_standard_acl_out: str | None
+                        """
+                        Name of the IPv4 standard access-list to be assigned in the egress direction.
+                        The access-list must
+                        be defined under `ipv4_standard_acls`.
+                        Mutually exclusive with `ipv4_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                        substitution for "interface_ip" or "peer_ip" is required.
                         """
                         ipv6_acl_in: str | None
                         """
@@ -114265,7 +121722,7 @@ class EosDesigns(EosDesignsRootModel):
                         This is used to infer the path-groups in which this
                         interface should be configured.
                         Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                        `ipv4_acl_in` is also required on all WAN interfaces.
+                        `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                         """
                         wan_circuit_id: str | None
                         """
@@ -114314,6 +121771,8 @@ class EosDesigns(EosDesignsRootModel):
                                 bgp: Bgp | UndefinedType = Undefined,
                                 ipv4_acl_in: str | UndefinedType | None = Undefined,
                                 ipv4_acl_out: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_in: str | UndefinedType | None = Undefined,
+                                ipv4_standard_acl_out: str | UndefinedType | None = Undefined,
                                 ipv6_acl_in: str | UndefinedType | None = Undefined,
                                 ipv6_acl_out: str | UndefinedType | None = Undefined,
                                 static_routes: StaticRoutes | UndefinedType = Undefined,
@@ -114398,11 +121857,32 @@ class EosDesigns(EosDesignsRootModel):
                                        defined under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
                                        Required
                                        for all WAN interfaces (`wan_carrier` is set) unless the carrier is marked as 'trusted' under
-                                       `wan_carriers`.
+                                       `wan_carriers`, or `ipv4_standard_acl_in` is set.
+                                       Mutually exclusive with `ipv4_standard_acl_in`,
+                                       setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.
                                     ipv4_acl_out:
                                        Name of the IPv4 Access-list to be assigned in the egress direction.
                                        The access-list must be defined
                                        under `ipv4_acls` and supports field substitution for "interface_ip" and "peer_ip".
+                                       Mutually
+                                       exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out` and `ipv4_standard_acl_out`
+                                       raises an error.
+                                    ipv4_standard_acl_in:
+                                       Name of the IPv4 standard access-list to be assigned in the ingress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Required for all WAN interfaces (`wan_carrier` is set) unless
+                                       the carrier is marked as 'trusted' under `wan_carriers`, or `ipv4_acl_in` is set.
+                                       Mutually exclusive
+                                       with `ipv4_acl_in`, setting both `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error. Use
+                                       `ipv4_acl_in` instead when field substitution for "interface_ip" or "peer_ip" is required.
+                                    ipv4_standard_acl_out:
+                                       Name of the IPv4 standard access-list to be assigned in the egress direction.
+                                       The access-list must
+                                       be defined under `ipv4_standard_acls`.
+                                       Mutually exclusive with `ipv4_acl_out`, setting both
+                                       `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when field
+                                       substitution for "interface_ip" or "peer_ip" is required.
                                     ipv6_acl_in:
                                        Name of the IPv6 access-list to be assigned in the ingress direction.
                                        The access-list must be
@@ -114428,7 +121908,7 @@ class EosDesigns(EosDesignsRootModel):
                                        This is used to infer the path-groups in which this
                                        interface should be configured.
                                        Unless the carrier is marked as 'trusted' under `wan_carriers`,
-                                       `ipv4_acl_in` is also required on all WAN interfaces.
+                                       `ipv4_acl_in` or `ipv4_standard_acl_in` is also required on all WAN interfaces.
                                     wan_circuit_id:
                                        The WAN circuit ID for this interface.
                                        This is not rendered in the configuration but used for WAN
@@ -114663,6 +122143,9 @@ class EosDesigns(EosDesignsRootModel):
                             "mgmt_ip": {"type": str},
                             "mgmt_gateway": {"type": str},
                             "act_internet_access": {"type": bool},
+                            "serial_number": {"type": str},
+                            "system_mac_address": {"type": str},
+                            "ztp": {"type": bool},
                         }
                         act_os_version: str | None
                         """
@@ -114694,6 +122177,55 @@ class EosDesigns(EosDesignsRootModel):
                         Overrides
                         global `digital_twin.fabric.act_internet_access` flag.
                         """
+                        serial_number: str | None
+                        """
+                        Serial number or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.serial_number_template` for this device.
+                        When set, the rendered value is
+                        written into the device metadata and provided as the serial number in the ACT topology.
+                        Supports the
+                        same AVD string formatter template syntax and variables as
+                        `digital_twin.fabric.serial_number_template`.
+                        The rendered value should be unique across all devices
+                        in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to `veos` and `cloudeos`
+                        node types. Ignored for all other ACT node types.
+                        Ignored when `digital_twin.environment` is
+                        `containerlab`.
+                        """
+                        system_mac_address: str | None
+                        """
+                        System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                        Overrides the
+                        global `digital_twin.fabric.system_mac_address_template` for this device.
+                        When set, the rendered
+                        value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                        device metadata, and provided as the system MAC address in the ACT topology.
+                        Supports the same AVD
+                        string formatter template syntax, variables, MAC address formats, and normalization as
+                        `digital_twin.fabric.system_mac_address_template`.
+                        The rendered value must be a unicast MAC address
+                        in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                        digit). The all-zero address is reserved and not accepted by EOS.
+                        Regardless of the input format,
+                        the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                        The rendered value should be unique
+                        across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                        Applies only to
+                        `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                        Ignored when
+                        `digital_twin.environment` is `containerlab`.
+                        """
+                        ztp: bool | None
+                        """
+                        Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                        Supported Digital Twin
+                        environments:
+                        - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                        types.
+                        Overrides global `digital_twin.fabric.ztp` when defined.
+                        """
 
                         if TYPE_CHECKING:
 
@@ -114704,6 +122236,9 @@ class EosDesigns(EosDesignsRootModel):
                                 mgmt_ip: str | UndefinedType | None = Undefined,
                                 mgmt_gateway: str | UndefinedType | None = Undefined,
                                 act_internet_access: bool | UndefinedType | None = Undefined,
+                                serial_number: str | UndefinedType | None = Undefined,
+                                system_mac_address: str | UndefinedType | None = Undefined,
+                                ztp: bool | UndefinedType | None = Undefined,
                             ) -> None:
                                 """
                                 DigitalTwin.
@@ -114734,6 +122269,49 @@ class EosDesigns(EosDesignsRootModel):
                                        ACT does not provide direct Internet access to cloudeos or veos devices by default.
                                        Overrides
                                        global `digital_twin.fabric.act_internet_access` flag.
+                                    serial_number:
+                                       Serial number or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.serial_number_template` for this device.
+                                       When set, the rendered value is
+                                       written into the device metadata and provided as the serial number in the ACT topology.
+                                       Supports the
+                                       same AVD string formatter template syntax and variables as
+                                       `digital_twin.fabric.serial_number_template`.
+                                       The rendered value should be unique across all devices
+                                       in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to `veos` and `cloudeos`
+                                       node types. Ignored for all other ACT node types.
+                                       Ignored when `digital_twin.environment` is
+                                       `containerlab`.
+                                    system_mac_address:
+                                       System MAC address or AVD string formatter template for this ACT Digital Twin device.
+                                       Overrides the
+                                       global `digital_twin.fabric.system_mac_address_template` for this device.
+                                       When set, the rendered
+                                       value is used throughout the device's EOS configuration (e.g., SNMPv3 engine ID), written into the
+                                       device metadata, and provided as the system MAC address in the ACT topology.
+                                       Supports the same AVD
+                                       string formatter template syntax, variables, MAC address formats, and normalization as
+                                       `digital_twin.fabric.system_mac_address_template`.
+                                       The rendered value must be a unicast MAC address
+                                       in `hhhh.hhhh.hhhh`, `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                                       digit). The all-zero address is reserved and not accepted by EOS.
+                                       Regardless of the input format,
+                                       the MAC address is normalized to `hh:hh:hh:hh:hh:hh` format.
+                                       The rendered value should be unique
+                                       across all devices in the fabric. AVD does not enforce uniqueness automatically.
+                                       Applies only to
+                                       `veos` and `cloudeos` node types. Ignored for all other ACT node types.
+                                       Ignored when
+                                       `digital_twin.environment` is `containerlab`.
+                                    ztp:
+                                       Enable ZTP (Zero Touch Provisioning) mode for this Digital Twin device.
+                                       Supported Digital Twin
+                                       environments:
+                                       - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for all other node
+                                       types.
+                                       Overrides global `digital_twin.fabric.ztp` when defined.
 
                                 """
 
@@ -114837,6 +122415,7 @@ class EosDesigns(EosDesignsRootModel):
                         "inband_mgmt_gateway": {"type": str},
                         "inband_mgmt_ipv6_address": {"type": str},
                         "inband_mgmt_ipv6_subnet": {"type": str},
+                        "inband_mgmt_ipv6_subnet_offset": {"type": int, "default": 0},
                         "inband_mgmt_ipv6_gateway": {"type": str},
                         "inband_mgmt_description": {"type": str, "default": "Inband Management"},
                         "inband_mgmt_vlan_name": {"type": str, "default": "INBAND_MGMT"},
@@ -114867,6 +122446,10 @@ class EosDesigns(EosDesignsRootModel):
                         "cv_tags_topology_type": {"type": str},
                         "digital_twin": {"type": DigitalTwin},
                         "validation_profile": {"type": str},
+                        "aaa_settings_profile": {"type": str},
+                        "cv_settings_profile": {"type": str},
+                        "dns_settings_profile": {"type": str},
+                        "ntp_settings_profile": {"type": str},
                     }
                     name: str
                     """The Node Name is used as "hostname"."""
@@ -115614,15 +123197,32 @@ class EosDesigns(EosDesignsRootModel):
                     l3leaf A      :
                     <subnet> + 2 (same IP on all l3leaf A)
                     l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                    l2leafs       : <subnet> + 3 + <l2leaf id>
-                    GW on l2leafs : <subnet> + 1
-                    Assign range larger than
-                    total l2leafs + 5
+                    l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                    GW on l2leafs :
+                    <subnet> + 1
+                    Assign range larger than total l2leafs + 5
 
-                    Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                    Setting is ignored if
+                    'inband_mgmt_ipv6_address' is set.
 
-                    This setting is
-                    applicable to L2 switches (switches using L2 trunks as uplinks).
+                    This setting is applicable to L2 switches (switches using L2
+                    trunks as uplinks).
+                    """
+                    inband_mgmt_ipv6_subnet_offset: int
+                    """
+                    Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                    The assigned
+                    IPv6 address will be computed by adding this offset to the device ID.
+                    Choose an IPv6 subnet large
+                    enough to contain all calculated addresses.
+                    The highest L2 leaf address is:
+                    <subnet> + 3 + <highest
+                    l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                    If the calculated address falls outside the subnet,
+                    address allocation
+                    fails with "address out of range".
+
+                    Default value: `0`
                     """
                     inband_mgmt_ipv6_gateway: str | None
                     """
@@ -115848,6 +123448,37 @@ class EosDesigns(EosDesignsRootModel):
                     Validation profiles define requirements (e.g., hardware and logging) used by
                     the `anta_runner` role during post-deployment validation.
                     """
+                    aaa_settings_profile: str | None
+                    """
+                    Name of the AAA settings profile to apply to this device.
+                    The profile must be defined under
+                    `aaa_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `aaa_settings`.
+                    """
+                    cv_settings_profile: str | None
+                    """
+                    Name of the CloudVision settings profile to apply to this device.
+                    The profile must be defined under
+                    `cv_settings_profiles`.
+                    The selected profile settings will be merged over the general `cv_settings`.
+                    """
+                    dns_settings_profile: str | None
+                    """
+                    Name of the DNS settings profile to apply to this device.
+                    The profile must be defined under
+                    `dns_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `dns_settings`.
+                    """
+                    ntp_settings_profile: str | None
+                    """
+                    Name of the NTP settings profile to apply to this device.
+                    The profile must be defined under
+                    `ntp_settings_profiles`.
+                    The selected profile settings will be merged over the general
+                    `ntp_settings`.
+                    """
 
                     if TYPE_CHECKING:
 
@@ -115954,6 +123585,7 @@ class EosDesigns(EosDesignsRootModel):
                             inband_mgmt_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_address: str | UndefinedType | None = Undefined,
                             inband_mgmt_ipv6_subnet: str | UndefinedType | None = Undefined,
+                            inband_mgmt_ipv6_subnet_offset: int | UndefinedType = Undefined,
                             inband_mgmt_ipv6_gateway: str | UndefinedType | None = Undefined,
                             inband_mgmt_description: str | UndefinedType = Undefined,
                             inband_mgmt_vlan_name: str | UndefinedType = Undefined,
@@ -115984,6 +123616,10 @@ class EosDesigns(EosDesignsRootModel):
                             cv_tags_topology_type: str | UndefinedType | None = Undefined,
                             digital_twin: DigitalTwin | UndefinedType = Undefined,
                             validation_profile: str | UndefinedType | None = Undefined,
+                            aaa_settings_profile: str | UndefinedType | None = Undefined,
+                            cv_settings_profile: str | UndefinedType | None = Undefined,
+                            dns_settings_profile: str | UndefinedType | None = Undefined,
+                            ntp_settings_profile: str | UndefinedType | None = Undefined,
                         ) -> None:
                             """
                             NodesItem.
@@ -116532,15 +124168,28 @@ class EosDesigns(EosDesignsRootModel):
                                    l3leaf A      :
                                    <subnet> + 2 (same IP on all l3leaf A)
                                    l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
-                                   l2leafs       : <subnet> + 3 + <l2leaf id>
-                                   GW on l2leafs : <subnet> + 1
-                                   Assign range larger than
-                                   total l2leafs + 5
+                                   l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
+                                   GW on l2leafs :
+                                   <subnet> + 1
+                                   Assign range larger than total l2leafs + 5
 
-                                   Setting is ignored if 'inband_mgmt_ipv6_address' is set.
+                                   Setting is ignored if
+                                   'inband_mgmt_ipv6_address' is set.
 
-                                   This setting is
-                                   applicable to L2 switches (switches using L2 trunks as uplinks).
+                                   This setting is applicable to L2 switches (switches using L2
+                                   trunks as uplinks).
+                                inband_mgmt_ipv6_subnet_offset:
+                                   Offset value to adjust the calculated inband management IPv6 address within the subnet.
+                                   The assigned
+                                   IPv6 address will be computed by adding this offset to the device ID.
+                                   Choose an IPv6 subnet large
+                                   enough to contain all calculated addresses.
+                                   The highest L2 leaf address is:
+                                   <subnet> + 3 + <highest
+                                   l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+                                   If the calculated address falls outside the subnet,
+                                   address allocation
+                                   fails with "address out of range".
                                 inband_mgmt_ipv6_gateway:
                                    Default gateway configured in the 'inband_mgmt_vrf'.
                                    Used when `inband_mgmt_ipv6_address` is set.
@@ -116691,6 +124340,29 @@ class EosDesigns(EosDesignsRootModel):
                                    `validation_profiles`.
                                    Validation profiles define requirements (e.g., hardware and logging) used by
                                    the `anta_runner` role during post-deployment validation.
+                                aaa_settings_profile:
+                                   Name of the AAA settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `aaa_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `aaa_settings`.
+                                cv_settings_profile:
+                                   Name of the CloudVision settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `cv_settings_profiles`.
+                                   The selected profile settings will be merged over the general `cv_settings`.
+                                dns_settings_profile:
+                                   Name of the DNS settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `dns_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `dns_settings`.
+                                ntp_settings_profile:
+                                   Name of the NTP settings profile to apply to this device.
+                                   The profile must be defined under
+                                   `ntp_settings_profiles`.
+                                   The selected profile settings will be merged over the general
+                                   `ntp_settings`.
 
                             """
 
@@ -116835,6 +124507,7 @@ class EosDesigns(EosDesignsRootModel):
 
     _fields: ClassVar[dict] = {
         "aaa_settings": {"type": AaaSettings},
+        "aaa_settings_profiles": {"type": AaaSettingsProfiles},
         "address_locking_settings": {"type": AddressLockingSettings},
         "application_classification": {"type": EosCliConfigGen.ApplicationTrafficRecognition},
         "avd_design_future": {"type": AvdDesignFuture},
@@ -116893,6 +124566,7 @@ class EosDesigns(EosDesignsRootModel):
         "cv_pathfinder_regions": {"type": CvPathfinderRegions},
         "cv_server": {"type": str},
         "cv_settings": {"type": CvSettings},
+        "cv_settings_profiles": {"type": CvSettingsProfiles},
         "cv_tags_topology_type": {"type": str},
         "cv_token": {"type": str},
         "cv_topology": {"type": CvTopology},
@@ -116915,6 +124589,7 @@ class EosDesigns(EosDesignsRootModel):
         "devices": {"type": Devices},
         "digital_twin": {"type": DigitalTwin},
         "dns_settings": {"type": DnsSettings},
+        "dns_settings_profiles": {"type": DnsSettingsProfiles},
         "dot1x_settings": {"type": Dot1xSettings},
         "enable_trunk_groups": {"type": bool, "default": False},
         "eos_designs_custom_templates": {"type": EosDesignsCustomTemplates},
@@ -117121,6 +124796,7 @@ class EosDesigns(EosDesignsRootModel):
             ),
         },
         "ntp_settings": {"type": NtpSettings},
+        "ntp_settings_profiles": {"type": NtpSettingsProfiles},
         "only_local_vlan_trunk_groups": {"type": bool, "default": False},
         "overlay_bgp_peer_description": {"type": str, "default": "{peer}{peer_interface?<_}"},
         "overlay_cvx_servers": {"type": OverlayCvxServers},
@@ -117807,9 +125483,11 @@ class EosDesigns(EosDesignsRootModel):
                     {
                         "platforms": ["VEOS", "VEOS-LAB", "vEOS", "vEOS-lab"],
                         "feature_support": {
+                            "dot1x_mac_based_access_list": False,
                             "bgp_update_wait_for_convergence": False,
                             "bgp_update_wait_install": False,
                             "interface_storm_control": False,
+                            "explicit_interface_speed_auto_mode": False,
                             "queue_monitor_length_notify": False,
                             "subinterface_mtu": False,
                             "per_interface_l2_mtu": False,
@@ -117849,9 +125527,11 @@ class EosDesigns(EosDesignsRootModel):
                     {
                         "platforms": ["CEOS", "cEOS", "ceos", "cEOSLab"],
                         "feature_support": {
+                            "dot1x_mac_based_access_list": False,
                             "bgp_update_wait_for_convergence": False,
                             "bgp_update_wait_install": False,
                             "interface_storm_control": False,
+                            "explicit_interface_speed_auto_mode": False,
                             "queue_monitor_length_notify": False,
                             "subinterface_mtu": False,
                             "per_interface_l2_mtu": False,
@@ -117892,8 +125572,10 @@ class EosDesigns(EosDesignsRootModel):
                     {
                         "platforms": ["CloudEOS"],
                         "feature_support": {
+                            "dot1x_mac_based_access_list": False,
                             "bgp_update_wait_install": False,
                             "interface_storm_control": False,
+                            "explicit_interface_speed_auto_mode": False,
                             "per_interface_l2_mru": False,
                             "queue_monitor_length_notify": False,
                             "sflow": False,
@@ -118056,7 +125738,7 @@ class EosDesigns(EosDesignsRootModel):
         },
         "ptp_settings": {"type": PtpSettings},
         "queue_monitor_length": {"type": QueueMonitorLength},
-        "queue_monitor_streaming": {"type": EosCliConfigGen.QueueMonitorStreaming},
+        "queue_monitor_streaming": {"type": QueueMonitorStreaming},
         "redundancy": {"type": Redundancy},
         "router_id_loopback_description": {"type": str, "default": "ROUTER_ID"},
         "serial_number": {"type": str},
@@ -118121,6 +125803,21 @@ class EosDesigns(EosDesignsRootModel):
     _allow_other_keys: ClassVar[bool] = True
     aaa_settings: AaaSettings
     """Subclass of AvdModel."""
+    aaa_settings_profiles: AaaSettingsProfiles
+    """
+    List of AAA settings profiles that can be applied to devices using `aaa_settings_profile` under node
+    definitions.
+    Profiles support inheritance using `parent_profile`, allowing common AAA settings to be
+    shared and selectively overridden per profile.
+    Note: For TACACS and RADIUS, `vrfs` entries merge by
+    `name` across global settings and the profile chain, with the most specific settings taking
+    precedence.
+    A defined `servers` list replaces the inherited list for that protocol; if omitted, the
+    inherited list is retained.
+
+    Subclass of AvdIndexedList with `AaaSettingsProfilesItem` items.
+    Primary key is `profile` (`str`).
+    """
     address_locking_settings: AddressLockingSettings
     """Subclass of AvdModel."""
     application_classification: EosCliConfigGen.ApplicationTrafficRecognition
@@ -118486,6 +126183,16 @@ class EosDesigns(EosDesignsRootModel):
 
     Subclass of AvdModel.
     """
+    cv_settings_profiles: CvSettingsProfiles
+    """
+    List of CloudVision settings profiles that can be applied to devices using `cv_settings_profile`
+    under node definitions.
+    Profiles support inheritance using `parent_profile`, allowing common
+    CloudVision settings to be shared and selectively overridden per profile.
+
+    Subclass of
+    AvdIndexedList with `CvSettingsProfilesItem` items. Primary key is `profile` (`str`).
+    """
     cv_tags_topology_type: str | None
     """
     Device type that CloudVision should use when generating the Topology like "leaf", "spine", "core",
@@ -118781,6 +126488,16 @@ class EosDesigns(EosDesignsRootModel):
     DNS settings
 
     Subclass of AvdModel.
+    """
+    dns_settings_profiles: DnsSettingsProfiles
+    """
+    List of DNS settings profiles that can be applied to devices using `dns_settings_profile` under node
+    definitions.
+    Profiles support inheritance using `parent_profile`, allowing common DNS settings to be
+    shared and selectively overridden per profile.
+
+    Subclass of AvdIndexedList with
+    `DnsSettingsProfilesItem` items. Primary key is `profile` (`str`).
     """
     dot1x_settings: Dot1xSettings
     """
@@ -119636,6 +127353,13 @@ class EosDesigns(EosDesignsRootModel):
 
     Subclass of AvdModel.
     """
+    ntp_settings_profiles: NtpSettingsProfiles
+    """
+    NTP settings
+
+    Subclass of AvdIndexedList with `NtpSettingsProfilesItem` items. Primary key is
+    `profile` (`str`).
+    """
     only_local_vlan_trunk_groups: bool
     """
     A vlan can have many trunk_groups assigned.
@@ -119699,8 +127423,15 @@ class EosDesigns(EosDesignsRootModel):
     """
     overlay_mlag_rfc5549: bool
     """
-    IPv6 Unnumbered for MLAG iBGP connections.
-    Requires "underlay_rfc5549: true".
+    Exchange IPv4 routes with an IPv6 next hop (RFC5549) over the MLAG iBGP peerings in VRFs.
+    Requires
+    one of:
+    - `underlay_rfc5549: true`: The MLAG iBGP peerings in VRFs use IPv6 link-local addresses
+    (unnumbered).
+    - `underlay_ipv6_numbered: true` and
+    `avd_design_future.fix_mlag_ibgp_peering_vrfs_address_families: true`:
+      The MLAG iBGP peerings in
+    VRFs use numbered IPv6 addresses, allowing dual-stack VRFs over a numbered IPv6 underlay.
 
     Default value: `False`
     """
@@ -119826,7 +127557,7 @@ class EosDesigns(EosDesignsRootModel):
 
     Subclass of AvdList with `PlatformSettingsItem` items.
 
-    Default value: `lambda cls: coerce_type([{"platforms": ["default"], "feature_support": {"queue_monitor_length_notify": False}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7050X3"], "feature_support": {"queue_monitor_length_notify": False, "sflow_subinterfaces": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "trident_forwarding_table_partition": "flexible exact-match 16384 l2-shared 98304 l3-shared 131072", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720XP"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "sflow_subinterfaces": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "trident_forwarding_table_partition": "flexible exact-match 16000 l2-shared 18000 l3-shared 22000", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["750", "755", "758"], "management_interface": "Management0", "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP", "720DP-24S"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP-48S"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["722XP"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["710P"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP-24ZS", "720DP-48ZS"], "feature_support": {"queue_monitor_length_notify": False, "poe": True, "subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DF"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DT", "720DT-48S", "7010TX"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "tap_port_init": {"recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DT-24S"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7060X5"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "hardware_counter_features": {"acl": False, "decap_group": False, "directflow": False, "ecn": False, "flow_spec": False, "mpls_interface": False, "mpls_lfib": False, "mpls_tunnel": False, "multicast": False, "nexthop": False, "pbr": False, "pdp": False, "policing_interface": False, "qos": False, "qos_dual_rate_policer": False, "route": False, "routed_port": False, "segment_security": False, "tapagg": False, "traffic_class": False, "traffic_policy": False, "vlan": False}, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R2"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7020R"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R3"], "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7388X5"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "hardware_counter_features": {"acl": False, "decap_group": False, "directflow": False, "ecn": False, "flow_spec": False, "mpls_interface": False, "mpls_lfib": False, "mpls_tunnel": False, "multicast": False, "nexthop": False, "pbr": False, "pdp": False, "policing_interface": False, "qos": False, "qos_dual_rate_policer": False, "route": False, "routed_port": False, "segment_security": False, "tapagg": False, "traffic_class": False, "traffic_policy": False, "vlan": False}, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "management_interface": "Management0", "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R"], "lag_hardware_only": True, "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R2"], "lag_hardware_only": True, "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R3"], "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"per_interface_l2_mtu": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7800R3"], "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"per_interface_l2_mtu": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7358X4"], "management_interface": "Management1/1", "reload_delay": {"mlag": 300, "non_mlag": 330}, "feature_support": {"queue_monitor_length_notify": False, "interface_storm_control": True, "subinterface_mtu": False, "per_interface_l2_mru": False, "bgp_update_wait_for_convergence": True, "bgp_update_wait_install": True, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7368X4"], "management_interface": "Management0", "reload_delay": {"mlag": 300, "non_mlag": 330}, "feature_support": {"subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7300X3"], "management_interface": "Management0", "reload_delay": {"mlag": 1200, "non_mlag": 1320}, "feature_support": {"subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}}, "trident_forwarding_table_partition": "flexible exact-match 16384 l2-shared 98304 l3-shared 131072", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["VEOS", "VEOS-LAB", "vEOS", "vEOS-lab"], "feature_support": {"bgp_update_wait_for_convergence": False, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mtu": False, "per_interface_l2_mru": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "sflow_subinterfaces": False, "hardware_validation": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"act_node_type": "veos"}}, {"platforms": ["CEOS", "cEOS", "ceos", "cEOSLab"], "feature_support": {"bgp_update_wait_for_convergence": False, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mtu": False, "per_interface_l2_mru": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "sflow_subinterfaces": False, "hardware_validation": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "management_interface": "Management1", "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"act_node_type": "veos"}}, {"platforms": ["CloudEOS"], "feature_support": {"bgp_update_wait_install": False, "interface_storm_control": False, "per_interface_l2_mru": False, "queue_monitor_length_notify": False, "sflow": False, "hardware_validation": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "p2p_uplinks_mtu": 9194, "digital_twin": {"act_node_type": "cloudeos"}}, {"platforms": ["AWE-5310", "AWE-7230R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "platform_sfe_interface_profile": {"supported": True, "max_rx_queues": 6}, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "management_interface": "Management1/1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}, {"platforms": ["AWE-5510", "AWE-7250R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "platform_sfe_interface_profile": {"supported": True, "max_rx_queues": 16}, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "management_interface": "Management1/1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}, {"platforms": ["AWE-7220R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "poe": True, "per_interface_l2_mru": False, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "management_interface": "Management1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}], target_type=cls)`
+    Default value: `lambda cls: coerce_type([{"platforms": ["default"], "feature_support": {"queue_monitor_length_notify": False}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7050X3"], "feature_support": {"queue_monitor_length_notify": False, "sflow_subinterfaces": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "trident_forwarding_table_partition": "flexible exact-match 16384 l2-shared 98304 l3-shared 131072", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720XP"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "sflow_subinterfaces": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "trident_forwarding_table_partition": "flexible exact-match 16000 l2-shared 18000 l3-shared 22000", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["750", "755", "758"], "management_interface": "Management0", "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP", "720DP-24S"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP-48S"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["722XP"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["710P"], "feature_support": {"poe": True, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DP-24ZS", "720DP-48ZS"], "feature_support": {"queue_monitor_length_notify": False, "poe": True, "subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DF"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DT", "720DT-48S", "7010TX"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "tap_port_init": {"recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["720DT-24S"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7060X5"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "hardware_counter_features": {"acl": False, "decap_group": False, "directflow": False, "ecn": False, "flow_spec": False, "mpls_interface": False, "mpls_lfib": False, "mpls_tunnel": False, "multicast": False, "nexthop": False, "pbr": False, "pdp": False, "policing_interface": False, "qos": False, "qos_dual_rate_policer": False, "route": False, "routed_port": False, "segment_security": False, "tapagg": False, "traffic_class": False, "traffic_policy": False, "vlan": False}, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R2"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7020R"], "lag_hardware_only": True, "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7280R3"], "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7388X5"], "feature_support": {"queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "hardware_counter_features": {"acl": False, "decap_group": False, "directflow": False, "ecn": False, "flow_spec": False, "mpls_interface": False, "mpls_lfib": False, "mpls_tunnel": False, "multicast": False, "nexthop": False, "pbr": False, "pdp": False, "policing_interface": False, "qos": False, "qos_dual_rate_policer": False, "route": False, "routed_port": False, "segment_security": False, "tapagg": False, "traffic_class": False, "traffic_policy": False, "vlan": False}, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}}, "management_interface": "Management0", "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R"], "lag_hardware_only": True, "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R2"], "lag_hardware_only": True, "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mtu": False, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7500R3"], "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"per_interface_l2_mtu": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7800R3"], "management_interface": "Management0", "reload_delay": {"mlag": 900, "non_mlag": 1020}, "tcam_profile": "vxlan-routing", "feature_support": {"per_interface_l2_mtu": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "private_vlan": False, "errdisable_causes": {"acl": {"recovery": False}, "dot1x": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7358X4"], "management_interface": "Management1/1", "reload_delay": {"mlag": 300, "non_mlag": 330}, "feature_support": {"queue_monitor_length_notify": False, "interface_storm_control": True, "subinterface_mtu": False, "per_interface_l2_mru": False, "bgp_update_wait_for_convergence": True, "bgp_update_wait_install": True, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7368X4"], "management_interface": "Management0", "reload_delay": {"mlag": 300, "non_mlag": 330}, "feature_support": {"subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["7300X3"], "management_interface": "Management0", "reload_delay": {"mlag": 1200, "non_mlag": 1320}, "feature_support": {"subinterface_mtu": False, "per_interface_l2_mru": False, "sflow_subinterfaces": False, "errdisable_causes": {"dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}}, "trident_forwarding_table_partition": "flexible exact-match 16384 l2-shared 98304 l3-shared 131072", "digital_twin": {"platform": "vEOS-lab"}}, {"platforms": ["VEOS", "VEOS-LAB", "vEOS", "vEOS-lab"], "feature_support": {"dot1x_mac_based_access_list": False, "bgp_update_wait_for_convergence": False, "bgp_update_wait_install": False, "interface_storm_control": False, "explicit_interface_speed_auto_mode": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mtu": False, "per_interface_l2_mru": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "sflow_subinterfaces": False, "hardware_validation": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"act_node_type": "veos"}}, {"platforms": ["CEOS", "cEOS", "ceos", "cEOSLab"], "feature_support": {"dot1x_mac_based_access_list": False, "bgp_update_wait_for_convergence": False, "bgp_update_wait_install": False, "interface_storm_control": False, "explicit_interface_speed_auto_mode": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "per_interface_l2_mtu": False, "per_interface_l2_mru": False, "evpn_gateway_all_active_multihoming": True, "evpn_gateway_rd_rt_rewrite": True, "sflow_subinterfaces": False, "hardware_validation": False, "errdisable_causes": {"dot1x": {"detection": False, "recovery": False}, "dot1x_coa": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "dot1x_session_replace": {"detection": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "management_interface": "Management1", "reload_delay": {"mlag": 300, "non_mlag": 330}, "digital_twin": {"act_node_type": "veos"}}, {"platforms": ["CloudEOS"], "feature_support": {"dot1x_mac_based_access_list": False, "bgp_update_wait_install": False, "interface_storm_control": False, "explicit_interface_speed_auto_mode": False, "per_interface_l2_mru": False, "queue_monitor_length_notify": False, "sflow": False, "hardware_validation": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "speed_misconfigured": {"recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}, "xcvr_misconfigured": {"detection": False, "recovery": False}, "xcvr_overheat": {"detection": False, "recovery": False}, "xcvr_power_unsupported": {"detection": False, "recovery": False}, "xcvr_unsupported": {"recovery": False}}, "subinterface_monitor_session": False}, "p2p_uplinks_mtu": 9194, "digital_twin": {"act_node_type": "cloudeos"}}, {"platforms": ["AWE-5310", "AWE-7230R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "platform_sfe_interface_profile": {"supported": True, "max_rx_queues": 6}, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "management_interface": "Management1/1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}, {"platforms": ["AWE-5510", "AWE-7250R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "subinterface_mtu": False, "subinterface_monitor_session": False, "per_interface_l2_mru": False, "platform_sfe_interface_profile": {"supported": True, "max_rx_queues": 16}, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "dot1x_phone_classification": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}}, "management_interface": "Management1/1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}, {"platforms": ["AWE-7220R"], "feature_support": {"bgp_update_wait_for_convergence": True, "bgp_update_wait_install": False, "interface_storm_control": False, "queue_monitor_length_notify": False, "poe": True, "per_interface_l2_mru": False, "sflow": False, "errdisable_causes": {"acl": {"detection": False, "recovery": False}, "dot1x": {"detection": False, "recovery": False}, "error_correction_encoding": {"detection": False, "recovery": False}, "fabric_capacity_low": {"detection": False, "recovery": False}, "hardware_speed_group": {"detection": False, "recovery": False}, "interface_speed": {"detection": False, "recovery": False}, "internal_error": {"detection": False, "recovery": False}, "port_breakout": {"detection": False, "recovery": False}, "storm_control": {"detection": False, "recovery": False}, "stuck_queue": {"recovery": False}, "switchcard_unreachable": {"detection": False, "recovery": False}, "tap_port_init": {"recovery": False}, "tapagg": {"detection": False}, "tpid": {"detection": False, "recovery": False}, "transceiver_adapter": {"detection": False, "recovery": False}}, "subinterface_monitor_session": False}, "management_interface": "Management1", "p2p_uplinks_mtu": 9194, "digital_twin": {"platform": "CloudEOS"}}], target_type=cls)`
     """
     platform_speed_groups: PlatformSpeedGroups
     """
@@ -119868,7 +127599,8 @@ class EosDesigns(EosDesignsRootModel):
     """
     queue_monitor_length: QueueMonitorLength
     """Subclass of AvdModel."""
-    queue_monitor_streaming: EosCliConfigGen.QueueMonitorStreaming
+    queue_monitor_streaming: QueueMonitorStreaming
+    """Subclass of AvdModel."""
     redundancy: Redundancy
     """
     Redundancy for chassis platforms with dual supervisors | Optional.
@@ -120379,6 +128111,7 @@ class EosDesigns(EosDesignsRootModel):
             self,
             *,
             aaa_settings: AaaSettings | UndefinedType = Undefined,
+            aaa_settings_profiles: AaaSettingsProfiles | UndefinedType = Undefined,
             address_locking_settings: AddressLockingSettings | UndefinedType = Undefined,
             application_classification: EosCliConfigGen.ApplicationTrafficRecognition | UndefinedType = Undefined,
             avd_design_future: AvdDesignFuture | UndefinedType = Undefined,
@@ -120415,6 +128148,7 @@ class EosDesigns(EosDesignsRootModel):
             cv_pathfinder_regions: CvPathfinderRegions | UndefinedType = Undefined,
             cv_server: str | UndefinedType | None = Undefined,
             cv_settings: CvSettings | UndefinedType = Undefined,
+            cv_settings_profiles: CvSettingsProfiles | UndefinedType = Undefined,
             cv_tags_topology_type: str | UndefinedType | None = Undefined,
             cv_token: str | UndefinedType | None = Undefined,
             cv_topology: CvTopology | UndefinedType = Undefined,
@@ -120437,6 +128171,7 @@ class EosDesigns(EosDesignsRootModel):
             devices: Devices | UndefinedType = Undefined,
             digital_twin: DigitalTwin | UndefinedType = Undefined,
             dns_settings: DnsSettings | UndefinedType = Undefined,
+            dns_settings_profiles: DnsSettingsProfiles | UndefinedType = Undefined,
             dot1x_settings: Dot1xSettings | UndefinedType = Undefined,
             enable_trunk_groups: bool | UndefinedType = Undefined,
             eos_designs_custom_templates: EosDesignsCustomTemplates | UndefinedType = Undefined,
@@ -120525,6 +128260,7 @@ class EosDesigns(EosDesignsRootModel):
             custom_node_type_keys: CustomNodeTypeKeys | UndefinedType = Undefined,
             node_type_keys: NodeTypeKeys | UndefinedType = Undefined,
             ntp_settings: NtpSettings | UndefinedType = Undefined,
+            ntp_settings_profiles: NtpSettingsProfiles | UndefinedType = Undefined,
             only_local_vlan_trunk_groups: bool | UndefinedType = Undefined,
             overlay_bgp_peer_description: str | UndefinedType = Undefined,
             overlay_cvx_servers: OverlayCvxServers | UndefinedType = Undefined,
@@ -120545,7 +128281,7 @@ class EosDesigns(EosDesignsRootModel):
             ptp_profiles: PtpProfiles | UndefinedType = Undefined,
             ptp_settings: PtpSettings | UndefinedType = Undefined,
             queue_monitor_length: QueueMonitorLength | UndefinedType = Undefined,
-            queue_monitor_streaming: EosCliConfigGen.QueueMonitorStreaming | UndefinedType = Undefined,
+            queue_monitor_streaming: QueueMonitorStreaming | UndefinedType = Undefined,
             redundancy: Redundancy | UndefinedType = Undefined,
             router_id_loopback_description: str | UndefinedType = Undefined,
             serial_number: str | UndefinedType | None = Undefined,
@@ -120615,6 +128351,19 @@ class EosDesigns(EosDesignsRootModel):
 
             Args:
                 aaa_settings: Subclass of AvdModel.
+                aaa_settings_profiles:
+                   List of AAA settings profiles that can be applied to devices using `aaa_settings_profile` under node
+                   definitions.
+                   Profiles support inheritance using `parent_profile`, allowing common AAA settings to be
+                   shared and selectively overridden per profile.
+                   Note: For TACACS and RADIUS, `vrfs` entries merge by
+                   `name` across global settings and the profile chain, with the most specific settings taking
+                   precedence.
+                   A defined `servers` list replaces the inherited list for that protocol; if omitted, the
+                   inherited list is retained.
+
+                   Subclass of AvdIndexedList with `AaaSettingsProfilesItem` items.
+                   Primary key is `profile` (`str`).
                 address_locking_settings: Subclass of AvdModel.
                 application_classification: Application traffic recognition configuration.
                 avd_design_future:
@@ -120888,6 +128637,14 @@ class EosDesigns(EosDesignsRootModel):
                    Settings for CloudVision telemetry streaming and provisioning.
 
                    Subclass of AvdModel.
+                cv_settings_profiles:
+                   List of CloudVision settings profiles that can be applied to devices using `cv_settings_profile`
+                   under node definitions.
+                   Profiles support inheritance using `parent_profile`, allowing common
+                   CloudVision settings to be shared and selectively overridden per profile.
+
+                   Subclass of
+                   AvdIndexedList with `CvSettingsProfilesItem` items. Primary key is `profile` (`str`).
                 cv_tags_topology_type:
                    Device type that CloudVision should use when generating the Topology like "leaf", "spine", "core",
                    "edge" or "member-leaf". Defaults to the setting under node_type_keys.
@@ -121121,6 +128878,14 @@ class EosDesigns(EosDesignsRootModel):
                    DNS settings
 
                    Subclass of AvdModel.
+                dns_settings_profiles:
+                   List of DNS settings profiles that can be applied to devices using `dns_settings_profile` under node
+                   definitions.
+                   Profiles support inheritance using `parent_profile`, allowing common DNS settings to be
+                   shared and selectively overridden per profile.
+
+                   Subclass of AvdIndexedList with
+                   `DnsSettingsProfilesItem` items. Primary key is `profile` (`str`).
                 dot1x_settings:
                    Settings for 802.1X deployments.
 
@@ -121738,6 +129503,11 @@ class EosDesigns(EosDesignsRootModel):
                    NTP settings
 
                    Subclass of AvdModel.
+                ntp_settings_profiles:
+                   NTP settings
+
+                   Subclass of AvdIndexedList with `NtpSettingsProfilesItem` items. Primary key is
+                   `profile` (`str`).
                 only_local_vlan_trunk_groups:
                    A vlan can have many trunk_groups assigned.
                    To avoid unneeded configuration changes on all leaf
@@ -121782,8 +129552,15 @@ class EosDesigns(EosDesignsRootModel):
                    This is useful
                    if Border Leaf switches are dividing the VXLAN overlay into separate domains.
                 overlay_mlag_rfc5549:
-                   IPv6 Unnumbered for MLAG iBGP connections.
-                   Requires "underlay_rfc5549: true".
+                   Exchange IPv4 routes with an IPv6 next hop (RFC5549) over the MLAG iBGP peerings in VRFs.
+                   Requires
+                   one of:
+                   - `underlay_rfc5549: true`: The MLAG iBGP peerings in VRFs use IPv6 link-local addresses
+                   (unnumbered).
+                   - `underlay_ipv6_numbered: true` and
+                   `avd_design_future.fix_mlag_ibgp_peering_vrfs_address_families: true`:
+                     The MLAG iBGP peerings in
+                   VRFs use numbered IPv6 addresses, allowing dual-stack VRFs over a numbered IPv6 underlay.
                 overlay_rd_type:
                    Configuration options for the Administrator subfield (first part of RD) and the Assigned Number
                    subfield (second part of RD).
@@ -121913,7 +129690,7 @@ class EosDesigns(EosDesignsRootModel):
 
                    Subclass of AvdModel.
                 queue_monitor_length: Subclass of AvdModel.
-                queue_monitor_streaming: queue_monitor_streaming
+                queue_monitor_streaming: Subclass of AvdModel.
                 redundancy:
                    Redundancy for chassis platforms with dual supervisors | Optional.
 

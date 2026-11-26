@@ -8,9 +8,10 @@
     | Variable | Type | Required | Default | Value Restrictions | Description |
     | -------- | ---- | -------- | ------- | ------------------ | ----------- |
     | [<samp>address_locking_settings</samp>](## "address_locking_settings") | Dictionary |  |  |  |  |
-    | [<samp>&nbsp;&nbsp;local_interface</samp>](## "address_locking_settings.local_interface") | String |  |  |  | The value will be interpreted according to these rules:<br>  - `use_mgmt_interface` will configure the `mgmt_interface` as the local interface.<br>  - `use_inband_mgmt_interface` will configure the `inband_mgmt_interface` as the local interface.<br>  - `use_default_mgmt_method_interface` will configure `mgmt_interface` or `inband_mgmt_interface` as the local interface depending on the value of `default_mgmt_method`.<br>  - Any other string will be used directly as the local interface.<br>When `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually exclusive with `dhcp_server_interfaces`. |
-    | [<samp>&nbsp;&nbsp;dhcp_server_interfaces</samp>](## "address_locking_settings.dhcp_server_interfaces") | List, items: String |  |  |  | The list of interfaces connected to the DHCP server.<br>Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is ignored.<br>When enabled, this setting is mutually exclusive with `local_interface`.<br>Requires EOS version 4.36 or later. |
+    | [<samp>&nbsp;&nbsp;local_interface</samp>](## "address_locking_settings.local_interface") | String |  |  |  | The value will be interpreted according to these rules:<br>  - `use_mgmt_interface` will configure the `mgmt_interface` as the local interface.<br>  - `use_inband_mgmt_interface` will configure the `inband_mgmt_interface` as the local interface.<br>  - `use_default_mgmt_method_interface` will configure `mgmt_interface` or `inband_mgmt_interface` as the local interface depending on the value of `default_mgmt_method`.<br>  - Any other string will be used directly as the local interface.<br>When `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually exclusive with `dhcp_server_interfaces` and `auto_dhcp_server_interfaces`. |
+    | [<samp>&nbsp;&nbsp;dhcp_server_interfaces</samp>](## "address_locking_settings.dhcp_server_interfaces") | List, items: String |  |  |  | The list of interfaces connected to the DHCP server.<br>Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is ignored.<br>When enabled, this setting is mutually exclusive with `local_interface`.<br>When `auto_dhcp_server_interfaces` is also enabled, the interfaces from this list are merged with the auto-detected interfaces.<br>Requires EOS version 4.36 or later. |
     | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&lt;str&gt;</samp>](## "address_locking_settings.dhcp_server_interfaces.[]") | String |  |  |  | Interface name. |
+    | [<samp>&nbsp;&nbsp;auto_dhcp_server_interfaces</samp>](## "address_locking_settings.auto_dhcp_server_interfaces") | Boolean |  | `False` |  | When enabled, automatically populates the DHCP server interfaces with all L2 uplinks (Ethernet or Port-Channel) and the MLAG Port-Channel (if applicable).<br>Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is ignored.<br>When enabled, this setting is mutually exclusive with `local_interface`.<br>Any interfaces manually specified in `dhcp_server_interfaces` are merged with the auto-detected interfaces.<br>Requires EOS version 4.36 or later. |
     | [<samp>&nbsp;&nbsp;dhcp_servers_ipv4</samp>](## "address_locking_settings.dhcp_servers_ipv4") | List, items: String |  |  |  |  |
     | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&lt;str&gt;</samp>](## "address_locking_settings.dhcp_servers_ipv4.[]") | String |  |  |  | DHCP server IPv4 address. |
     | [<samp>&nbsp;&nbsp;disabled</samp>](## "address_locking_settings.disabled") | Boolean |  |  |  | Disable IP locking on configured ports. |
@@ -21,6 +22,10 @@
     | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;expiration_mac_disabled</samp>](## "address_locking_settings.locked_address.expiration_mac_disabled") | Boolean |  |  |  | Configure deauthorizing locked addresses upon MAC aging out. |
     | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;ipv4_enforcement_disabled</samp>](## "address_locking_settings.locked_address.ipv4_enforcement_disabled") | Boolean |  |  |  | Configure enforcement for locked IPv4 addresses. |
     | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;ipv6_enforcement_disabled</samp>](## "address_locking_settings.locked_address.ipv6_enforcement_disabled") | Boolean |  |  |  | Configure enforcement for locked IPv6 addresses. |
+    | [<samp>&nbsp;&nbsp;logging</samp>](## "address_locking_settings.logging") | Dictionary |  |  |  |  |
+    | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;event</samp>](## "address_locking_settings.logging.event") | Dictionary |  |  |  |  |
+    | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;denied_address_drop</samp>](## "address_locking_settings.logging.event.denied_address_drop") | Boolean |  |  |  | Log events for denied address drops. |
+    | [<samp>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dhcp_server_drop</samp>](## "address_locking_settings.logging.event.dhcp_server_drop") | Boolean |  |  |  | Log events for DHCP server to client packet drops.<br>Requires EOS version 4.36.2F or later. |
 
 === "YAML"
 
@@ -32,17 +37,25 @@
       #   - `use_inband_mgmt_interface` will configure the `inband_mgmt_interface` as the local interface.
       #   - `use_default_mgmt_method_interface` will configure `mgmt_interface` or `inband_mgmt_interface` as the local interface depending on the value of `default_mgmt_method`.
       #   - Any other string will be used directly as the local interface.
-      # When `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually exclusive with `dhcp_server_interfaces`.
+      # When `avd_design_future.fix_address_locking_dhcp_server_interfaces` is `true`, this setting is mutually exclusive with `dhcp_server_interfaces` and `auto_dhcp_server_interfaces`.
       local_interface: <str>
 
       # The list of interfaces connected to the DHCP server.
       # Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is ignored.
       # When enabled, this setting is mutually exclusive with `local_interface`.
+      # When `auto_dhcp_server_interfaces` is also enabled, the interfaces from this list are merged with the auto-detected interfaces.
       # Requires EOS version 4.36 or later.
       dhcp_server_interfaces:
 
           # Interface name.
         - <str>
+
+      # When enabled, automatically populates the DHCP server interfaces with all L2 uplinks (Ethernet or Port-Channel) and the MLAG Port-Channel (if applicable).
+      # Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces: true`. Otherwise this setting is ignored.
+      # When enabled, this setting is mutually exclusive with `local_interface`.
+      # Any interfaces manually specified in `dhcp_server_interfaces` are merged with the auto-detected interfaces.
+      # Requires EOS version 4.36 or later.
+      auto_dhcp_server_interfaces: <bool; default=False>
       dhcp_servers_ipv4:
 
           # DHCP server IPv4 address.
@@ -67,4 +80,13 @@
 
         # Configure enforcement for locked IPv6 addresses.
         ipv6_enforcement_disabled: <bool>
+      logging:
+        event:
+
+          # Log events for denied address drops.
+          denied_address_drop: <bool>
+
+          # Log events for DHCP server to client packet drops.
+          # Requires EOS version 4.36.2F or later.
+          dhcp_server_drop: <bool>
     ```

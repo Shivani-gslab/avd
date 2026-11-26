@@ -91,8 +91,14 @@ class AvdStructuredConfigBaseProtocol(
         if self.shared_utils.oob_mgmt_ip == "dhcp" and self.inputs.avd_design_future.accept_dhcp_default_route_for_mgmt_ip_dhcp:
             return
 
+        # Future behavior: skip OOB IPv4 static route rendering when no OOB IPv4 management address is configured.
+        if self.inputs.avd_design_future.only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used and self.shared_utils.oob_mgmt_ip is None:
+            return
+
         if self.shared_utils.oob_mgmt_gateway is None:
             return
+
+        self.structured_config_utils.set_once_oob_mgmt_vrf()
 
         if self.inputs.mgmt_destination_networks:
             for mgmt_destination_network in self.inputs.mgmt_destination_networks:
@@ -137,7 +143,16 @@ class AvdStructuredConfigBaseProtocol(
 
         if self.inputs.underlay_rfc5549 or self.shared_utils.underlay_ipv6:
             self.structured_config.ipv6_unicast_routing = True
-        if self.inputs.underlay_rfc5549:
+        # With the shared peer group, IPv4 is also activated on the MLAG underlay neighbor in the default VRF,
+        # so IPv4 routes received with IPv6 next hops require 'ip routing ipv6 interfaces' globally.
+        mlag_ipv4_over_ipv6_numbered = (
+            self.inputs.avd_design_future.fix_mlag_ibgp_peering_vrfs_address_families
+            and self.inputs.overlay_mlag_rfc5549
+            and self.shared_utils.mlag_l3
+            and self.shared_utils.underlay_ipv6_numbered
+            and not self.shared_utils.use_separate_peer_group_for_mlag_vrfs
+        )
+        if self.inputs.underlay_rfc5549 or mlag_ipv4_over_ipv6_numbered:
             self.structured_config.ip_routing_ipv6_interfaces = True
         else:
             self.structured_config.ip_routing = True
@@ -358,11 +373,12 @@ class AvdStructuredConfigBaseProtocol(
     @structured_config_contributor
     def vrfs(self) -> None:
         """Vrfs set based on mgmt_interface_vrf variable."""
-        vrf_settings = EosCliConfigGen.VrfsItem(name=self.shared_utils.mgmt_interface_vrf, ip_routing=self.shared_utils.mgmt_vrf_routing)
+        if not self.inputs.avd_design_future.only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used:
+            self.structured_config_utils.set_once_oob_mgmt_vrf()
+            return
 
-        if self.shared_utils.node_config.ipv6_mgmt_ip is not None:
-            vrf_settings.ipv6_routing = self.shared_utils.mgmt_vrf_routing
-        self.structured_config.vrfs.append(vrf_settings)
+        if self.inputs.default_mgmt_method == "oob":
+            self.structured_config_utils.set_once_oob_mgmt_vrf()
 
     @structured_config_contributor
     def management_security(self) -> None:
@@ -410,7 +426,27 @@ class AvdStructuredConfigBaseProtocol(
             # Since we use the same data model in eos_cli_config_gen, it would pick up the input vars unless we explicitly set it to null.
             self.custom_structured_configs.nested.queue_monitor_streaming = EosCliConfigGen.QueueMonitorStreaming._from_null()
             return
-        self.structured_config.queue_monitor_streaming = self.inputs.queue_monitor_streaming
+        ip_access_group = self.inputs.queue_monitor_streaming.ip_access_group
+        ipv4_acl = self.inputs.queue_monitor_streaming.ipv4_acl
+        ipv4_standard_acl = self.inputs.queue_monitor_streaming.ipv4_standard_acl
+        context = "queue-monitor streaming"
+        # TODO: 7.0.0: Only validate ipv4_standard_acl and ipv4_acl, once ip_access_group is removed from the schema.
+        self.structured_config_utils._validate_ipv4_acl_exclusion(ip_access_group, ipv4_acl, "ip_access_group", "ipv4_acl", context)
+        self.structured_config_utils._validate_ipv4_acl_exclusion(ip_access_group, ipv4_standard_acl, "ip_access_group", "ipv4_standard_acl", context)
+        self.structured_config_utils._validate_ipv4_acl_exclusion(ipv4_acl, ipv4_standard_acl, "ipv4_acl", "ipv4_standard_acl", context)
+
+        queue_monitor_streaming = self.inputs.queue_monitor_streaming._cast_as(EosCliConfigGen.QueueMonitorStreaming, ignore_extra_keys=True)
+        if ipv4_standard_acl is not None:
+            self.structured_config_utils._set_ipv4_standard_acl(ipv4_standard_acl)
+            queue_monitor_streaming.ip_access_group = ipv4_standard_acl
+        elif ipv4_acl is not None:
+            acl = self.shared_utils.get_ipv4_acl(
+                name=ipv4_acl,
+                context="queue_monitor_streaming.ipv4_acl",
+            )
+            self.structured_config_utils._set_ipv4_acl(acl)
+            queue_monitor_streaming.ip_access_group = acl.name
+        self.structured_config.queue_monitor_streaming = queue_monitor_streaming
 
     @structured_config_contributor
     def management_api_http(self) -> None:
@@ -561,6 +597,11 @@ class AvdStructuredConfigBaseProtocol(
     def _act_ensure_eapi_access(self) -> bool:
         """Flag indicating if we are in ACT Digital Twin mode and if eAPI access in default VRF is enforced."""
         return self.shared_utils.is_act_digital_twin and self.inputs.digital_twin.fabric.act_ensure_eapi_access
+
+    @cached_property
+    def _act_ensure_ssh_access(self) -> bool:
+        """Flag indicating if we are in ACT Digital Twin mode and if SSH access in default VRF is enforced."""
+        return self.shared_utils.is_act_digital_twin and self.inputs.digital_twin.fabric.act_ensure_ssh_access
 
     @structured_config_contributor
     def management_settings(self) -> None:

@@ -71,8 +71,6 @@ keys:
                     `use_default_mgmt_method_vrf` will configure the VRF and source-interface
                     for one of the two options above depending on the value of `default_mgmt_method`.\n-
                     Any other string will be used directly as the VRF name."
-                  convert_types:
-                  - int
                 timeout:
                   type: int
                   $ref: eos_cli_config_gen#/keys/tacacs_servers/keys/hosts/items/keys/timeout
@@ -96,8 +94,6 @@ keys:
                     Either `key` or `cleartext_key` must be set to render the configuration;
 
                     otherwise, an error will be raised.'
-                  convert_types:
-                  - int
           vrfs:
             type: list
             primary_key: name
@@ -107,8 +103,6 @@ keys:
                 name:
                   type: str
                   description: VRF Name.
-                  convert_types:
-                  - int
                 source_interface:
                   type: str
                   description: 'Source interface to use for TACACS hosts in this VRF.
@@ -162,8 +156,6 @@ keys:
                     `use_default_mgmt_method_vrf` will configure the VRF and source-interface
                     for one of the two options above depending on the value of `default_mgmt_method`.\n-
                     Any other string will be used directly as the VRF name."
-                  convert_types:
-                  - int
                 timeout:
                   type: int
                   $ref: eos_cli_config_gen#/keys/radius_server/keys/servers/items/keys/timeout
@@ -183,8 +175,6 @@ keys:
 
                     To protect the password at rest it is strongly recommended to
                     make use of a vault or similar.'
-                  convert_types:
-                  - int
                 tls:
                   type: dict
                   description: 'When TLS is configured, `key` and `cleartext_key`
@@ -204,8 +194,6 @@ keys:
                 name:
                   type: str
                   description: VRF Name.
-                  convert_types:
-                  - int
                 source_interface:
                   type: str
                   description: 'Source interface to use for RADIUS hosts in this VRF.
@@ -385,6 +373,40 @@ keys:
               valid_values:
               - sha512
               default: sha512
+  aaa_settings_profiles:
+    documentation_options:
+      table: aaa-settings-profiles
+    type: list
+    primary_key: profile
+    description: 'List of AAA settings profiles that can be applied to devices using
+      `aaa_settings_profile` under node definitions.
+
+      Profiles support inheritance using `parent_profile`, allowing common AAA settings
+      to be shared and selectively overridden per profile.
+
+      Note: For TACACS and RADIUS, `vrfs` entries merge by `name` across global settings
+      and the profile chain, with the most specific settings taking precedence.
+
+      A defined `servers` list replaces the inherited list for that protocol; if omitted,
+      the inherited list is retained.'
+    items:
+      type: dict
+      documentation_options:
+        table: aaa-settings-profiles
+      $ref: eos_designs#/keys/aaa_settings
+      keys:
+        profile:
+          type: str
+          min_length: 1
+          required: true
+          description: AAA settings profile name.
+        parent_profile:
+          type: str
+          min_length: 1
+          description: 'Inherit settings from a parent profile defined under `aaa_settings_profiles`.
+
+            The settings from this profile override settings inherited from the parent
+            profile.'
   address_locking_settings:
     type: dict
     $ref: eos_cli_config_gen#/keys/address_locking
@@ -398,7 +420,8 @@ keys:
           `mgmt_interface` or `inband_mgmt_interface` as the local interface depending
           on the value of `default_mgmt_method`.\n  - Any other string will be used
           directly as the local interface.\nWhen `avd_design_future.fix_address_locking_dhcp_server_interfaces`
-          is `true`, this setting is mutually exclusive with `dhcp_server_interfaces`."
+          is `true`, this setting is mutually exclusive with `dhcp_server_interfaces`
+          and `auto_dhcp_server_interfaces`."
       dhcp_server_interfaces:
         type: list
         description: 'The list of interfaces connected to the DHCP server.
@@ -408,10 +431,29 @@ keys:
 
           When enabled, this setting is mutually exclusive with `local_interface`.
 
+          When `auto_dhcp_server_interfaces` is also enabled, the interfaces from
+          this list are merged with the auto-detected interfaces.
+
           Requires EOS version 4.36 or later.'
         items:
           type: str
           description: Interface name.
+      auto_dhcp_server_interfaces:
+        type: bool
+        default: false
+        description: 'When enabled, automatically populates the DHCP server interfaces
+          with all L2 uplinks (Ethernet or Port-Channel) and the MLAG Port-Channel
+          (if applicable).
+
+          Requires `avd_design_future.fix_address_locking_dhcp_server_interfaces:
+          true`. Otherwise this setting is ignored.
+
+          When enabled, this setting is mutually exclusive with `local_interface`.
+
+          Any interfaces manually specified in `dhcp_server_interfaces` are merged
+          with the auto-detected interfaces.
+
+          Requires EOS version 4.36 or later.'
   application_classification:
     type: dict
     $ref: eos_cli_config_gen#/keys/application_traffic_recognition
@@ -501,10 +543,10 @@ keys:
         default: false
         description: 'Available from AVD 6.4.0.
 
-          Fix support for `address_locking_settings.dhcp_server_interfaces`.
+          Fix support for `address_locking_settings.dhcp_server_interfaces` and `address_locking_settings.auto_dhcp_server_interfaces`.
 
-          When enabled, `address_locking_settings.dhcp_server_interfaces` and `address_locking_settings.local_interface`
-          are mutually exclusive.'
+          When enabled, `address_locking_settings.dhcp_server_interfaces`/`address_locking_settings.auto_dhcp_server_interfaces`
+          and `address_locking_settings.local_interface` are mutually exclusive.'
       fix_match_ipv6_prefix_list_on_mlag_route_map:
         type: bool
         default: false
@@ -526,6 +568,25 @@ keys:
 
           using `mlag_ibgp_peering_ipv6_pool` when set, and `mlag_ibgp_peering_ipv4_pool`
           is ignored.'
+      fix_mlag_ibgp_peering_vrfs_address_families:
+        type: bool
+        default: false
+        description: "Available from AVD 6.5.0.\nFix the BGP address families of the
+          MLAG iBGP peerings in VRFs when using `underlay_ipv6_numbered`.\nThese iBGP
+          sessions run over IPv6, so when enabled:\n- With `overlay_mlag_rfc5549:
+          false`, the dedicated `bgp_peer_groups.mlag_ipv4_vrfs_peer` peer group activates
+          the IPv6 address family\n  instead of the IPv4 address family. An error
+          is raised if a VRF with MLAG iBGP peering has IPv4 configured, with either
+          the shared\n  or the dedicated peer group, since IPv4 routes cannot be exchanged
+          over these sessions without `overlay_mlag_rfc5549: true`.\n- With `overlay_mlag_rfc5549:
+          true`, both the IPv4 address family (with `next-hop address-family ipv6
+          originate`) and the IPv6\n  address family are activated on the MLAG peer
+          group used for VRFs, either the shared `bgp_peer_groups.mlag_ipv4_underlay_peer`\n
+          \ or the dedicated `bgp_peer_groups.mlag_ipv4_vrfs_peer`. `ip routing ipv6
+          interfaces` is configured globally when using the shared\n  peer group,
+          and `ip routing ipv6 interfaces vrf <vrf>` and `ipv6 unicast-routing vrf
+          <vrf>` are configured for VRFs with MLAG iBGP peering.\n  This allows dual-stack
+          VRFs over a numbered IPv6 underlay."
       fix_radius_server_group_tls:
         type: bool
         default: false
@@ -533,6 +594,19 @@ keys:
 
           Fix to configure TLS on RADIUS server group members to match their global
           RADIUS server configurations.'
+      fix_virtual_source_nat_address_families:
+        type: bool
+        default: false
+        description: 'Available from AVD 6.5.0.
+
+          Fix the selection of the addresses used for the IPv4 and IPv6 virtual source-nat
+          of a VRF.
+
+          When enabled, each address family uses the first loopback in the VRF with
+          an address of that family.
+
+          The VTEP diagnostic loopback is used first, followed by the VRF loopbacks
+          in input order.'
       only_configure_ipv6_inband_mgmt_prefix_list_when_used:
         type: bool
         description: 'Available from AVD 6.2.0.
@@ -586,6 +660,30 @@ keys:
 
           Deactivate the IPv4 unicast Address Family for BGP Peer Groups only when
           IPv4 is activated by default instead of always deactivating it.'
+        default: false
+      sort_snmp_acls_and_local_interfaces_by_vrf:
+        type: bool
+        default: false
+        description: 'Available from AVD 6.5.0.
+
+          Sort SNMP ACLs and local interfaces by VRF name in the generated configuration.'
+      only_configure_oob_mgmt_vrf_and_ipv4_static_routes_when_used:
+        type: bool
+        description: 'Available from AVD 6.5.0.
+
+          Configure OOB management VRF and OOB IPv4 static routes only when OOB management
+          is actually used.
+
+          When enabled:
+
+          - AVD renders the OOB management VRF only if `default_mgmt_method` is `oob`,
+          or if `mgmt_ip` / `ipv6_mgmt_ip` is configured.
+
+          - Setting only `mgmt_interface_vrf` or `mgmt_interface_settings.vrf` does
+          not by itself render the OOB management VRF.
+
+          - AVD renders OOB IPv4 static routes only when `mgmt_ip` is configured (and
+          other existing route prerequisites are met).'
         default: false
   avd_digital_twin_mode:
     documentation_options:
@@ -672,22 +770,16 @@ keys:
     keys:
       interval:
         type: int
-        convert_types:
-        - str
         min: 50
         max: 60000
         required: true
       min_rx:
         type: int
-        convert_types:
-        - str
         min: 50
         max: 60000
         required: true
       multiplier:
         type: int
-        convert_types:
-        - str
         min: 3
         max: 50
         required: true
@@ -704,8 +796,6 @@ keys:
       For asdot notation in YAML inputs, the value must be put in quotes, to prevent
       it from being interpreted as a float number.'
     type: str
-    convert_types:
-    - int
   bgp_as_notation:
     documentation_options:
       table: bgp-settings
@@ -741,8 +831,6 @@ keys:
     type: int
     min: 1
     max: 600
-    convert_types:
-    - str
   bgp_graceful_restart:
     documentation_options:
       table: bgp-settings
@@ -764,8 +852,6 @@ keys:
         description: Enable or disable graceful-restart for all BGP peers.
       restart_time:
         type: int
-        convert_types:
-        - str
         min: 1
         max: 3600
         default: 300
@@ -777,8 +863,6 @@ keys:
 
       The default value is 4 except for WAN Routers where the default value is 16.'
     type: int
-    convert_types:
-    - str
     min: 1
     max: 600
   bgp_mesh_pes:
@@ -835,8 +919,6 @@ keys:
             default: false
           maximum_routes:
             type: int
-            convert_types:
-            - str
             description: Maximum number of routes (0 means unlimited).
             default: 256000
             min: 0
@@ -883,8 +965,6 @@ keys:
             default: false
           maximum_routes:
             type: int
-            convert_types:
-            - str
             description: Maximum number of routes (0 means unlimited).
             default: 256000
             min: 0
@@ -920,8 +1000,6 @@ keys:
             default: false
           maximum_routes:
             type: int
-            convert_types:
-            - str
             description: Maximum number of routes (0 means unlimited).
             default: 256000
             min: 0
@@ -1155,8 +1233,6 @@ keys:
               description: The prefixes to use in listen_range.
           ttl_maximum_hops:
             type: int
-            convert_types:
-            - str
             default: 1
           structured_config:
             type: dict
@@ -1234,8 +1310,6 @@ keys:
                 default: 10
           ttl_maximum_hops:
             type: int
-            convert_types:
-            - str
             default: 1
           structured_config:
             type: dict
@@ -1387,8 +1461,6 @@ keys:
                   keys:
                     number:
                       type: int
-                      convert_types:
-                      - str
                       description: Subinterface number.
                       min: 1
                       max: 1048575
@@ -1411,8 +1483,6 @@ keys:
                         Required for multihomed ethernet interfaces with subinterfaces.'
                     vlan_id:
                       type: int
-                      convert_types:
-                      - str
                       min: 1
                       max: 4094
                       description: 'VLAN ID to bridge.
@@ -1426,8 +1496,6 @@ keys:
                           description: 'Client VLAN ID encapsulation.
 
                             Default is the subinterface number.'
-                          convert_types:
-                          - str
                           min: 1
                           max: 4094
                     raw_eos_cli:
@@ -1465,8 +1533,6 @@ keys:
                       keys:
                         number:
                           type: int
-                          convert_types:
-                          - str
                           description: Subinterface number.
                           min: 1
                           max: 1048575
@@ -1492,8 +1558,6 @@ keys:
                             '
                         vlan_id:
                           type: int
-                          convert_types:
-                          - str
                           min: 1
                           max: 4094
                           description: 'VLAN ID to bridge.
@@ -1511,8 +1575,6 @@ keys:
                                 Default is the subinterface number.
 
                                 '
-                              convert_types:
-                              - str
                               min: 1
                               max: 4094
                         raw_eos_cli:
@@ -1899,8 +1961,6 @@ keys:
                 vrf:
                   type: str
                   default: use_default_mgmt_method_vrf
-                  convert_types:
-                  - int
                   description: "The VRF used to connect to CloudVision.\nThe value
                     will be interpreted according to these rules:\n- `use_mgmt_interface_vrf`
                     will configure the VRF set with `mgmt_interface_vrf` and configure
@@ -1944,11 +2004,16 @@ keys:
               pattern: '[a-zA-Z0-9-_]+'
             servers:
               type: list
-              required: true
               min_length: 1
               max_length: 3
               primary_key: name
-              description: CloudVision servers that makes up one cluster.
+              description: 'CloudVision servers that make up one cluster.
+
+                May be omitted when inherited from a parent CloudVision settings profile
+                or global `cv_settings`.
+
+                After resolving profile and global settings, each on-prem cluster
+                must have at least one server.'
               items:
                 type: dict
                 keys:
@@ -1960,14 +2025,10 @@ keys:
                       of limitations with Image transfers from CloudVision.'
                   port:
                     type: int
-                    convert_types:
-                    - str
                     default: 9910
             vrf:
               type: str
               default: use_default_mgmt_method_vrf
-              convert_types:
-              - int
               description: "The VRF used to connect to CloudVision.\nThe value will
                 be interpreted according to these rules:\n- `use_mgmt_interface_vrf`
                 will configure the VRF set with `mgmt_interface_vrf` and configure
@@ -2028,6 +2089,63 @@ keys:
           Can be set to `false` to avoid changes when migrating from the old `cv_instances`
           model.'
         default: true
+  cv_settings_profiles:
+    documentation_options:
+      table: cloudvision-settings-profiles
+    type: list
+    primary_key: profile
+    description: 'List of CloudVision settings profiles that can be applied to devices
+      using `cv_settings_profile` under node definitions.
+
+      Profiles support inheritance using `parent_profile`, allowing common CloudVision
+      settings to be shared and selectively overridden per profile.'
+    items:
+      type: dict
+      documentation_options:
+        table: cloudvision-settings-profiles
+      $ref: eos_designs#/keys/cv_settings
+      keys:
+        profile:
+          type: str
+          min_length: 1
+          required: true
+          description: CloudVision settings profile name.
+        parent_profile:
+          type: str
+          min_length: 1
+          description: 'Inherit settings from a parent profile defined under `cv_settings_profiles`.
+
+            The settings from this profile override settings inherited from the parent
+            profile.'
+        cvaas:
+          type: dict
+          keys:
+            enabled:
+              type: bool
+              required: false
+        onprem_clusters:
+          type: list
+          items:
+            type: dict
+            keys:
+              servers:
+                type: list
+                description: 'CloudVision servers that make up one cluster.
+
+                  May be omitted when inherited from a parent CloudVision settings
+                  profile or global `cv_settings`.
+
+                  After resolving profile and global settings, each on-prem cluster
+                  must have at least one server.
+
+
+                  Note: Servers from this profile are merged with servers for the
+                  same cluster from the parent profile and global
+
+                  `cv_settings`, so the combined list must not exceed three servers.
+
+                  If a server has the same `name` as an inherited server, values from
+                  this profile override the inherited values.'
   cv_tags_topology_type:
     documentation_options:
       table: cloudvision-tags
@@ -2107,8 +2225,6 @@ keys:
         level:
           type: int
           required: true
-          convert_types:
-          - str
           description: 'Level value used to determine the relationship between two
             devices for a connection.
 
@@ -2200,8 +2316,6 @@ keys:
     documentation_options:
       table: system-settings
     type: int
-    convert_types:
-    - str
     description: 'Default interface MTU configured on EOS under "interface defaults".
 
       Can be overridden per platform under platform settings.
@@ -2485,6 +2599,7 @@ keys:
         description: Targeted Digital Twin environment.
         valid_values:
         - act
+        - containerlab
         default: act
       fabric:
         type: dict
@@ -2524,8 +2639,98 @@ keys:
 
               Set this to `true` to enforce the required EOS configuration, guaranteeing
               eAPI over HTTPS is always enabled in the default VRF and preserving
-              this connectivity.'
+              this connectivity.
+
+              Any IPv4 ACL applied to eAPI in the default VRF is removed. IPv6 ACLs
+              and eAPI configuration for non-default VRFs are preserved.'
             default: false
+          act_ensure_ssh_access:
+            type: bool
+            description: 'Ensures SSH remains accessible for automation and testing
+              via ACT.
+
+              Clients connecting to device SSH through ACT rely on access in the default
+              VRF. If SSH is disabled globally or in the default VRF (takes precedence
+              over global setting), this primary SSH connectivity can be unintentionally
+              broken.
+
+              Set this to `true` to enforce the required EOS configuration, guaranteeing
+              SSH is enabled in the default VRF and preserving this connectivity.
+
+              Any IPv4 ACL applied to SSH in the default VRF is removed. IPv6 ACLs
+              and SSH configuration for non-default VRFs are preserved.'
+            default: false
+          serial_number_template:
+            type: str
+            min_length: 1
+            description: 'AVD string formatter template for generating the serial
+              number of ACT Digital Twin devices.
+
+              When set, the rendered value is written into the device metadata and
+              provided as the serial number in the ACT topology.
+
+              Can be overridden per device with `digital_twin.serial_number` at node
+              level.
+
+              Supported template variables: `serial_number` (production serial number),
+              `system_mac_address` (resolved production system MAC address), `hostname`,
+              `device_id`, `fabric_name`.
+
+              The rendered value should be unique across all devices in the fabric.
+              AVD does not enforce uniqueness automatically.
+
+              If unset, no serial number is included in the metadata or the ACT topology.
+
+              Applies only to `veos` and `cloudeos` node types. Ignored for all other
+              ACT node types.
+
+              Ignored when `digital_twin.environment` is `containerlab`.'
+          system_mac_address_template:
+            type: str
+            min_length: 1
+            description: 'AVD string formatter template for generating the system
+              MAC address of ACT Digital Twin devices.
+
+              When set, the rendered value is used throughout the device''s EOS configuration
+              (e.g., SNMPv3 engine ID), written into the device metadata, and provided
+              as the system MAC address in the ACT topology.
+
+              Can be overridden per device with `digital_twin.system_mac_address`
+              at node level.
+
+              Supported template variables: `serial_number` (production serial number),
+              `system_mac_address` (production system MAC address), `hostname`, `device_id`,
+              `fabric_name`.
+
+              The rendered value must be a unicast MAC address in `hhhh.hhhh.hhhh`,
+              `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+              digit). The all-zero address is reserved and not accepted by EOS.
+
+              Regardless of the input format, the MAC address is normalized to `hh:hh:hh:hh:hh:hh`
+              format.
+
+              The rendered value should be unique across all devices in the fabric.
+              AVD does not enforce uniqueness automatically.
+
+              If unset, no system MAC address is included in the metadata or the ACT
+              topology, and the production `system_mac_address` is used for EOS configuration.
+
+              Applies only to `veos` and `cloudeos` node types. Ignored for all other
+              ACT node types.
+
+              Ignored when `digital_twin.environment` is `containerlab`.'
+          ztp:
+            type: bool
+            default: false
+            description: 'Enable ZTP (Zero Touch Provisioning) mode for all Digital
+              Twin devices.
+
+              Can be overridden by `digital_twin.ztp` at node level.
+
+              Supported Digital Twin environments:
+
+              - `act`: Applies only to `veos` and `cloudeos` node types. Ignored for
+              all other node types.'
       use_default_interfaces_of_digital_twin_platform:
         type: bool
         default: false
@@ -2543,8 +2748,14 @@ keys:
         $ref: eos_cli_config_gen#/keys/domain_list
       servers:
         type: list
-        required: true
         min_length: 1
+        description: 'List of DNS servers to configure.
+
+          May be omitted when inherited from a parent DNS settings profile or global
+          `dns_settings`.
+
+          When the resolved DNS settings are non-empty, at least one server must be
+          configured.'
         items:
           type: dict
           keys:
@@ -2564,8 +2775,6 @@ keys:
                 the value of `default_mgmt_method`.\n- Any other string will be used
                 directly as the VRF name. Remember to set the `dns_settings.vrfs[].source_interface`
                 if needed."
-              convert_types:
-              - int
             ip_address:
               type: str
               required: true
@@ -2573,20 +2782,17 @@ keys:
             priority:
               description: Priority value (lower is first).
               type: int
-              convert_types:
-              - str
               min: 0
               max: 4
       vrfs:
         type: list
         primary_key: name
+        description: Per-VRF DNS lookup source-interface settings.
         items:
           type: dict
           keys:
             name:
               type: str
-              convert_types:
-              - int
               description: VRF name.
             source_interface:
               type: str
@@ -2605,6 +2811,32 @@ keys:
       ip_hosts:
         type: list
         $ref: eos_cli_config_gen#/keys/ip_hosts
+        description: Static hostname-to-IP address mappings to configure in the local
+          host table.
+  dns_settings_profiles:
+    type: list
+    primary_key: profile
+    description: 'List of DNS settings profiles that can be applied to devices using
+      `dns_settings_profile` under node definitions.
+
+      Profiles support inheritance using `parent_profile`, allowing common DNS settings
+      to be shared and selectively overridden per profile.'
+    items:
+      type: dict
+      $ref: eos_designs#/keys/dns_settings
+      keys:
+        profile:
+          type: str
+          min_length: 1
+          required: true
+          description: DNS settings profile name.
+        parent_profile:
+          type: str
+          min_length: 1
+          description: 'Inherit settings from a parent profile defined under `dns_settings_profiles`.
+
+            The settings from this profile override settings inherited from the parent
+            profile.'
   dot1x_settings:
     documentation_options:
       table: dot1x-settings
@@ -2675,6 +2907,11 @@ keys:
       bypass_bpdu:
         type: bool
         default: true
+        description: 'Allow BPDU packets from unauthenticated hosts/mac to be used
+          for loop detection.
+
+          Ignored when `feature_support.dot1x_bpdu_bypass` is false in the selected
+          platform settings.'
         $ref: eos_cli_config_gen#/keys/dot1x/keys/protocol_bpdu_bypass
       bypass_lldp:
         type: bool
@@ -2687,6 +2924,14 @@ keys:
             type: bool
             default: true
             $ref: eos_cli_config_gen#/keys/dot1x/keys/dynamic_authorization
+          port:
+            type: int
+            min: 0
+            max: 65535
+            description: 'UDP port used for RADIUS dynamic authorization requests.
+
+              Applied only when `dot1x_settings.dynamic_authorization.enabled` is
+              `true`.'
           additional_groups:
             type: list
             description: 'List of additional RADIUS server groups for dynamic authorization
@@ -3024,8 +3269,6 @@ keys:
         description: Interval for all recovery causes in seconds.
         min: 30
         max: 86400
-        convert_types:
-        - str
       causes:
         type: dict
         keys:
@@ -3146,8 +3389,6 @@ keys:
 
       '
     type: int
-    convert_types:
-    - str
     default: 15
   evpn_ebgp_multihop:
     documentation_options:
@@ -3159,8 +3400,6 @@ keys:
 
       '
     type: int
-    convert_types:
-    - str
     default: 3
   evpn_hostflap_detection:
     documentation_options:
@@ -3174,20 +3413,14 @@ keys:
       threshold:
         description: Minimum number of MAC moves that indicate a MAC duplication issue.
         type: int
-        convert_types:
-        - str
         default: 5
       window:
         description: Time (in seconds) to detect a MAC duplication issue.
         type: int
-        convert_types:
-        - str
         default: 180
       expiry_timeout:
         description: Time (in seconds) to purge a MAC duplication issue.
         type: int
-        convert_types:
-        - str
   evpn_import_pruning:
     documentation_options:
       table: evpn-settings
@@ -3310,8 +3543,6 @@ keys:
       keys:
         name:
           type: str
-          convert_types:
-          - int
           description: 'Specify an EVPN vlan-aware-bundle name.
 
             EVPN vlan-aware-bundles group VLANs and define common settings.
@@ -3320,8 +3551,6 @@ keys:
         id:
           type: int
           required: true
-          convert_types:
-          - str
           description: '"id" may be used for vlan-aware-bundle RD/RT ID so it should
             not overlap with l2vlan IDs which are not part of this bundle.
 
@@ -3330,8 +3559,6 @@ keys:
             '
         rt_override:
           type: str
-          convert_types:
-          - int
           description: "By default the MAC VRF bundle RT will be derived from mac_vrf_id_base
             + bundle_id.\nThe rt_override allows us to override this value and statically
             define it.\nrt_override will default to vni_override if set.\n\nrt_override
@@ -3341,8 +3568,6 @@ keys:
             RT.\n"
         rd_override:
           type: str
-          convert_types:
-          - int
           description: "By default the MAC VRF bundle RD will be derived from mac_vrf_id_base
             + bundle_id.\nThe rt_override allows us to override this value and statically
             define it.\nrd_override will default to rt_override or vni_override if
@@ -3451,8 +3676,6 @@ keys:
             valid_values:
             - 64
             - 128
-            convert_types:
-            - str
       mlag:
         type: dict
         keys:
@@ -3480,8 +3703,6 @@ keys:
             default: 31
             min: 1
             max: 31
-            convert_types:
-            - str
             description: IPv4 prefix length used for MLAG peer-vlan and L3 point-to-point
               SVIs over the MLAG peer-link.
           ipv6_prefix_length:
@@ -3489,8 +3710,6 @@ keys:
             default: 64
             min: 1
             max: 127
-            convert_types:
-            - str
             description: IPv6 prefix length used for MLAG peer-vlan and L3 point-to-point
               SVIs over the MLAG peer-link.
       p2p_uplinks:
@@ -3501,16 +3720,12 @@ keys:
             default: 31
             min: 1
             max: 31
-            convert_types:
-            - str
             description: IPv4 prefix length used for L3 point-to-point uplinks.
           ipv6_prefix_length:
             type: int
             default: 64
             min: 1
             max: 127
-            convert_types:
-            - str
             description: IPv6 prefix length used for L3 point-to-point uplinks.
       wan_ha:
         type: dict
@@ -3522,8 +3737,6 @@ keys:
             default: 31
             min: 1
             max: 31
-            convert_types:
-            - str
             description: IPv4 prefix length used for point-to-point interface for
               direct WAN HA link.
   fabric_name:
@@ -3640,8 +3853,6 @@ keys:
                 type: bool
           sample:
             type: int
-            convert_types:
-            - str
             min: 1
             max: 4294967295
             default: 10000
@@ -3656,8 +3867,6 @@ keys:
                 description: Configure hardware offload for IPv6 traffic.
               threshold_minimum:
                 type: int
-                convert_types:
-                - str
                 min: 1
                 max: 4294967295
                 description: Minimum number of samples.
@@ -3711,8 +3920,6 @@ keys:
               keys:
                 table_size:
                   type: int
-                  convert_types:
-                  - str
                   min: 1
                   max: 614400
                   description: 'Maximum number of entries in flow table.
@@ -3729,15 +3936,11 @@ keys:
               keys:
                 on_inactive_timeout:
                   type: int
-                  convert_types:
-                  - str
                   min: 3000
                   max: 900000
                   description: Flow record inactive export timeout in milliseconds
                 on_interval:
                   type: int
-                  convert_types:
-                  - str
                   min: 1000
                   max: 36000000
                   description: Flow record export interval in milliseconds
@@ -3768,8 +3971,6 @@ keys:
                     keys:
                       ipfix_version:
                         type: int
-                        convert_types:
-                        - str
                   local_interface:
                     type: str
                     default: use_default_mgmt_method_interface
@@ -3783,8 +3984,6 @@ keys:
                       will be used directly as the local interface."
                   template_interval:
                     type: int
-                    convert_types:
-                    - str
                     min: 5000
                     max: 3600000
                     description: Template interval in milliseconds
@@ -3999,16 +4198,12 @@ keys:
         keys:
           beginning:
             type: int
-            convert_types:
-            - str
             description: First VLAN ID.
             min: 2
             max: 4094
             required: true
           ending:
             type: int
-            convert_types:
-            - str
             description: Last VLAN ID.
             min: 2
             max: 4094
@@ -4153,8 +4348,6 @@ keys:
                 type: int
                 required: true
                 description: Sequence ID.
-                convert_types:
-                - str
               action:
                 type: str
                 required: true
@@ -4173,8 +4366,6 @@ keys:
         name:
           type: str
           description: Access-list Name.
-          convert_types:
-          - int
         counters_per_entry:
           type: bool
         entries:
@@ -4185,8 +4376,6 @@ keys:
               sequence:
                 type: int
                 description: Sequence ID.
-                convert_types:
-                - str
               action:
                 type: str
                 description: 'Action as string.
@@ -4213,8 +4402,6 @@ keys:
               vlan:
                 type: int
                 description: Match packets by VLAN value.
-                convert_types:
-                - str
               vlan_mask:
                 type: str
                 description: 'VLAN mask. Range "0x000"-"0xFFF". Required when `vlan`
@@ -4226,8 +4413,6 @@ keys:
               inner_vlan:
                 type: int
                 description: Match packets by inner VLAN value.
-                convert_types:
-                - str
               inner_vlan_mask:
                 type: str
                 description: 'Inner VLAN mask. Range 0x000-0xFFF. Required when `inner_vlan`
@@ -4394,8 +4579,6 @@ keys:
                 type: int
                 required: true
                 description: Sequence ID.
-                convert_types:
-                - str
               action:
                 type: str
                 required: true
@@ -4423,9 +4606,6 @@ keys:
       table: isis-settings
     type: str
     default: '49.0001'
-    convert_types:
-    - int
-    - float
   isis_default_circuit_type:
     documentation_options:
       table: isis-settings
@@ -4453,8 +4633,6 @@ keys:
     documentation_options:
       table: isis-settings
     type: int
-    convert_types:
-    - str
     default: 50
     description: 'These fabric level parameters can be used with core_interfaces running
       ISIS, and may be overridden at link profile or link level.
@@ -4466,8 +4644,6 @@ keys:
     description: Number of path to configure in ECMP for ISIS.
     type: int
     default: 4
-    convert_types:
-    - str
   isis_system_id_format:
     display_name: ISIS Default IS System-ID format
     description: 'Configures source for the system-id within the ISIS net id.
@@ -4500,8 +4676,6 @@ keys:
       local_convergence_delay:
         description: Local convergence delay in milliseconds.
         type: int
-        convert_types:
-        - str
         default: 10000
   l2vlan_profiles:
     type: list
@@ -4599,8 +4773,6 @@ keys:
                 the value of `default_mgmt_method`.\n- Any other string will be used
                 directly as the VRF name. Remember to set the `logging_settings.vrfs[].source_interface`
                 if needed."
-              convert_types:
-              - int
       vrfs:
         type: list
         primary_key: name
@@ -4609,8 +4781,6 @@ keys:
           keys:
             name:
               type: str
-              convert_types:
-              - int
               description: VRF name.
             source_interface:
               type: str
@@ -4669,8 +4839,6 @@ keys:
         name:
           type: str
           description: Access-list name.
-          convert_types:
-          - int
         counters_per_entry:
           type: bool
         entries:
@@ -4683,8 +4851,6 @@ keys:
             keys:
               sequence:
                 type: int
-                convert_types:
-                - str
               action:
                 type: str
                 valid_values:
@@ -4759,8 +4925,6 @@ keys:
                 will configure the eAPI under VRF for one of the two options above
                 depending on the value of `default_mgmt_method`.\n- Any other string
                 will be used directly as the VRF name."
-              convert_types:
-              - int
             enabled:
               type: bool
               required: true
@@ -4768,13 +4932,9 @@ keys:
             ipv4_acl:
               type: str
               description: IPv4 access-list name.
-              convert_types:
-              - int
             ipv6_acl:
               type: str
               description: IPv6 access-list name.
-              convert_types:
-              - int
   management_settings:
     type: dict
     documentation_options:
@@ -4850,8 +5010,6 @@ keys:
         default: OOB_MANAGEMENT
       vrf:
         type: str
-        convert_types:
-        - int
         description: VRF name used for the management interface.
         default: MGMT
       vrf_routing:
@@ -4862,6 +5020,30 @@ keys:
         type: str
         description: Name of the management interface (e.g. Management0, Management1).
         default: Management1
+      shutdown:
+        type: str
+        default: 'false'
+        description: 'Control the management interface shutdown state.
+
+          - "true": Always shut down the interface, even when management addressing
+          is configured.
+
+          - "false": Configure "no shutdown" when management addressing is configured;
+          otherwise, generate no interface configuration.
+
+          - "auto": Configure "no shutdown" when management addressing is configured;
+          otherwise, shut down the interface.
+
+          Management addressing is determined by node `mgmt_ip` or `ipv6_mgmt_ip`,
+          including DHCP and SLAAC.
+
+          When shutting down an interface without node management addressing, only
+          its name and shutdown state are configured.'
+        valid_values:
+        - 'true'
+        - 'false'
+        - auto
+        convert_to_lower_case: true
       lldp:
         type: dict
         description: LLDP settings for the management interface.
@@ -4874,8 +5056,6 @@ keys:
             description: Enable LLDP reception on the management interface.
           ztp_vlan:
             type: int
-            convert_types:
-            - str
             description: VLAN ID advertised via LLDP for Zero Touch Provisioning (ZTP).
   mgmt_interface_vrf:
     documentation_options:
@@ -4883,8 +5063,6 @@ keys:
     type: str
     default: MGMT
     description: OOB Management VRF.
-    convert_types:
-    - int
     deprecation:
       warning: true
       removed: false
@@ -4943,8 +5121,6 @@ keys:
     keys:
       base_vlan:
         type: int
-        convert_types:
-        - str
         min: 1
         max: 4093
         default: 3000
@@ -5054,8 +5230,6 @@ keys:
         type: bool
       interval:
         type: int
-        convert_types:
-        - str
       interface_sets:
         type: list
         primary_key: name
@@ -5115,8 +5289,6 @@ keys:
             icmp_echo_size:
               type: int
               description: Size of ICMP probe in bytes.
-              convert_types:
-              - str
               min: 36
               max: 18024
             local_interfaces:
@@ -5144,8 +5316,6 @@ keys:
             name:
               description: VRF Name.
               type: str
-              convert_types:
-              - int
             description:
               type: str
               description: 'Description in the form of
@@ -5221,8 +5391,6 @@ keys:
                   icmp_echo_size:
                     type: int
                     description: Size of ICMP probe in bytes.
-                    convert_types:
-                    - str
                     min: 36
                     max: 18024
                   local_interfaces:
@@ -5316,8 +5484,6 @@ keys:
             '
         mac_vrf_vni_base:
           type: int
-          convert_types:
-          - str
           min: 0
           max: 16770000
           description: 'Base number for MAC VRF VXLAN Network Identifier (required
@@ -5330,8 +5496,6 @@ keys:
             '
         mac_vrf_id_base:
           type: int
-          convert_types:
-          - str
           min: 0
           max: 16770000
           description: 'If not set, "mac_vrf_vni_base" will be used.
@@ -5346,8 +5510,6 @@ keys:
             '
         vlan_aware_bundle_number_base:
           type: int
-          convert_types:
-          - str
           default: 0
           description: 'Base number for VLAN aware bundle RD/RT.
 
@@ -5364,8 +5526,6 @@ keys:
             Avoid overlapping route target spaces between different services.
 
             '
-          convert_types:
-          - str
         enable_mlag_ibgp_peering_vrfs:
           documentation_options:
             table: network-services-vrfs-settings
@@ -5540,8 +5700,6 @@ keys:
                         quotes, to prevent it from being interpreted as a float number.
 
                         note: `peer_filter` or `remote_as` is required.'
-                      convert_types:
-                      - int
                     peer_id_include_router_id:
                       type: bool
                       description: Include router ID as part of peer filter.
@@ -5582,8 +5740,6 @@ keys:
                   type: int
                   description: IGMP Version (By default EOS uses IGMP version 2 for
                     IGMP querier).
-                  convert_types:
-                  - str
                   valid_values:
                   - 1
                   - 2
@@ -5620,8 +5776,6 @@ keys:
             underlay_l2_multicast_group_ipv4_pool_offset:
               type: int
               default: 0
-              convert_types:
-              - str
             fast_leave:
               type: bool
               deprecation:
@@ -5668,8 +5822,6 @@ keys:
             underlay_l2_multicast_group_ipv4_pool_offset:
               type: int
               default: 0
-              convert_types:
-              - str
         evpn_l3_multicast:
           documentation_options:
             table: network-services-multicast-settings
@@ -5703,8 +5855,6 @@ keys:
             evpn_underlay_l3_multicast_group_ipv4_pool_offset:
               type: int
               default: 0
-              convert_types:
-              - str
             evpn_peg:
               type: list
               description: 'For each group of nodes, allow configuration of EVPN PEG
@@ -5760,8 +5910,6 @@ keys:
                   description: Group_prefix/mask.
               access_list_name:
                 type: str
-                convert_types:
-                - int
                 description: 'List of groups to associate with the RP address set
                   in ''rp''.
 
@@ -5810,8 +5958,6 @@ keys:
               type: int
               description: IGMP Version (By default EOS uses IGMP version 2 for IGMP
                 querier).
-              convert_types:
-              - str
               valid_values:
               - 1
               - 2
@@ -5853,8 +5999,6 @@ keys:
             keys:
               name:
                 type: str
-                convert_types:
-                - int
               address_families:
                 type: list
                 default:
@@ -5870,8 +6014,6 @@ keys:
                 description: VRF description.
               vrf_vni:
                 type: int
-                convert_types:
-                - str
                 min: 1
                 max: 16777215
                 description: 'Required if "vrf_id" is not set.
@@ -5890,8 +6032,6 @@ keys:
                   '
               vrf_id:
                 type: int
-                convert_types:
-                - str
                 description: 'Required if "vrf_vni" is not set.
 
                   "vrf_id" is used as default value for "vrf_vni" and "ospf.process_id"
@@ -5906,8 +6046,6 @@ keys:
                   '
               rd_override:
                 type: str
-                convert_types:
-                - int
                 description: "By default, the VRF RD will be derived from the pattern
                   defined in `overlay_rd_type`.\nThe rd_override allows us to override
                   this value and statically define it.\n\nrd_override supports two
@@ -5916,8 +6054,6 @@ keys:
                   separator which will override the full RD.\n"
               rt_override:
                 type: str
-                convert_types:
-                - int
                 description: "By default, the VRF RT will be derived from the pattern
                   defined in `overlay_rt_type`.\nThe rt_override allows us to override
                   this value and statically define it.\n\nrt_override supports two
@@ -6048,8 +6184,6 @@ keys:
                         on the value of `default_mgmt_method`.\n- Any other string
                         will be used directly as the source VRF name.\n- If not set,
                         EOS uses the VRF on the SVI."
-                      convert_types:
-                      - int
               enable_mlag_ibgp_peering_vrfs:
                 type: bool
                 description: 'MLAG iBGP peering per VRF.
@@ -6075,8 +6209,6 @@ keys:
                   '
               mlag_ibgp_peering_vlan:
                 type: int
-                convert_types:
-                - str
                 description: 'Manually define the VLAN used on the MLAG pair for the
                   iBGP session.
 
@@ -6097,8 +6229,6 @@ keys:
                 keys:
                   loopback:
                     type: int
-                    convert_types:
-                    - str
                     description: 'Loopback interface number, required when vtep_diagnotics
                       defined.
 
@@ -6192,16 +6322,12 @@ keys:
                   created on all leafs where the VRF is deployed. This will also cause
                   automatic OSPF redistribution into BGP unless
 
-                  explicitly turned off with "redistribute_ospf: false".
-
-                  '
+                  `bgp.redistribute_ospf.internal.enabled` is set to `false`.'
                 keys:
                   enabled:
                     type: bool
                   process_id:
                     type: int
-                    convert_types:
-                    - str
                     description: If not set, "vrf_id" will be used.
                   router_id:
                     type: str
@@ -6221,8 +6347,6 @@ keys:
                     default: main_router_id
                   max_lsa:
                     type: int
-                    convert_types:
-                    - str
                   bfd:
                     type: bool
                     default: false
@@ -6275,8 +6399,6 @@ keys:
                       keys:
                         id:
                           type: int
-                          convert_types:
-                          - str
                         hash_algorithm:
                           type: str
                           valid_values:
@@ -6289,8 +6411,6 @@ keys:
                         cleartext_key:
                           type: str
                           required: true
-                          convert_types:
-                          - int
                           description: 'Cleartext key for OSPF message-digest authentication
 
                             To protect the password at rest it is strongly recommended
@@ -6313,6 +6433,62 @@ keys:
                     documentation_options:
                       hide_keys: true
                     $ref: eos_cli_config_gen#/keys/router_ospf/keys/process_ids/items
+              ospfv3:
+                documentation_options:
+                  table: network-services-vrfs-ospfv3-settings
+                type: dict
+                description: 'Router OSPFv3 settings for the VRF.
+
+                  The OSPFv3 configuration is created automatically on a device when
+                  at least one OSPFv3-enabled SVI in this VRF is configured on that
+                  device.
+
+                  If BGP is configured for the VRF, OSPFv3 internal routes are redistributed
+                  into BGP unless `bgp.redistribute_ospfv3.internal.enabled` is set
+                  to `false`.
+
+                  These settings only override the defaults.
+
+                  VRF `default` is not supported yet.'
+                keys:
+                  router_id:
+                    type: str
+                    default: main_router_id
+                    description: "Router ID to use for OSPFv3 in this VRF.\nThis can
+                      be an IPv4 address, \"main_router_id\", \"none\" or \"diagnostic_loopback\".\n-
+                      \"main_router_id\" will use the IP address of Loopback0 or the
+                      common `router general` Router ID if `use_router_general_for_router_id`
+                      is set.\n- \"none\" will not configure an OSPFv3 Router ID for
+                      this VRF.\n  EOS then uses the `router general` Router ID or
+                      an IPv4 address of an interface in the VRF.\n  If neither exists,
+                      for example in an IPv6-only VRF, the OSPFv3 instance does not
+                      start.\n- \"diagnostic_loopback\" will use the IP address of
+                      the VRF Diagnostic Loopback interface."
+                  redistribute_bgp:
+                    type: dict
+                    keys:
+                      enabled:
+                        type: bool
+                        default: true
+                        description: 'Redistribute BGP into OSPFv3.
+
+                          Ignored on devices where BGP is not configured for this
+                          VRF.'
+                  redistribute_connected:
+                    type: dict
+                    keys:
+                      enabled:
+                        type: bool
+                        default: false
+                        description: Redistribute connected routes into OSPFv3.
+                  structured_config:
+                    type: dict
+                    relaxed_validation: true
+                    description: Custom structured config added under router_ospfv3.vrfs.[name=<vrf>]
+                      for the EOS Config schema.
+                    documentation_options:
+                      hide_keys: true
+                    $ref: eos_cli_config_gen#/keys/router_ospfv3/keys/vrfs/items
               redistribute_ospf:
                 documentation_options:
                   table: network-services-vrfs-ospf-settings
@@ -6320,6 +6496,11 @@ keys:
                 default: true
                 description: Non-selectively enabling or disabling redistribute ospf
                   inside the VRF.
+                deprecation:
+                  warning: true
+                  removed: false
+                  remove_in_version: 7.0.0
+                  new_key: bgp.redistribute_ospf.internal.enabled
               evpn_l3_multicast:
                 documentation_options:
                   table: network-services-multicast-settings
@@ -6397,8 +6578,6 @@ keys:
                         description: Group_prefix/mask.
                     access_list_name:
                       type: str
-                      convert_types:
-                      - int
                       description: 'List of groups to associate with the RP addresses
                         set in ''rps''.
 
@@ -6434,8 +6613,6 @@ keys:
                   keys:
                     id:
                       type: int
-                      convert_types:
-                      - str
                       description: SVI interface id and VLAN id.
                       min: 1
                       max: 4096
@@ -6478,8 +6655,6 @@ keys:
                       - all
                       items:
                         type: str
-                        convert_types:
-                        - int
                         description: Tag value.
                     evpn_vlan_bundle:
                       type: str
@@ -6517,8 +6692,6 @@ keys:
                             - all
                             items:
                               type: str
-                              convert_types:
-                              - int
                               description: Tag value.
               l3_interfaces:
                 documentation_options:
@@ -6547,8 +6720,6 @@ keys:
                         the interface name by default, but can also be specified.
                       items:
                         type: int
-                        convert_types:
-                        - str
                         min: 1
                         max: 4094
                     ip_addresses:
@@ -6600,16 +6771,46 @@ keys:
                       default: true
                     mtu:
                       type: int
-                      convert_types:
-                      - str
                     ipv4_acl_in:
+                      description: 'Name of the IPv4 access-list to be assigned in
+                        the ingress direction.
+
+                        The access-list must be defined under `ipv4_acls` and supports
+                        field substitution for "interface_ip".
+
+                        Mutually exclusive with `ipv4_standard_acl_in`, setting both
+                        `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.'
                       type: str
-                      convert_types:
-                      - int
                     ipv4_acl_out:
+                      description: 'Name of the IPv4 access-list to be assigned in
+                        the egress direction.
+
+                        The access-list must be defined under `ipv4_acls` and supports
+                        field substitution for "interface_ip".
+
+                        Mutually exclusive with `ipv4_standard_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.'
                       type: str
-                      convert_types:
-                      - int
+                    ipv4_standard_acl_in:
+                      description: 'Name of the IPv4 standard access-list to be assigned
+                        in the ingress direction.
+
+                        The access-list must be defined under `ipv4_standard_acls`.
+
+                        Mutually exclusive with `ipv4_acl_in`, setting both `ipv4_acl_in`
+                        and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in`
+                        instead when field substitution for "interface_ip" is required.'
+                      type: str
+                    ipv4_standard_acl_out:
+                      description: 'Name of the IPv4 standard access-list to be assigned
+                        in the egress direction.
+
+                        The access-list must be defined under `ipv4_standard_acls`.
+
+                        Mutually exclusive with `ipv4_acl_out`, setting both `ipv4_acl_out`
+                        and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out`
+                        instead when field substitution for "interface_ip" is required.'
+                      type: str
                     ipv6_acl_in:
                       description: 'Name of the IPv6 access-list to be assigned in
                         the ingress direction.
@@ -6623,8 +6824,6 @@ keys:
                         Deprecated token "interface_ip" is also accepted as an alias
                         for "interface_ipv6" and will be removed in AVD 7.0.0.'
                       type: str
-                      convert_types:
-                      - int
                     ipv6_acl_out:
                       description: 'Name of the IPv6 access-list to be assigned in
                         the egress direction.
@@ -6638,8 +6837,6 @@ keys:
                         Deprecated token "interface_ip" is also accepted as an alias
                         for "interface_ipv6" and will be removed in AVD 7.0.0.'
                       type: str
-                      convert_types:
-                      - int
                     ospf:
                       type: dict
                       description: OSPF interface configuration.
@@ -6651,14 +6848,10 @@ keys:
                           default: false
                         area:
                           type: str
-                          convert_types:
-                          - int
                           description: OSPF area ID.
                           default: 0.0.0.0
                         cost:
                           type: int
-                          convert_types:
-                          - str
                           description: OSPF link cost.
                         authentication:
                           type: str
@@ -6692,8 +6885,6 @@ keys:
                             keys:
                               id:
                                 type: int
-                                convert_types:
-                                - str
                               hash_algorithm:
                                 type: str
                                 valid_values:
@@ -6881,8 +7072,6 @@ keys:
                       description: For subinterfaces the dot1q vlan is derived from
                         the interface name by default, but can also be specified.
                       type: int
-                      convert_types:
-                      - str
                       min: 1
                       max: 4094
                     enabled:
@@ -6899,21 +7088,47 @@ keys:
                         description and documentation.
                     mtu:
                       type: int
-                      convert_types:
-                      - str
                       description: MTU can only be set on the parent Port-Channel.
                     ipv4_acl_in:
-                      description: Name of the IPv4 access-list to be assigned in
+                      description: 'Name of the IPv4 access-list to be assigned in
                         the ingress direction.
+
+                        The access-list must be defined under `ipv4_acls` and supports
+                        field substitution for "interface_ip".
+
+                        Mutually exclusive with `ipv4_standard_acl_in`, setting both
+                        `ipv4_acl_in` and `ipv4_standard_acl_in` raises an error.'
                       type: str
-                      convert_types:
-                      - int
                     ipv4_acl_out:
-                      description: Name of the IPv4 Access-list to be assigned in
+                      description: 'Name of the IPv4 Access-list to be assigned in
                         the egress direction.
+
+                        The access-list must be defined under `ipv4_acls` and supports
+                        field substitution for "interface_ip".
+
+                        Mutually exclusive with `ipv4_standard_acl_out`, setting both
+                        `ipv4_acl_out` and `ipv4_standard_acl_out` raises an error.'
                       type: str
-                      convert_types:
-                      - int
+                    ipv4_standard_acl_in:
+                      description: 'Name of the IPv4 standard access-list to be assigned
+                        in the ingress direction.
+
+                        The access-list must be defined under `ipv4_standard_acls`.
+
+                        Mutually exclusive with `ipv4_acl_in`, setting both `ipv4_acl_in`
+                        and `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in`
+                        instead when field substitution for "interface_ip" is required.'
+                      type: str
+                    ipv4_standard_acl_out:
+                      description: 'Name of the IPv4 standard access-list to be assigned
+                        in the egress direction.
+
+                        The access-list must be defined under `ipv4_standard_acls`.
+
+                        Mutually exclusive with `ipv4_acl_out`, setting both `ipv4_acl_out`
+                        and `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out`
+                        instead when field substitution for "interface_ip" is required.'
+                      type: str
                     ipv6_acl_in:
                       description: 'Name of the IPv6 access-list to be assigned in
                         the ingress direction.
@@ -6926,8 +7141,6 @@ keys:
                         Token "interface_ip" is also accepted but deprecated and will
                         be removed in AVD 7.0.0.'
                       type: str
-                      convert_types:
-                      - int
                     ipv6_acl_out:
                       description: 'Name of the IPv6 access-list to be assigned in
                         the egress direction.
@@ -6940,8 +7153,6 @@ keys:
                         Token "interface_ip" is also accepted but deprecated and will
                         be removed in AVD 7.0.0.'
                       type: str
-                      convert_types:
-                      - int
                     static_routes:
                       type: list
                       description: Static routes to be configured on the device where
@@ -6963,14 +7174,10 @@ keys:
                           default: false
                         area:
                           type: str
-                          convert_types:
-                          - int
                           description: OSPF area ID.
                           default: 0.0.0.0
                         cost:
                           type: int
-                          convert_types:
-                          - str
                           description: OSPF link cost.
                         authentication:
                           type: str
@@ -7004,8 +7211,6 @@ keys:
                             keys:
                               id:
                                 type: int
-                                convert_types:
-                                - str
                               hash_algorithm:
                                 type: str
                                 valid_values:
@@ -7078,7 +7283,21 @@ keys:
                       max: 8191
                     ip_address:
                       type: str
-                      required: true
+                      description: IPv4 address/Mask.
+                    ipv6_addresses:
+                      type: list
+                      min_length: 1
+                      description: 'IPv6 addresses with prefix length, e.g., ''2001:db8::1/64''.
+
+                        At least one of `ip_address` or `ipv6_addresses` must be set.
+
+                        The first address in this list is used for the IPv6 virtual
+                        source-nat of the VRF, unless the VTEP diagnostic loopback
+                        or an earlier loopback in the VRF already sets it.'
+                      items:
+                        type: str
+                        description: IPv6 address/Mask.
+                        min_length: 1
                     description:
                       type: str
                     enabled:
@@ -7086,15 +7305,16 @@ keys:
                       default: true
                     ospf:
                       type: dict
-                      description: OSPF interface configuration.
+                      description: 'OSPFv2 interface configuration.
+
+                        Requires `ip_address` to be set when OSPF is enabled on both
+                        the VRF and this loopback.'
                       keys:
                         enabled:
                           type: bool
                           default: false
                         area:
                           type: str
-                          convert_types:
-                          - int
                           description: OSPF area ID.
                           default: 0.0.0.0
                     hardware_forwarding:
@@ -7246,8 +7466,6 @@ keys:
                       description: Peer group name.
                     remote_as:
                       type: str
-                      convert_types:
-                      - int
                       description: 'BGP AS <1-4294967295> or AS number in asdot notation
                         "<1-65535>.<0-65535>".
 
@@ -7280,8 +7498,6 @@ keys:
                         as string <0-3600> <0-3600>.
                     maximum_routes:
                       type: int
-                      convert_types:
-                      - str
                       min: 0
                       max: 4294967294
                       description: Maximum number of routes (0 means unlimited).
@@ -7296,8 +7512,6 @@ keys:
                       type: str
                     ebgp_multihop:
                       type: int
-                      convert_types:
-                      - str
                       min: 1
                       max: 255
                       description: Time-to-live in range of hops.
@@ -7355,8 +7569,6 @@ keys:
                         address family based on the IP address.'
                     local_as:
                       type: str
-                      convert_types:
-                      - int
                       description: 'Local BGP AS <1-4294967295> or AS number in asdot
                         notation "<1-65535>.<0-65535>".
 
@@ -7364,8 +7576,6 @@ keys:
                         quotes, to prevent it from being interpreted as a float number.'
                     weight:
                       type: int
-                      convert_types:
-                      - str
                       min: 0
                       max: 65535
                     bfd:
@@ -7430,12 +7640,80 @@ keys:
                           '
                       restart_time:
                         type: int
-                        convert_types:
-                        - str
                         min: 1
                         max: 3600
                         default: 300
                         description: Restart time in seconds.
+                  redistribute_ospfv3:
+                    type: dict
+                    description: 'Redistribution of OSPFv3 routes into BGP for this
+                      VRF.
+
+                      Ignored on devices where BGP is not configured for this VRF
+                      or where the VRF has no OSPFv3 instance.'
+                    keys:
+                      internal:
+                        type: dict
+                        keys:
+                          enabled:
+                            type: bool
+                            default: true
+                            description: Redistribute OSPFv3 internal routes into
+                              BGP.
+                  redistribute_ospf:
+                    type: dict
+                    description: 'Redistribution of OSPF routes into BGP for this
+                      VRF.
+
+                      Ignored on devices where BGP is not configured for this VRF
+                      or where the VRF has no OSPF instance.'
+                    keys:
+                      internal:
+                        type: dict
+                        keys:
+                          enabled:
+                            type: bool
+                            default: true
+                            description: Redistribute OSPF internal routes into BGP.
+                          include_leaked:
+                            type: bool
+                            description: Include OSPF leaked routes into BGP.
+                          route_map:
+                            type: str
+                            description: Route-map name.
+                      external:
+                        type: dict
+                        keys:
+                          enabled:
+                            type: bool
+                            default: false
+                            description: Redistribute OSPF external routes into BGP.
+                          include_leaked:
+                            type: bool
+                            description: Include OSPF leaked routes into BGP.
+                          route_map:
+                            type: str
+                            description: Route-map name.
+                      nssa_external:
+                        type: dict
+                        keys:
+                          enabled:
+                            type: bool
+                            default: false
+                            description: Redistribute OSPF NSSA external routes into
+                              BGP.
+                          nssa_type:
+                            type: int
+                            valid_values:
+                            - 1
+                            - 2
+                            description: NSSA type for the redistributed routes.
+                          include_leaked:
+                            type: bool
+                            description: Include OSPF leaked routes into BGP.
+                          route_map:
+                            type: str
+                            description: Route-map name.
                   raw_eos_cli:
                     type: str
                     description: 'EOS CLI rendered directly on the Router BGP, VRF
@@ -7650,8 +7928,6 @@ keys:
             keys:
               id:
                 type: int
-                convert_types:
-                - str
                 min: 1
                 max: 4094
                 description: VLAN ID.
@@ -7702,8 +7978,6 @@ keys:
               description: Enable or disable MPLS control word for VPWS pseudowires.
             mtu:
               type: int
-              convert_types:
-              - str
               description: MTU for VPWS pseudowires.
             label_flow:
               type: bool
@@ -7742,8 +8016,6 @@ keys:
                     number:
                       type: int
                       description: Subinterface number.
-                      convert_types:
-                      - str
                     port_channel:
                       type: dict
                       description: Settings to be applied to the Port-Channel subinterface.
@@ -7791,8 +8063,6 @@ keys:
                     id:
                       type: int
                       required: true
-                      convert_types:
-                      - str
                       description: Pseudowire ID on this endpoint.
                     nodes:
                       type: list
@@ -8003,8 +8273,6 @@ keys:
       network_services:
         l3: true
   ntp_settings:
-    documentation_options:
-      table: time-configuration
     type: dict
     description: NTP settings
     keys:
@@ -8114,6 +8382,26 @@ keys:
       trusted_keys:
         type: str
         $ref: eos_cli_config_gen#/keys/ntp/keys/trusted_keys
+  ntp_settings_profiles:
+    type: list
+    primary_key: profile
+    description: NTP settings
+    items:
+      type: dict
+      $ref: eos_designs#/keys/ntp_settings
+      keys:
+        profile:
+          type: str
+          min_length: 1
+          required: true
+          description: NTP settings profile name.
+        parent_profile:
+          type: str
+          min_length: 1
+          description: 'Inherit settings from a parent profile defined under `ntp_settings_profiles`.
+
+            The settings from this profile override settings inherited from the parent
+            profile.'
   only_local_vlan_trunk_groups:
     documentation_options:
       table: fabric-settings
@@ -8206,11 +8494,12 @@ keys:
   overlay_mlag_rfc5549:
     documentation_options:
       table: overlay-settings
-    description: 'IPv6 Unnumbered for MLAG iBGP connections.
-
-      Requires "underlay_rfc5549: true".
-
-      '
+    description: "Exchange IPv4 routes with an IPv6 next hop (RFC5549) over the MLAG
+      iBGP peerings in VRFs.\nRequires one of:\n- `underlay_rfc5549: true`: The MLAG
+      iBGP peerings in VRFs use IPv6 link-local addresses (unnumbered).\n- `underlay_ipv6_numbered:
+      true` and `avd_design_future.fix_mlag_ibgp_peering_vrfs_address_families: true`:\n
+      \ The MLAG iBGP peerings in VRFs use numbered IPv6 addresses, allowing dual-stack
+      VRFs over a numbered IPv6 underlay.\n"
     type: bool
     default: false
   overlay_rd_type:
@@ -8248,8 +8537,6 @@ keys:
     keys:
       admin_subfield:
         type: str
-        convert_types:
-        - int
         description: 'The method for deriving RD Administrator subfield (first part
           of RD):
 
@@ -8275,8 +8562,6 @@ keys:
       admin_subfield_offset:
         type: int
         default: 0
-        convert_types:
-        - str
         description: 'Offset can only be used if admin_subfield is an integer between
           <0-4294967295> or ''switch_id''.
 
@@ -8285,8 +8570,6 @@ keys:
           '
       vrf_admin_subfield:
         type: str
-        convert_types:
-        - int
         description: 'The method for deriving RD Administrator subfield (first part
           of RD) for VRF services:
 
@@ -8317,8 +8600,6 @@ keys:
           '
       vrf_admin_subfield_offset:
         type: int
-        convert_types:
-        - str
         description: 'Offset can only be used if ''vrf_admin_subfield'' is an integer
           between <0-4294967295> or ''switch_id''.
 
@@ -8423,8 +8704,6 @@ keys:
     keys:
       admin_subfield:
         type: str
-        convert_types:
-        - int
         description: 'The method for deriving RT Administrator subfield (first part
           of RT):
 
@@ -8456,8 +8735,6 @@ keys:
         default: vrf_id
       vrf_admin_subfield:
         type: str
-        convert_types:
-        - int
         description: 'The method for deriving RT Administrator subfield (first part
           of RT) for VRF services:
 
@@ -8507,8 +8784,6 @@ keys:
       Precedence: <node_type>.uplink_mtu -> platform_settings.p2p_uplinks_mtu -> p2p_uplinks_mtu
       -> 9214'
     type: int
-    convert_types:
-    - str
     min: 68
     max: 65535
     default: 9214
@@ -9691,9 +9966,11 @@ keys:
       - vEOS
       - vEOS-lab
       feature_support:
+        dot1x_mac_based_access_list: false
         bgp_update_wait_for_convergence: false
         bgp_update_wait_install: false
         interface_storm_control: false
+        explicit_interface_speed_auto_mode: false
         queue_monitor_length_notify: false
         subinterface_mtu: false
         per_interface_l2_mtu: false
@@ -9773,9 +10050,11 @@ keys:
       - ceos
       - cEOSLab
       feature_support:
+        dot1x_mac_based_access_list: false
         bgp_update_wait_for_convergence: false
         bgp_update_wait_install: false
         interface_storm_control: false
+        explicit_interface_speed_auto_mode: false
         queue_monitor_length_notify: false
         subinterface_mtu: false
         per_interface_l2_mtu: false
@@ -9853,8 +10132,10 @@ keys:
     - platforms:
       - CloudEOS
       feature_support:
+        dot1x_mac_based_access_list: false
         bgp_update_wait_install: false
         interface_storm_control: false
+        explicit_interface_speed_auto_mode: false
         per_interface_l2_mru: false
         queue_monitor_length_notify: false
         sflow: false
@@ -10109,8 +10390,6 @@ keys:
       keys:
         platform:
           type: str
-          convert_types:
-          - int
         speeds:
           type: list
           primary_key: speed
@@ -10123,8 +10402,6 @@ keys:
                 type: list
                 items:
                   type: str
-                  convert_types:
-                  - int
   pod_name:
     documentation_options:
       table: fabric-topology
@@ -10197,8 +10474,6 @@ keys:
                 keys:
                   number:
                     type: int
-                    convert_types:
-                    - str
                     description: Subinterface number.
                     min: 1
                     max: 1048575
@@ -10223,8 +10498,6 @@ keys:
                       '
                   vlan_id:
                     type: int
-                    convert_types:
-                    - str
                     min: 1
                     max: 4094
                     description: 'VLAN ID to bridge.
@@ -10242,8 +10515,6 @@ keys:
                           Default is the subinterface number.
 
                           '
-                        convert_types:
-                        - str
                         min: 1
                         max: 4094
                   raw_eos_cli:
@@ -10275,20 +10546,14 @@ keys:
           keys:
             interval:
               type: int
-              convert_types:
-              - str
               min: -7
               max: 4
             timeout:
               type: int
-              convert_types:
-              - str
               min: 2
               max: 255
         delay_req:
           type: int
-          convert_types:
-          - str
           min: -7
           max: 8
         sync_message:
@@ -10297,8 +10562,6 @@ keys:
           keys:
             interval:
               type: int
-              convert_types:
-              - str
               min: -7
               max: 3
         transport:
@@ -10383,7 +10646,43 @@ keys:
     documentation_options:
       table: latency-analyzer
     type: dict
-    $ref: eos_cli_config_gen#/keys/queue_monitor_streaming
+    keys:
+      enable:
+        type: bool
+        $ref: eos_cli_config_gen#/keys/queue_monitor_streaming/keys/enable
+      ip_access_group:
+        type: str
+        $ref: eos_cli_config_gen#/keys/queue_monitor_streaming/keys/ip_access_group
+        deprecation:
+          warning: true
+          removed: false
+          remove_in_version: 7.0.0
+          new_key: ipv4_acl or ipv4_standard_acl
+      ipv4_acl:
+        type: str
+        description: 'IPv4 extended access-list name. The access-list must be defined
+          under `ipv4_acls`.
+
+          Field substitution is not supported for queue-monitor streaming references.
+
+          Mutually exclusive with `ipv4_standard_acl` and the deprecated `ip_access_group`.'
+      ipv4_standard_acl:
+        type: str
+        description: 'IPv4 standard access-list name. The access-list must be defined
+          under `ipv4_standard_acls`.
+
+          Field substitution is not supported for queue-monitor streaming references.
+
+          Mutually exclusive with `ipv4_acl` and the deprecated `ip_access_group`.'
+      ipv6_access_group:
+        type: str
+        $ref: eos_cli_config_gen#/keys/queue_monitor_streaming/keys/ipv6_access_group
+      max_connections:
+        type: int
+        $ref: eos_cli_config_gen#/keys/queue_monitor_streaming/keys/max_connections
+      vrf:
+        type: str
+        $ref: eos_cli_config_gen#/keys/queue_monitor_streaming/keys/vrf
   redundancy:
     documentation_options:
       table: system-settings
@@ -10415,8 +10714,6 @@ keys:
 
       '
     type: str
-    convert_types:
-    - int
   sflow_settings:
     documentation_options:
       table: management-sflow-settings
@@ -10430,16 +10727,12 @@ keys:
     keys:
       polling_interval:
         type: int
-        convert_types:
-        - str
         description: Interval in seconds for sending counter data to the sFlow collector.
       sample:
         type: dict
         keys:
           rate:
             type: int
-            convert_types:
-            - str
             min: 1
             max: 4294967295
             description: 'Packet sampling rate that defines the average number of
@@ -10464,8 +10757,6 @@ keys:
             port:
               type: int
               description: UDP Port number. The default port number for sFlow is 6343.
-              convert_types:
-              - str
               min: 1
               max: 65535
             vrf:
@@ -10483,8 +10774,6 @@ keys:
                 above depending on the value of `default_mgmt_method`.\n- Any other
                 string will be used directly as the VRF name. Remember to set the
                 `sflow_settings.vrfs[].source_interface` if needed."
-              convert_types:
-              - int
               default: use_default_mgmt_method_vrf
       export_to_cloudvision:
         type: dict
@@ -10514,8 +10803,6 @@ keys:
               will configure the VRF and daemon terminattr sflow address for one of
               the two options above depending on the value of `default_mgmt_method`.\n-
               Any other string will be used directly as the VRF name."
-            convert_types:
-            - int
             default: use_default_mgmt_method_vrf
       vrfs:
         type: list
@@ -10525,8 +10812,6 @@ keys:
           keys:
             name:
               type: str
-              convert_types:
-              - int
               description: VRF name.
             source_interface:
               type: str
@@ -10590,8 +10875,6 @@ keys:
                 will configure the SNMP ACL under the VRF for one of the two options
                 above depending on the value of `default_mgmt_method`.\n- Any other
                 string will be used directly as the VRF name."
-              convert_types:
-              - int
             enable:
               type: bool
               description: Enable/disable SNMP for this VRF.
@@ -10607,13 +10890,9 @@ keys:
             ipv4_acl:
               type: str
               description: IPv4 access-list name.
-              convert_types:
-              - int
             ipv6_acl:
               type: str
               description: IPv6 access-list name.
-              convert_types:
-              - int
       compute_local_engineid:
         type: bool
         default: false
@@ -10700,6 +10979,27 @@ keys:
               type: str
               description: Cleartext passphrase so the recommendation is to use vault.
                 Requires 'auth' to be set.
+            key_type:
+              type: str
+              valid_values:
+              - disabled
+              - '7'
+              default: disabled
+              description: 'Key type for the computed localized SNMPv3 auth and priv
+                keys.
+
+                Used only when `compute_v3_user_localized_key` is `true`.
+
+                Supported starting 4.33.10M, 4.34.8M, 4.35.6M, and 4.36.2F.
+
+                When set to `7`, AVD renders the computed localized keys using EOS
+                `key <type> <key>` syntax for both auth and priv.
+
+                - `disabled`: Use legacy syntax without key type (auth_passphrase
+                rendered directly). Default for backward compatibility.
+
+                - `7`: Type-7 encrypted (HIDDEN) key. AVD applies Type-7 obfuscation
+                to the computed localized key before rendering.'
             priv:
               type: str
               valid_values:
@@ -10734,8 +11034,6 @@ keys:
                 above depending on the value of `default_mgmt_method`.\n- Any other
                 string will be used directly as the VRF name. Remember to set the
                 `snmp_settings.vrfs[].source_interface` if needed."
-              convert_types:
-              - int
             use_mgmt_interface_vrf:
               type: bool
               deprecation:
@@ -10934,8 +11232,6 @@ keys:
         - none
       priority:
         type: int
-        convert_types:
-        - str
         default: 32768
         description: 'Spanning-tree priority configured for the selected mode.
 
@@ -10976,8 +11272,6 @@ keys:
           keys:
             name:
               type: str
-              convert_types:
-              - int
               description: "VRF name.\nThe value will be interpreted according to
                 these rules:\n- `use_mgmt_interface_vrf` will configure SSH for the
                 VRF set with `mgmt_interface_vrf`.\n  An error will be raised if `mgmt_ip`
@@ -10993,13 +11287,9 @@ keys:
               description: Enable SSH in VRF.
             ipv4_acl:
               type: str
-              convert_types:
-              - int
               description: IPv4 access-list name.
             ipv6_acl:
               type: str
-              convert_types:
-              - int
               description: IPv6 access-list name.
       idle_timeout:
         type: int
@@ -11146,7 +11436,7 @@ keys:
       remove_in_version: 6.0.0
   timezone:
     documentation_options:
-      table: time-configuration
+      table: ntp-settings
     type: str
     description: Clock timezone like "CET" or "US/Pacific".
   trunk_groups:
@@ -11413,8 +11703,6 @@ keys:
                 description: Hostname.
               loopback_number:
                 type: int
-                convert_types:
-                - str
                 required: true
               description:
                 type: str
@@ -11435,8 +11723,6 @@ keys:
             description: Multicast Group IPv4 prefix/mask.
         access_list_name:
           type: str
-          convert_types:
-          - int
           description: 'Name of standard Access-List.
 
             '
@@ -11453,8 +11739,6 @@ keys:
     documentation_options:
       table: ospf-settings
     type: str
-    convert_types:
-    - int
     format: ipv4
     default: 0.0.0.0
   underlay_ospf_authentication:
@@ -11477,8 +11761,6 @@ keys:
           keys:
             id:
               type: int
-              convert_types:
-              - str
             hash_algorithm:
               type: str
               valid_values:
@@ -11491,8 +11773,6 @@ keys:
             cleartext_key:
               type: str
               required: true
-              convert_types:
-              - int
               description: 'Cleartext key for OSPF message-digest authentication
 
                 To protect the password at rest it is strongly recommended to make
@@ -11521,8 +11801,6 @@ keys:
     documentation_options:
       table: ospf-settings
     type: int
-    convert_types:
-    - str
     default: 12000
   underlay_ospf_maximum_paths:
     description: Maximum number of next-hops in an ECMP route.
@@ -11532,14 +11810,10 @@ keys:
     min: 1
     max: 128
     default: 128
-    convert_types:
-    - str
   underlay_ospf_process_id:
     documentation_options:
       table: ospf-settings
     type: int
-    convert_types:
-    - str
     default: 100
   underlay_rfc5549:
     documentation_options:
@@ -11630,32 +11904,22 @@ keys:
           keys:
             min_power_supplies:
               type: int
-              convert_types:
-              - str
               description: Minimum number of power supplies required for the device.
                 Set to 0 to skip validation.
             min_fans:
               type: int
-              convert_types:
-              - str
               description: Minimum number of fans required for the device. Set to
                 0 to skip validation.
             min_supervisors:
               type: int
-              convert_types:
-              - str
               description: Minimum number of supervisor modules required for the device.
                 Set to 0 to skip validation.
             min_line_cards:
               type: int
-              convert_types:
-              - str
               description: Minimum number of line cards required for the device. Set
                 to 0 to skip validation.
             min_fabric_cards:
               type: int
-              convert_types:
-              - str
               description: Minimum number of fabric cards required for the device.
                 Set to 0 to skip validation.
             transceiver_manufacturers:
@@ -11676,8 +11940,6 @@ keys:
           keys:
             validate_no_errors_period:
               type: int
-              convert_types:
-              - str
               description: Threshold (in minutes) defining how far back to check the
                 logging buffer for error-level logs during the validation performed
                 by the `anta_runner` role.
@@ -11816,8 +12078,6 @@ keys:
           description: Path-group name.
         id:
           type: int
-          convert_types:
-          - str
           description: 'Path-group id.
 
             Required until an auto ID algorithm is implemented.'
@@ -11853,8 +12113,6 @@ keys:
                   local.
         default_preference:
           type: str
-          convert_types:
-          - int
           description: 'Preference value used when a preference is not given for a
             path-group in the `wan_virtual_topologies.policies` input or when
 
@@ -11881,8 +12139,6 @@ keys:
           keys:
             interval:
               type: str
-              convert_types:
-              - int
               description: 'Interval in milliseconds. Valid values are 50-60000 |
                 "auto".
 
@@ -11897,8 +12153,6 @@ keys:
               max: 100
               default: 5
               description: Failure threshold in number of lost keep-alive messages.
-              convert_types:
-              - str
   wan_route_servers:
     description: 'List of the AutoVPN RRs when using `wan_mode: legacy-autovpn`, or
       the Pathfinders
@@ -12009,8 +12263,6 @@ keys:
           keys:
             name:
               type: str
-              convert_types:
-              - int
               description: VRF name.
             policy:
               type: str
@@ -12031,8 +12283,6 @@ keys:
               default: DEFAULT-POLICY
             wan_vni:
               type: int
-              convert_types:
-              - str
               min: 1
               max: 255
               required: true
@@ -12196,15 +12446,9 @@ keys:
             required: true
           latitude:
             type: str
-            convert_types:
-            - int
-            - float
             required: true
           longitude:
             type: str
-            convert_types:
-            - int
-            - float
             required: true
       secondary:
         type: dict
@@ -12340,8 +12584,6 @@ $defs:
         description: Interface mode.
       mtu:
         type: int
-        convert_types:
-        - str
         min: 68
         max: 65535
       l2_mtu:
@@ -12352,8 +12594,6 @@ $defs:
         $ref: eos_cli_config_gen#/keys/ethernet_interfaces/items/keys/l2_mru
       native_vlan:
         type: int
-        convert_types:
-        - str
         description: 'Native VLAN for a trunk port.
 
           If both `native_vlan` and `native_vlan_tag` are set, `native_vlan_tag` takes
@@ -12368,8 +12608,6 @@ $defs:
           takes precedence.
       phone_vlan:
         type: int
-        convert_types:
-        - str
         description: 'Phone VLAN for a mode `trunk phone` port.
 
           Requires `mode: trunk phone` to be set.'
@@ -12413,8 +12651,6 @@ $defs:
           trunk ports, and VLAN 1 will be used for access ports.
 
           '
-        convert_types:
-        - int
       mac_acl_in:
         type: str
         description: MAC access-list to apply in the ingress direction. The ACL must
@@ -12430,8 +12666,6 @@ $defs:
         - network
       spanning_tree_bpdufilter:
         type: str
-        convert_types:
-        - bool
         valid_values:
         - enabled
         - disabled
@@ -12441,8 +12675,6 @@ $defs:
         - 'false'
       spanning_tree_bpduguard:
         type: str
-        convert_types:
-        - bool
         valid_values:
         - enabled
         - disabled
@@ -12539,8 +12771,6 @@ $defs:
             keys:
               allow_access_list:
                 type: str
-                convert_types:
-                - int
                 description: 'Name of the IPv4 and/or IPv6 extended access list to
                   apply to unauthenticated traffic.
 
@@ -12581,9 +12811,6 @@ $defs:
             keys:
               level:
                 type: str
-                convert_types:
-                - int
-                - float
                 description: Configure maximum storm-control level.
               unit:
                 type: str
@@ -12651,8 +12878,6 @@ $defs:
               algorithm.
             items:
               type: int
-              convert_types:
-              - str
           dont_preempt:
             type: bool
             description: Disable preemption for single-active forwarding when auto/manual
@@ -12670,8 +12895,6 @@ $defs:
             - 'on'
           channel_id:
             type: int
-            convert_types:
-            - str
             description: 'Port-Channel ID.
 
               If no channel_id is specified, an id is generated from the first switch
@@ -12744,12 +12967,8 @@ $defs:
                     type: str
                     description: Allowed VLANs on the port-channel member interfaces
                       when in fallback individual.
-                    convert_types:
-                    - int
                   native_vlan:
                     type: int
-                    convert_types:
-                    - str
                     description: Native VLAN on the port-channel member interfaces
                       when in fallback individual.
                   mode:
@@ -12763,8 +12982,6 @@ $defs:
                       when in fallback individual.
               timeout:
                 type: int
-                convert_types:
-                - str
                 description: Timeout in seconds.
                 default: 90
           lacp_timer:
@@ -12780,8 +12997,6 @@ $defs:
                 description: LACP mode for interface members.
               multiplier:
                 type: int
-                convert_types:
-                - str
                 description: Number of LACP BPDUs lost before deeming the peer down.
                   EOS default is 3.
           raw_eos_cli:
@@ -12880,8 +13095,6 @@ $defs:
             description: Interval for each recovery cause in seconds.
             min: 30
             max: 86400
-            convert_types:
-            - str
       recovery_only:
         type: dict
         keys:
@@ -12932,8 +13145,6 @@ $defs:
           $ref: eos_cli_config_gen#/keys/vlans/items/keys/address_locking/keys/address_family
         vni_override:
           type: int
-          convert_types:
-          - str
           min: 1
           max: 16777215
           description: 'By default the VNI will be derived from mac_vrf_vni_base.
@@ -12944,8 +13155,6 @@ $defs:
             '
         rt_override:
           type: str
-          convert_types:
-          - int
           description: "By default the MAC VRF RT will be derived from mac_vrf_id_base
             + vlan_id.\nThe rt_override allows us to override this value and statically
             define it.\nrt_override will default to vni_override if set.\nrt_override
@@ -12955,8 +13164,6 @@ $defs:
             RT.\n"
         rd_override:
           type: str
-          convert_types:
-          - int
           description: "By default the MAC VRF RD will be derived from mac_vrf_id_base
             + vlan_id.\nThe rt_override allows us to override this value and statically
             define it.\nrd_override will default to rt_override or vni_override if
@@ -12970,8 +13177,6 @@ $defs:
           description: Extend this L2VLAN over VXLAN.
         spanning_tree_priority:
           type: int
-          convert_types:
-          - str
           description: 'Setting spanning-tree priority per VLAN is only supported
             with `spanning_tree_mode: rapid-pvst` under node type settings.
 
@@ -13069,8 +13274,6 @@ $defs:
                   type: int
                   description: IGMP Version (By default EOS uses IGMP version 2 for
                     IGMP querier).
-                  convert_types:
-                  - str
                   valid_values:
                   - 1
                   - 2
@@ -13118,8 +13321,6 @@ $defs:
               type: int
               description: IGMP Version (By default EOS uses IGMP version 2 for IGMP
                 querier).
-              convert_types:
-              - str
               valid_values:
               - 1
               - 2
@@ -13178,8 +13379,6 @@ $defs:
               format: ipv4_pool
             prefix_size:
               type: int
-              convert_types:
-              - str
               description: Subnet mask size.
               default: 31
               min: 8
@@ -13191,8 +13390,6 @@ $defs:
               format: ipv6_pool
             ipv6_prefix_size:
               type: int
-              convert_types:
-              - str
               description: IPv6 prefix size.
               default: 127
               min: 32
@@ -13261,8 +13458,6 @@ $defs:
                   type: str
                 priority:
                   type: int
-                  convert_types:
-                  - str
         session_settings:
           type: dict
           description: 'Session settings are defined per session name.
@@ -13276,8 +13471,6 @@ $defs:
             header_remove_size:
               type: int
               description: Number of bytes to remove from header.
-              convert_types:
-              - str
             access_group:
               type: dict
               keys:
@@ -13300,8 +13493,6 @@ $defs:
                 \ \"100 kbps\"\n  \"10 mbps\"\n"
             sample:
               type: int
-              convert_types:
-              - str
             truncate:
               type: dict
               keys:
@@ -13310,8 +13501,6 @@ $defs:
                 size:
                   type: int
                   description: Size in bytes.
-                  convert_types:
-                  - str
   node_type:
     type: dict
     keys:
@@ -13324,15 +13513,11 @@ $defs:
               table: node-type-common-configuration
             description: Unique identifier used for IP addressing and other algorithms.
             type: int
-            convert_types:
-            - str
           platform:
             documentation_options:
               table: node-type-common-configuration
             description: Arista platform family.
             type: str
-            convert_types:
-            - int
           mac_address:
             documentation_options:
               table: node-type-common-configuration
@@ -13514,16 +13699,12 @@ $defs:
                       description: Tracking group name.
                     recovery_delay:
                       type: int
-                      convert_types:
-                      - str
                       min: 0
                       max: 3600
                       description: default -> platform_settings_mlag_reload_delay
                         -> 300.
                     links_minimum:
                       type: int
-                      convert_types:
-                      - str
                       min: 1
                       max: 100000
           lacp_port_id_range:
@@ -13543,8 +13724,6 @@ $defs:
               size:
                 description: Recommended size > = number of ports in the switch.
                 type: int
-                convert_types:
-                - str
                 default: 128
               offset:
                 description: 'Offset is used to avoid overlapping port-id ranges of
@@ -13555,8 +13734,6 @@ $defs:
 
                   '
                 type: int
-                convert_types:
-                - str
                 default: 0
           always_configure_ip_routing:
             documentation_options:
@@ -13693,16 +13870,12 @@ $defs:
             description: Point-to-Point uplinks MTU in bytes. This setting overrides
               the `p2p_uplinks_mtu` setting.
             type: int
-            convert_types:
-            - str
             min: 68
             max: 65535
           max_uplink_switches:
             documentation_options:
               table: node-type-uplink-configuration
             type: int
-            convert_types:
-            - str
             description: 'Maximum number of uplink switches.
 
               Changing this value may change IP Addressing on uplinks.
@@ -13715,8 +13888,6 @@ $defs:
               table: node-type-uplink-configuration
             type: int
             default: 1
-            convert_types:
-            - str
             description: 'Number of parallel links towards uplink switches.
 
               Changing this value may change interface naming on uplinks (and corresponding
@@ -13735,8 +13906,6 @@ $defs:
             documentation_options:
               table: node-type-uplink-configuration
             type: int
-            convert_types:
-            - str
             min: 1
             max: 4094
             description: 'Only applicable to switches with layer-2 port-channel uplinks.
@@ -13769,8 +13938,6 @@ $defs:
             documentation_options:
               table: node-type-uplink-configuration
             type: int
-            convert_types:
-            - str
             min: 1
             max: 999999
             description: "Only applicable for L2 switches with `uplink_type: port-channel`.\nBy
@@ -13787,8 +13954,6 @@ $defs:
             documentation_options:
               table: node-type-uplink-configuration
             type: int
-            convert_types:
-            - str
             min: 1
             max: 999999
             description: "Only applicable for L2 switches with `uplink_type: port-channel`.\nBy
@@ -13916,8 +14081,6 @@ $defs:
               table: node-type-isis-configuration
             description: Number of path to configure in ECMP for ISIS.
             type: int
-            convert_types:
-            - str
           is_type:
             documentation_options:
               table: node-type-isis-configuration
@@ -13933,8 +14096,6 @@ $defs:
             description: IPv4 Node-SID Index base for ISIS-SR underlay variants. Combined
               with node ID to generate ISIS-SR Node-SID index.
             type: int
-            convert_types:
-            - str
             default: 0
             deprecation:
               warning: true
@@ -13955,8 +14116,6 @@ $defs:
                 description: IPv4 Node-SID Index base. Combined with node ID to generate
                   ISIS-SR Node-SID index.
                 type: int
-                convert_types:
-                - str
                 default: 0
               ipv6_node_sid_index:
                 type: int
@@ -13967,8 +14126,6 @@ $defs:
                 description: IPv6 Node-SID Index base. Combined with node ID to generate
                   ISIS-SR Node-SID index.
                 type: int
-                convert_types:
-                - str
                 default: 1000
           loopback_ipv4_pool:
             documentation_options:
@@ -14044,8 +14201,6 @@ $defs:
 
               '
             type: int
-            convert_types:
-            - str
             default: 0
           router_id_pool:
             documentation_options:
@@ -14078,8 +14233,6 @@ $defs:
 
               '
             type: int
-            convert_types:
-            - str
             default: 0
           vtep:
             type: bool
@@ -14104,8 +14257,6 @@ $defs:
 
               Required with eBGP.'
             type: str
-            convert_types:
-            - int
           bgp_defaults:
             documentation_options:
               table: node-type-bgp-configuration
@@ -14185,8 +14336,6 @@ $defs:
                   This list also limits VRFs included by `always_include_vrfs_in_tenants`.'
                 items:
                   type: str
-                  convert_types:
-                  - int
                 default:
                 - all
               deny_vrfs:
@@ -14198,8 +14347,6 @@ $defs:
                   mechanism.'
                 items:
                   type: str
-                  convert_types:
-                  - int
                 default:
                 - all
               always_include_vrfs_in_tenants:
@@ -14291,8 +14438,6 @@ $defs:
                         For asdot notation in YAML inputs, the value must be put in
                         quotes, to prevent it from being interpreted as a float number.'
                       type: str
-                      convert_types:
-                      - int
               evpn_l2:
                 description: Enable EVPN Gateway functionality for route-types 2 (MAC-IP)
                   and 3 (IMET).
@@ -14443,8 +14588,6 @@ $defs:
               maximum_routes:
                 description: Maximum routes to accept from IPVPN remote peers.
                 type: int
-                convert_types:
-                - str
                 default: 0
               local_as:
                 description: 'Local BGP AS applied to peering with IPVPN remote peers.
@@ -14454,8 +14597,6 @@ $defs:
                   For asdot notation in YAML inputs, the value must be put in quotes,
                   to prevent it from being interpreted as a float number.'
                 type: str
-                convert_types:
-                - int
               address_families:
                 description: IPVPN address families to enable for remote peers.
                 type: list
@@ -14485,8 +14626,6 @@ $defs:
                         quotes, to prevent it from being interpreted as a float number.'
                       type: str
                       required: true
-                      convert_types:
-                      - int
           mlag:
             documentation_options:
               table: node-type-l2-mlag-configuration
@@ -14546,9 +14685,6 @@ $defs:
 
               '
             type: int
-            convert_types:
-            - str
-            - bool
             min: 0
             max: 4094
             default: 4093
@@ -14590,8 +14726,6 @@ $defs:
               table: node-type-l2-mlag-configuration
             description: MLAG Peer Link (control link) SVI interface id.
             type: int
-            convert_types:
-            - str
             min: 1
             max: 4094
             default: 4094
@@ -14664,8 +14798,6 @@ $defs:
 
               '
             type: int
-            convert_types:
-            - str
           mlag_domain_id:
             documentation_options:
               table: node-type-l2-mlag-configuration
@@ -14685,8 +14817,6 @@ $defs:
             documentation_options:
               table: node-type-l2-mlag-configuration
             type: int
-            convert_types:
-            - str
             default: 32768
             description: 'Spanning-tree priority configured for the selected mode.
 
@@ -14749,8 +14879,6 @@ $defs:
               on this device and added to uplink trunk. The VLAN and SVI on the parent
               switches must be created using network services data models.'
             type: int
-            convert_types:
-            - str
             default: 4092
           inband_mgmt_subnet:
             documentation_options:
@@ -14792,8 +14920,6 @@ $defs:
             documentation_options:
               table: node-type-inband-management-configuration
             type: int
-            convert_types:
-            - str
             default: 0
             description: 'Offset value to adjust the calculated inband management
               IP address within the subnet.
@@ -14889,7 +15015,7 @@ $defs:
 
               l3leaf B      : <subnet> + 3 (same IP on all l3leaf B)
 
-              l2leafs       : <subnet> + 3 + <l2leaf id>
+              l2leafs       : <subnet> + 3 + <l2leaf id> + <inband_mgmt_ipv6_subnet_offset>
 
               GW on l2leafs : <subnet> + 1
 
@@ -14905,6 +15031,26 @@ $defs:
               '
             type: str
             format: ipv6_cidr
+          inband_mgmt_ipv6_subnet_offset:
+            documentation_options:
+              table: node-type-inband-management-configuration
+            type: int
+            default: 0
+            description: 'Offset value to adjust the calculated inband management
+              IPv6 address within the subnet.
+
+              The assigned IPv6 address will be computed by adding this offset to
+              the device ID.
+
+              Choose an IPv6 subnet large enough to contain all calculated addresses.
+
+              The highest L2 leaf address is:
+
+              <subnet> + 3 + <highest l2leaf id> + <inband_mgmt_ipv6_subnet_offset>.
+
+              If the calculated address falls outside the subnet, address allocation
+
+              fails with "address out of range".'
           inband_mgmt_ipv6_gateway:
             documentation_options:
               table: node-type-inband-management-configuration
@@ -14955,8 +15101,6 @@ $defs:
               it must be set on each applicable node/node-group/node-type as needed.'
             type: str
             default: default
-            convert_types:
-            - int
           inband_mgmt_mtu:
             documentation_options:
               table: node-type-inband-management-configuration
@@ -15031,8 +15175,6 @@ $defs:
             documentation_options:
               table: node-type-mpls-configuration
             type: str
-            convert_types:
-            - int
             description: Set BGP cluster id.
           kernel_ecmp_cli:
             documentation_options:
@@ -15074,14 +15216,10 @@ $defs:
                 default: false
               domain:
                 type: int
-                convert_types:
-                - str
                 min: 0
                 max: 255
               priority1:
                 type: int
-                convert_types:
-                - str
                 min: 0
                 max: 255
                 description: 'default -> automatically set based on node_type.
@@ -15089,8 +15227,6 @@ $defs:
                   '
               priority2:
                 type: int
-                convert_types:
-                - str
                 min: 0
                 max: 255
                 description: 'default -> (node_id modulus 256).
@@ -15146,8 +15282,6 @@ $defs:
                 default: false
               ttl:
                 type: int
-                convert_types:
-                - str
               forward_unicast:
                 type: bool
                 default: false
@@ -15165,12 +15299,8 @@ $defs:
                 keys:
                   general_messages:
                     type: int
-                    convert_types:
-                    - str
                   event_messages:
                     type: int
-                    convert_types:
-                    - str
               monitor:
                 type: dict
                 keys:
@@ -15182,15 +15312,11 @@ $defs:
                     keys:
                       offset_from_master:
                         type: int
-                        convert_types:
-                        - str
                         min: 0
                         max: 1000000000
                         default: 250
                       mean_path_delay:
                         type: int
-                        convert_types:
-                        - str
                         min: 0
                         max: 1000000000
                         default: 1500
@@ -15199,14 +15325,10 @@ $defs:
                         keys:
                           offset_from_master:
                             type: int
-                            convert_types:
-                            - str
                             min: 0
                             max: 1000000000
                           mean_path_delay:
                             type: int
-                            convert_types:
-                            - str
                             min: 0
                             max: 1000000000
                   missing_message:
@@ -15217,20 +15339,14 @@ $defs:
                         keys:
                           announce:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                           follow_up:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                           sync:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                       sequence_ids:
@@ -15241,29 +15357,21 @@ $defs:
                             default: true
                           announce:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                             default: 3
                           delay_resp:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                             default: 3
                           follow_up:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                             default: 3
                           sync:
                             type: int
-                            convert_types:
-                            - str
                             min: 2
                             max: 255
                             default: 3
@@ -15338,8 +15446,6 @@ $defs:
                   enabled.
               mtu:
                 type: int
-                convert_types:
-                - str
                 description: Set MTU on WAN HA interfaces.
                 min: 68
                 max: 65535
@@ -15366,8 +15472,6 @@ $defs:
                 format: ipv4_pool
               port_channel_id:
                 type: int
-                convert_types:
-                - str
                 description: Port-channel ID to use for direct HA.
               use_port_channel_for_direct_ha:
                 type: bool
@@ -15575,6 +15679,120 @@ $defs:
                   devices by default.
 
                   Overrides global `digital_twin.fabric.act_internet_access` flag.'
+              serial_number:
+                type: str
+                min_length: 1
+                description: 'Serial number or AVD string formatter template for this
+                  ACT Digital Twin device.
+
+                  Overrides the global `digital_twin.fabric.serial_number_template`
+                  for this device.
+
+                  When set, the rendered value is written into the device metadata
+                  and provided as the serial number in the ACT topology.
+
+                  Supports the same AVD string formatter template syntax and variables
+                  as `digital_twin.fabric.serial_number_template`.
+
+                  The rendered value should be unique across all devices in the fabric.
+                  AVD does not enforce uniqueness automatically.
+
+                  Applies only to `veos` and `cloudeos` node types. Ignored for all
+                  other ACT node types.
+
+                  Ignored when `digital_twin.environment` is `containerlab`.'
+              system_mac_address:
+                type: str
+                min_length: 1
+                description: 'System MAC address or AVD string formatter template
+                  for this ACT Digital Twin device.
+
+                  Overrides the global `digital_twin.fabric.system_mac_address_template`
+                  for this device.
+
+                  When set, the rendered value is used throughout the device''s EOS
+                  configuration (e.g., SNMPv3 engine ID), written into the device
+                  metadata, and provided as the system MAC address in the ACT topology.
+
+                  Supports the same AVD string formatter template syntax, variables,
+                  MAC address formats, and normalization as `digital_twin.fabric.system_mac_address_template`.
+
+                  The rendered value must be a unicast MAC address in `hhhh.hhhh.hhhh`,
+                  `hh:hh:hh:hh:hh:hh` or `hhhhhhhhhhhh` format (where `h` is a hexadecimal
+                  digit). The all-zero address is reserved and not accepted by EOS.
+
+                  Regardless of the input format, the MAC address is normalized to
+                  `hh:hh:hh:hh:hh:hh` format.
+
+                  The rendered value should be unique across all devices in the fabric.
+                  AVD does not enforce uniqueness automatically.
+
+                  Applies only to `veos` and `cloudeos` node types. Ignored for all
+                  other ACT node types.
+
+                  Ignored when `digital_twin.environment` is `containerlab`.'
+              ztp:
+                type: bool
+                description: 'Enable ZTP (Zero Touch Provisioning) mode for this Digital
+                  Twin device.
+
+                  Supported Digital Twin environments:
+
+                  - `act`: Applies only to `veos` and `cloudeos` node types. Ignored
+                  for all other node types.
+
+                  Overrides global `digital_twin.fabric.ztp` when defined.'
+          validation_profile:
+            documentation_options:
+              table: node-type-common-configuration
+            type: str
+            description: 'Name of the validation profile to apply to this device.
+
+              The profile must be defined under `validation_profiles`.
+
+              Validation profiles define requirements (e.g., hardware and logging)
+              used by the `anta_runner` role during post-deployment validation.'
+          aaa_settings_profile:
+            documentation_options:
+              table: node-type-common-configuration
+            type: str
+            min_length: 1
+            description: 'Name of the AAA settings profile to apply to this device.
+
+              The profile must be defined under `aaa_settings_profiles`.
+
+              The selected profile settings will be merged over the general `aaa_settings`.'
+          cv_settings_profile:
+            documentation_options:
+              table: node-type-common-configuration
+            type: str
+            min_length: 1
+            description: 'Name of the CloudVision settings profile to apply to this
+              device.
+
+              The profile must be defined under `cv_settings_profiles`.
+
+              The selected profile settings will be merged over the general `cv_settings`.'
+          dns_settings_profile:
+            documentation_options:
+              table: node-type-common-configuration
+            type: str
+            min_length: 1
+            description: 'Name of the DNS settings profile to apply to this device.
+
+              The profile must be defined under `dns_settings_profiles`.
+
+              The selected profile settings will be merged over the general `dns_settings`.'
+          ntp_settings_profile:
+            documentation_options:
+              table: node-type-common-configuration
+            type: str
+            min_length: 1
+            description: 'Name of the NTP settings profile to apply to this device.
+
+              The profile must be defined under `ntp_settings_profiles`.
+
+              The selected profile settings will be merged over the general `ntp_settings`.'
           uplink_structured_config:
             documentation_options:
               table: node-type-uplink-configuration
@@ -15586,16 +15804,6 @@ $defs:
               remove_in_version: 6.0.0
               new_key: uplink_port_channel_structured_config or uplink_ethernet_structured_config
                 or uplink_switch_ethernet_structured_config or uplink_switch_port_channel_structured_config
-          validation_profile:
-            documentation_options:
-              table: node-type-common-configuration
-            type: str
-            description: 'Name of the validation profile to apply to this device.
-
-              The profile must be defined under `validation_profiles`.
-
-              Validation profiles define requirements (e.g., hardware and logging)
-              used by the `anta_runner` role during post-deployment validation.'
       node_groups:
         type: list
         description: Define variables related to all nodes part of this group.
@@ -16015,8 +16223,6 @@ $defs:
           description: For subinterfaces the dot1q vlan is derived from the interface
             name by default, but can also be specified.
           type: int
-          convert_types:
-          - str
           min: 1
           max: 4094
         dhcp_accept_default_route:
@@ -16039,8 +16245,6 @@ $defs:
             This is currently used on CVaaS to provide more information in the visualization.'
           min: 1
           max: 4294967295
-          convert_types:
-          - str
         transmit_bandwidth:
           type: int
           description: 'Maximum allowed transmit bandwidth (upload) in Mbps for this
@@ -16049,8 +16253,6 @@ $defs:
             This is currently used on CVaaS to provide more information in the visualization.'
           min: 1
           max: 4294967295
-          convert_types:
-          - str
         peer:
           type: str
           description: The peer device name. Used for description and documentation.
@@ -16078,8 +16280,6 @@ $defs:
             peer_as:
               type: str
               required: true
-              convert_types:
-              - int
               description: 'BGP AS <1-4294967295> or AS number in asdot notation "<1-65535>.<0-65535>".
 
                 For asdot notation in YAML inputs, the value must be put in quotes,
@@ -16123,19 +16323,45 @@ $defs:
             for "interface_ip" and "peer_ip".
 
             Required for all WAN interfaces (`wan_carrier` is set) unless the carrier
-            is marked as ''trusted'' under `wan_carriers`.'
+            is marked as ''trusted'' under `wan_carriers`, or `ipv4_standard_acl_in`
+            is set.
+
+            Mutually exclusive with `ipv4_standard_acl_in`, setting both `ipv4_acl_in`
+            and `ipv4_standard_acl_in` raises an error.'
           type: str
-          convert_types:
-          - int
         ipv4_acl_out:
           description: 'Name of the IPv4 Access-list to be assigned in the egress
             direction.
 
             The access-list must be defined under `ipv4_acls` and supports field substitution
-            for "interface_ip" and "peer_ip".'
+            for "interface_ip" and "peer_ip".
+
+            Mutually exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out`
+            and `ipv4_standard_acl_out` raises an error.'
           type: str
-          convert_types:
-          - int
+        ipv4_standard_acl_in:
+          description: 'Name of the IPv4 standard access-list to be assigned in the
+            ingress direction.
+
+            The access-list must be defined under `ipv4_standard_acls`.
+
+            Required for all WAN interfaces (`wan_carrier` is set) unless the carrier
+            is marked as ''trusted'' under `wan_carriers`, or `ipv4_acl_in` is set.
+
+            Mutually exclusive with `ipv4_acl_in`, setting both `ipv4_acl_in` and
+            `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when
+            field substitution for "interface_ip" or "peer_ip" is required.'
+          type: str
+        ipv4_standard_acl_out:
+          description: 'Name of the IPv4 standard access-list to be assigned in the
+            egress direction.
+
+            The access-list must be defined under `ipv4_standard_acls`.
+
+            Mutually exclusive with `ipv4_acl_out`, setting both `ipv4_acl_out` and
+            `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when
+            field substitution for "interface_ip" or "peer_ip" is required.'
+          type: str
         ipv6_acl_in:
           description: 'Name of the IPv6 access-list to be assigned in the ingress
             direction.
@@ -16147,8 +16373,6 @@ $defs:
             Token "interface_ip" is also accepted but deprecated and will be removed
             in AVD 7.0.0.'
           type: str
-          convert_types:
-          - int
         ipv6_acl_out:
           description: 'Name of the IPv6 Access-list to be assigned in the egress
             direction.
@@ -16160,8 +16384,6 @@ $defs:
             Token "interface_ip" is also accepted but deprecated and will be removed
             in AVD 7.0.0.'
           type: str
-          convert_types:
-          - int
         static_routes:
           description: Configure IPv4 static routes pointing to `peer_ip`.
           type: list
@@ -16184,11 +16406,9 @@ $defs:
             configured.
 
             Unless the carrier is marked as ''trusted'' under `wan_carriers`, `ipv4_acl_in`
-            is also required on all WAN interfaces.'
+            or `ipv4_standard_acl_in` is also required on all WAN interfaces.'
         wan_circuit_id:
           type: str
-          convert_types:
-          - int
           description: 'The WAN circuit ID for this interface.
 
             This is not rendered in the configuration but used for WAN designs.'
@@ -16341,8 +16561,6 @@ $defs:
           description: For subinterfaces the dot1q vlan is derived from the interface
             name by default, but can also be specified.
           type: int
-          convert_types:
-          - str
           min: 1
           max: 4094
         dhcp_accept_default_route:
@@ -16382,8 +16600,6 @@ $defs:
             peer_as:
               type: str
               required: true
-              convert_types:
-              - int
               description: 'BGP AS <1-4294967295> or AS number in asdot notation "<1-65535>.<0-65535>".
 
                 For asdot notation in YAML inputs, the value must be put in quotes,
@@ -16427,19 +16643,45 @@ $defs:
             for "interface_ip" and "peer_ip".
 
             Required for all WAN interfaces (`wan_carrier` is set) unless the carrier
-            is marked as ''trusted'' under `wan_carriers`.'
+            is marked as ''trusted'' under `wan_carriers`, or `ipv4_standard_acl_in`
+            is set.
+
+            Mutually exclusive with `ipv4_standard_acl_in`, setting both `ipv4_acl_in`
+            and `ipv4_standard_acl_in` raises an error.'
           type: str
-          convert_types:
-          - int
         ipv4_acl_out:
           description: 'Name of the IPv4 Access-list to be assigned in the egress
             direction.
 
             The access-list must be defined under `ipv4_acls` and supports field substitution
-            for "interface_ip" and "peer_ip".'
+            for "interface_ip" and "peer_ip".
+
+            Mutually exclusive with `ipv4_standard_acl_out`, setting both `ipv4_acl_out`
+            and `ipv4_standard_acl_out` raises an error.'
           type: str
-          convert_types:
-          - int
+        ipv4_standard_acl_in:
+          description: 'Name of the IPv4 standard access-list to be assigned in the
+            ingress direction.
+
+            The access-list must be defined under `ipv4_standard_acls`.
+
+            Required for all WAN interfaces (`wan_carrier` is set) unless the carrier
+            is marked as ''trusted'' under `wan_carriers`, or `ipv4_acl_in` is set.
+
+            Mutually exclusive with `ipv4_acl_in`, setting both `ipv4_acl_in` and
+            `ipv4_standard_acl_in` raises an error. Use `ipv4_acl_in` instead when
+            field substitution for "interface_ip" or "peer_ip" is required.'
+          type: str
+        ipv4_standard_acl_out:
+          description: 'Name of the IPv4 standard access-list to be assigned in the
+            egress direction.
+
+            The access-list must be defined under `ipv4_standard_acls`.
+
+            Mutually exclusive with `ipv4_acl_out`, setting both `ipv4_acl_out` and
+            `ipv4_standard_acl_out` raises an error. Use `ipv4_acl_out` instead when
+            field substitution for "interface_ip" or "peer_ip" is required.'
+          type: str
         ipv6_acl_in:
           description: 'Name of the IPv6 access-list to be assigned in the ingress
             direction.
@@ -16451,8 +16693,6 @@ $defs:
             Token "interface_ip" is also accepted but deprecated and will be removed
             in AVD 7.0.0.'
           type: str
-          convert_types:
-          - int
         ipv6_acl_out:
           description: 'Name of the IPv6 Access-list to be assigned in the egress
             direction.
@@ -16464,8 +16704,6 @@ $defs:
             Token "interface_ip" is also accepted but deprecated and will be removed
             in AVD 7.0.0.'
           type: str
-          convert_types:
-          - int
         static_routes:
           description: Configure IPv4 static routes pointing to `peer_ip`.
           type: list
@@ -16488,11 +16726,9 @@ $defs:
             configured.
 
             Unless the carrier is marked as ''trusted'' under `wan_carriers`, `ipv4_acl_in`
-            is also required on all WAN interfaces.'
+            or `ipv4_standard_acl_in` is also required on all WAN interfaces.'
         wan_circuit_id:
           type: str
-          convert_types:
-          - int
           description: 'The WAN circuit ID for this interface.
 
             This is not rendered in the configuration but used for WAN designs.'
@@ -16524,8 +16760,6 @@ $defs:
       keys:
         id:
           type: int
-          convert_types:
-          - str
           description: 'Unique id per subnet_summary. Used to calculate ip addresses.
 
             Required with ip_pool. ID starting from 1.
@@ -16601,8 +16835,6 @@ $defs:
             '
           items:
             type: str
-            convert_types:
-            - int
             description: The values can be like ["node_a_as", "node_b_as"].
         descriptions:
           type: list
@@ -16641,8 +16873,6 @@ $defs:
           default: true
         isis_metric:
           type: int
-          convert_types:
-          - str
         isis_circuit_type:
           type: str
           valid_values:
@@ -16691,8 +16921,6 @@ $defs:
             otherwise false.
         mtu:
           type: int
-          convert_types:
-          - str
           description: MTU for this P2P link. Default value same as p2p_uplinks_mtu.
         bfd:
           type: bool
@@ -16798,8 +17026,6 @@ $defs:
               description: Offset added to the ID of the p2p_link when `channel_id_algorithm`
                 is set to `p2p_link_id` and `channel_id` is not set.
               type: int
-              convert_types:
-              - str
             nodes_child_interfaces:
               type: list
               primary_key: node
@@ -16816,8 +17042,6 @@ $defs:
                       type: str
                   channel_id:
                     type: int
-                    convert_types:
-                    - str
                     description: Port-Channel ID. If no `channel_id` is specified,
                       an id is generated using the `channel_id_algorithm`.
         campus_link_type:
@@ -16873,8 +17097,6 @@ $defs:
           type: list
           items:
             type: str
-            convert_types:
-            - int
         trident_forwarding_table_partition:
           type: str
           description: Only applied when evpn_multicast is true.
@@ -16883,15 +17105,11 @@ $defs:
           keys:
             mlag:
               type: int
-              convert_types:
-              - str
               min: 0
               max: 86400
               description: In seconds.
             non_mlag:
               type: int
-              convert_types:
-              - str
               min: 0
               max: 86400
               description: In seconds.
@@ -16920,8 +17138,6 @@ $defs:
           type: bool
         default_interface_mtu:
           type: int
-          convert_types:
-          - str
           description: 'Default interface MTU configured on EOS under "interface defaults".
 
             Takes precedence over the root key "default_interface_mtu".
@@ -16931,8 +17147,6 @@ $defs:
           max: 65535
         p2p_uplinks_mtu:
           type: int
-          convert_types:
-          - str
           description: 'Set MTU on point to point uplink interfaces.
 
             Takes precedence over the root key "p2p_uplinks_mtu".
@@ -16946,6 +17160,18 @@ $defs:
         feature_support:
           type: dict
           keys:
+            dot1x_bpdu_bypass:
+              type: bool
+              default: true
+              description: 'Support for 802.1X BPDU bypass.
+
+                The feature will be ignored on platforms where this is false.'
+            dot1x_mac_based_access_list:
+              type: bool
+              default: true
+              description: 'Support for 802.1X Per-MAC ACL mode on the interfaces.
+
+                The feature will be ignored on platforms where this is false.'
             address_locking:
               type: dict
               keys:
@@ -17002,6 +17228,14 @@ $defs:
               description: 'Support for storm-control.
 
                 The feature will be ignored on platforms where this is false.'
+            explicit_interface_speed_auto_mode:
+              type: bool
+              default: true
+              description: 'Support for `speed sfp-1000baset auto 100full` and `speed
+                auto <mode>` commands on Ethernet interfaces.
+
+                When set to false, these commands are omitted while `speed auto`,
+                `speed <mode>` and `speed forced <mode>` commands are preserved.'
             poe:
               type: bool
               default: false
@@ -17092,8 +17326,6 @@ $defs:
                 max_rx_queues:
                   type: int
                   default: 6
-                  convert_types:
-                  - str
                   description: Maximum rx_queue count supported on any interface.
             evpn_gateway_all_active_multihoming:
               type: bool
@@ -17596,8 +17828,6 @@ $defs:
       count:
         type: int
         min: 1
-        convert_types:
-        - str
         description: 'Number of receive queues.
 
           The maximum value is determined by `platform_sfe_interface_profile.max_rx_queues`
@@ -17607,8 +17837,6 @@ $defs:
         type: list
         items:
           type: str
-          convert_types:
-          - int
           description: 'Worker ids specified as values or range of values such as
             0-4 or 7.
 
@@ -17636,14 +17864,10 @@ $defs:
           description: Track next-hop using BFD.
         distance:
           type: int
-          convert_types:
-          - str
           min: 1
           max: 255
         tag:
           type: int
-          convert_types:
-          - str
           min: 0
           max: 4294967295
         name:
@@ -17651,8 +17875,6 @@ $defs:
           description: description.
         metric:
           type: int
-          convert_types:
-          - str
           min: 0
           max: 4294967295
         interface:
@@ -17746,13 +17968,9 @@ $defs:
           valid_lifetime:
             type: str
             description: In seconds <0-4294967295> or infinite.
-            convert_types:
-            - int
           preferred_lifetime:
             type: str
             description: In seconds <0-4294967295> or infinite.
-            convert_types:
-            - int
           ra_dns_servers:
             type: dict
             description: List of IPv6 addresses of DNS servers to be advertised in
@@ -17787,8 +18005,6 @@ $defs:
 
                     Use the `default` to reach the DHCP server through the default
                     VRF.'
-                  convert_types:
-                  - int
                 local_interface:
                   type: str
                   description: 'Local interface to communicate with DHCP server.
@@ -17850,18 +18066,19 @@ $defs:
         description: 'Name of the IPv4 access-list to be assigned in the ingress direction.
 
           The access-list must be defined under `ipv4_acls` and supports substitution
-          of the field "interface_ip".'
+          of the field "interface_ip".
+
+          Mutually exclusive with `ipv4_standard_acl_in`. Setting both raises an error.'
         type: str
-        convert_types:
-        - int
       ipv4_acl_out:
         description: 'Name of the IPv4 Access-list to be assigned in the egress direction.
 
           The access-list must be defined under `ipv4_acls` and supports substitution
-          of the field "interface_ip".'
+          of the field "interface_ip".
+
+          Mutually exclusive with `ipv4_standard_acl_out`. Setting both raises an
+          error.'
         type: str
-        convert_types:
-        - int
       ipv6_acl_in:
         description: 'Name of the IPv6 access-list to be assigned in the ingress direction.
 
@@ -17874,8 +18091,6 @@ $defs:
           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6"
           and will be removed in AVD 7.0.0.'
         type: str
-        convert_types:
-        - int
       ipv6_acl_out:
         description: 'Name of the IPv6 access-list to be assigned in the egress direction.
 
@@ -17888,8 +18103,25 @@ $defs:
           Deprecated token "interface_ip" is also accepted as an alias for "interface_ipv6"
           and will be removed in AVD 7.0.0.'
         type: str
-        convert_types:
-        - int
+      ipv4_standard_acl_in:
+        description: 'Name of the IPv4 standard access-list to be assigned in the
+          ingress direction.
+
+          The access-list must be defined under `ipv4_standard_acls`.
+
+          Mutually exclusive with `ipv4_acl_in`. Use `ipv4_acl_in` instead when field
+          substitution for "interface_ip" is required, setting both raises an error.'
+        type: str
+      ipv4_standard_acl_out:
+        description: 'Name of the IPv4 standard access-list to be assigned in the
+          egress direction.
+
+          The access-list must be defined under `ipv4_standard_acls`.
+
+          Mutually exclusive with `ipv4_acl_out`. Use `ipv4_acl_out` instead when
+          field substitution for "interface_ip" is required, setting both raises an
+          error.'
+        type: str
       ip_helpers:
         type: list
         primary_key: ip_helper
@@ -17930,8 +18162,6 @@ $defs:
                 on the value of `default_mgmt_method`.\n- Any other string will be
                 used directly as the source VRF name.\n- If not set, EOS uses the
                 VRF on the SVI."
-              convert_types:
-              - int
       static_routes:
         type: list
         $ref: eos_designs#/$defs/static_routes
@@ -17944,8 +18174,6 @@ $defs:
           SVI is configured.
       vni_override:
         type: int
-        convert_types:
-        - str
         min: 1
         max: 16777215
         description: 'By default the VNI will be derived from "mac_vrf_vni_base".
@@ -17956,8 +18184,6 @@ $defs:
           '
       rt_override:
         type: str
-        convert_types:
-        - int
         description: "By default the MAC VRF RT will be derived from mac_vrf_id_base
           + vlan_id.\nThe rt_override allows us to override this value and statically
           define it.\nrt_override will default to vni_override if set.\n\nrt_override
@@ -17966,8 +18192,6 @@ $defs:
           \ - A full RT string with colon separator which will override the full RT.\n"
       rd_override:
         type: str
-        convert_types:
-        - int
         description: "By default the MAC VRF RD will be derived from mac_vrf_id_base
           + vlan_id.\nThe rt_override allows us to override this value and statically
           define it.\nrd_override will default to rt_override or vni_override if set.\n\nrd_override
@@ -18080,8 +18304,6 @@ $defs:
                 type: int
                 description: IGMP Version (By default EOS uses IGMP version 2 for
                   IGMP querier).
-                convert_types:
-                - str
                 valid_values:
                 - 1
                 - 2
@@ -18132,8 +18354,6 @@ $defs:
             type: int
             description: IGMP Version (By default EOS uses IGMP version 2 for IGMP
               querier).
-            convert_types:
-            - str
             valid_values:
             - 1
             - 2
@@ -18147,8 +18367,6 @@ $defs:
         description: Extend this SVI over VXLAN.
       spanning_tree_priority:
         type: int
-        convert_types:
-        - str
         description: 'Setting spanning-tree priority per VLAN is only supported with
           `spanning_tree_mode: rapid-pvst` under node type settings.
 
@@ -18156,8 +18374,6 @@ $defs:
           with `spanning_tree_priority` (default=32768).'
       mtu:
         type: int
-        convert_types:
-        - str
         description: Interface MTU.
       ospf:
         documentation_options:
@@ -18172,14 +18388,10 @@ $defs:
             default: false
           area:
             type: str
-            convert_types:
-            - int
             description: OSPF area ID.
             default: 0.0.0.0
           cost:
             type: int
-            convert_types:
-            - str
             description: OSPF link cost.
           authentication:
             type: str
@@ -18207,8 +18419,6 @@ $defs:
               keys:
                 id:
                   type: int
-                  convert_types:
-                  - str
                 hash_algorithm:
                   type: str
                   valid_values:
@@ -18231,6 +18441,60 @@ $defs:
                     make use of a vault or similar.'
                   min_length: 1
                   max_length: 16
+      ospfv3:
+        documentation_options:
+          table: network-services-vrfs-ospfv3-settings
+        type: dict
+        description: 'OSPFv3 interface configuration.
+
+          Enabling OSPFv3 on an SVI automatically creates the OSPFv3 configuration
+          for the VRF of the SVI on the device.
+
+          Only the IPv6 address family is currently supported.
+
+          SVIs with IPv4 addressing require `ospfv3.ipv4.enabled: false`.
+
+          OSPFv3 uses the IPv6 link-local address of the SVI, so `ipv6_enable: true`
+          is set automatically on SVIs without `ipv6_address` (`ipv6_enable: false`
+          is not supported).
+
+          Anycast IPv6 (`ipv6_address_virtuals`) is not supported.
+
+          SVIs extended over VXLAN are not supported. Set `vxlan: false` on the SVI.
+
+          VRF `default` and SVIs deployed as subinterfaces with `uplink_type: lan`
+          are not supported.'
+        keys:
+          enabled:
+            type: bool
+          area:
+            type: str
+            default: 0.0.0.0
+            description: OSPFv3 area ID in IPv4 address or decimal format (range 0
+              to 4294967295).
+          point_to_point:
+            type: bool
+            default: false
+            description: Configure the OSPFv3 network type as point-to-point.
+          passive:
+            type: bool
+            default: false
+            description: 'Advertise the SVI subnet into OSPFv3 without forming adjacencies.
+
+              By default, OSPFv3-enabled SVIs are configured with `no ospfv3 passive-interface`.'
+          ipv4:
+            type: dict
+            keys:
+              enabled:
+                type: bool
+                description: 'Set to `false` to exclude the IPv4 address family from
+                  OSPFv3 on an SVI with IPv4 addressing.
+
+                  The IPv4 address family is not supported yet, so `true` raises an
+                  error.
+
+                  An SVI with IPv4 addressing also raises an error unless this is
+                  set to `false`.'
       bgp:
         type: dict
         keys:
@@ -18327,8 +18591,6 @@ $defs:
                 type: str
             preference:
               type: str
-              convert_types:
-              - int
               description: 'Valid values are 1-65535 | "preferred" | "alternate".
 
 

@@ -15,9 +15,7 @@ from .avd_base import AvdBase
 from .type_vars import T_AvdModel, T_PrimaryKey
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from .avd_model import AvdModel
     from .type_vars import T, T_AvdIndexedList
@@ -152,6 +150,10 @@ class AvdIndexedList(Sequence[T_AvdModel], AvdBase, Generic[T_PrimaryKey, T_AvdM
     def extend(self, items: Iterable[T_AvdModel]) -> None:
         for item in items:
             self.append(item)
+
+    def _has_data(self) -> bool:
+        """Return True if this indexed list is not null and contains at least one item."""
+        return not self._created_from_null and len(self._items) > 0
 
     def _strip_empties(self) -> None:
         """In-place update the instance to remove data matching the given strip_values."""

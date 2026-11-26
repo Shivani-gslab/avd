@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from .type_vars import T_AvdBase
 
@@ -95,6 +94,10 @@ class AvdBase(ABC):
         new_instance = cls()
         new_instance._created_from_null = True
         return new_instance
+
+    @abstractmethod
+    def _has_data(self) -> bool:
+        """Return True if this instance holds any non-null, non-empty configured data without triggering schema defaults."""
 
     @abstractmethod
     def _strip_empties(self) -> None:
