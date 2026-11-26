@@ -11192,6 +11192,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'aaa_settings.tacacs.vrfs[].source_interface or aaa_settings.tacacs.servers[].vrf:
             use_mgmt_interface_vrf or aaa_settings.tacacs.servers[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_tacacs
       snmp:
         type: dict
         deprecation:
@@ -11200,6 +11201,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'snmp_settings.vrfs[].source_interface or snmp_settings.hosts[].vrf:
             use_mgmt_interface_vrf or snmp_settings.hosts[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_snmp
       radius:
         type: dict
         deprecation:
@@ -11208,6 +11210,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'aaa_settings.radius.vrfs[].source_interface or aaa_settings.radius.servers[].vrf:
             use_mgmt_interface_vrf or aaa_settings.radius.servers[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_radius
       domain_lookup:
         type: dict
         deprecation:
@@ -11215,6 +11218,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: dns_settings
+          upgrade_handler: source_interfaces.transform_domain_lookup
   spanning_tree_settings:
     type: dict
     keys:
