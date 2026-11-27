@@ -39,9 +39,9 @@
     | [<samp>cvp_instance_ips</samp>](## "cvp_instance_ips") <span style="color:red">removed</span> | List |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings</samp> instead.</span> |
     | [<samp>cvp_token_file</samp>](## "cvp_token_file") <span style="color:red">removed</span> | String |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings</samp> instead.</span> |
     | [<samp>terminattr_disable_aaa</samp>](## "terminattr_disable_aaa") <span style="color:red">removed</span> | Boolean |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings.terminattr.disable_aaa</samp> instead.</span> |
-    | [<samp>terminattr_ingestexclude</samp>](## "terminattr_ingestexclude") <span style="color:red">removed</span> | String |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings</samp> instead.</span> |
+    | [<samp>terminattr_ingestexclude</samp>](## "terminattr_ingestexclude") <span style="color:red">removed</span> | String |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings.terminattr.ingestexclude</samp> instead.</span> |
     | [<samp>terminattr_ingestgrpcurl_port</samp>](## "terminattr_ingestgrpcurl_port") <span style="color:red">removed</span> | Integer |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings</samp> instead.</span> |
-    | [<samp>terminattr_smashexcludes</samp>](## "terminattr_smashexcludes") <span style="color:red">removed</span> | String |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings</samp> instead.</span> |
+    | [<samp>terminattr_smashexcludes</samp>](## "terminattr_smashexcludes") <span style="color:red">removed</span> | String |  |  |  | <span style="color:red">This key was removed. Support was removed in AVD version 6.0.0. Use <samp>cv_settings.terminattr.smashexcludes</samp> instead.</span> |
 
 === "YAML"
 
