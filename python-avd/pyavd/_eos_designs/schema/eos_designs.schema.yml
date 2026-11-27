@@ -11051,6 +11051,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: 'vrf: "use_mgmt_interface_vrf"'
+                upgrade_handler: snmp_settings.transform_use_mgmt_interface_vrf
             use_inband_mgmt_vrf:
               type: bool
               deprecation:
@@ -11058,6 +11059,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: 'vrf: "use_inband_mgmt_vrf"'
+                upgrade_handler: snmp_settings.transform_use_inband_mgmt_vrf
       communities:
         type: list
         primary_key: name
@@ -11125,6 +11127,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: vrfs[].ipv4_acl
+          upgrade_handler: snmp_settings.transform_ipv4_acls
       ipv6_acls:
         type: list
         deprecation:
@@ -11132,6 +11135,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: vrfs[].ipv6_acl
+          upgrade_handler: snmp_settings.transform_ipv6_acls
   source_interfaces:
     documentation_options:
       table: management-source-interfaces-settings
