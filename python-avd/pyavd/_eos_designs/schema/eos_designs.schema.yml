@@ -223,6 +223,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.authentication
+              upgrade_handler: aaa_settings_dot1x
             keys:
               default:
                 type: str
@@ -231,6 +232,7 @@ keys:
                   removed: true
                   remove_in_version: 6.0.0
                   new_key: dot1x_settings.authentication.radius_groups
+                  upgrade_handler: aaa_settings_dot1x
       authorization:
         type: dict
         keys:
@@ -256,6 +258,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.dynamic_authorization
+              upgrade_handler: aaa_settings_dot1x
             keys:
               dot1x_additional_groups:
                 type: list
@@ -267,6 +270,7 @@ keys:
                   removed: true
                   remove_in_version: 6.0.0
                   new_key: dot1x_settings.dynamic_authorization.additional_groups
+                  upgrade_handler: aaa_settings_dot1x
       accounting:
         type: dict
         keys:
@@ -286,6 +290,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.accounting
+              upgrade_handler: aaa_settings_dot1x
             keys:
               default:
                 type: dict
@@ -300,6 +305,7 @@ keys:
                       removed: true
                       remove_in_version: 6.0.0
                       new_key: dot1x_settings.accounting.mode
+                      upgrade_handler: aaa_settings_dot1x
                   methods:
                     type: list
                     min_length: 1
@@ -317,6 +323,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.syslog or dot1x_settings.accounting.radius_groups
+                            upgrade_handler: aaa_settings_dot1x
                         group:
                           type: str
                           deprecation:
@@ -324,6 +331,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.radius_groups
+                            upgrade_handler: aaa_settings_dot1x
                         multicast:
                           type: bool
                           deprecation:
@@ -331,6 +339,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.multicast
+                            upgrade_handler: aaa_settings_dot1x
                   group:
                     type: str
                     deprecation:
@@ -338,6 +347,7 @@ keys:
                       removed: true
                       remove_in_version: 6.0.0
                       new_key: dot1x_settings.accounting.radius_groups
+                      upgrade_handler: aaa_settings_dot1x
       root_login:
         type: dict
         keys:
@@ -2248,6 +2258,7 @@ keys:
       removed: true
       new_key: cv_settings
       remove_in_version: 6.0.0
+      upgrade_handler: cvp_instance_ips
   cvp_token_file:
     documentation_options:
       table: cloudvision-settings
@@ -2257,6 +2268,7 @@ keys:
       removed: true
       new_key: cv_settings
       remove_in_version: 6.0.0
+      upgrade_handler: cvp_token_file
   dc_name:
     documentation_options:
       table: fabric-topology
@@ -5414,6 +5426,7 @@ keys:
       removed: true
       remove_in_version: 6.0.0
       new_key: dns_settings.servers
+      upgrade_handler: name_servers
   network_ports:
     type: list
     items:
@@ -11038,6 +11051,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: 'vrf: "use_mgmt_interface_vrf"'
+                upgrade_handler: snmp_settings.transform_use_mgmt_interface_vrf
             use_inband_mgmt_vrf:
               type: bool
               deprecation:
@@ -11045,6 +11059,7 @@ keys:
                 removed: true
                 remove_in_version: 6.0.0
                 new_key: 'vrf: "use_inband_mgmt_vrf"'
+                upgrade_handler: snmp_settings.transform_use_inband_mgmt_vrf
       communities:
         type: list
         primary_key: name
@@ -11112,6 +11127,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: vrfs[].ipv4_acl
+          upgrade_handler: snmp_settings.transform_ipv4_acls
       ipv6_acls:
         type: list
         deprecation:
@@ -11119,6 +11135,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: vrfs[].ipv6_acl
+          upgrade_handler: snmp_settings.transform_ipv6_acls
   source_interfaces:
     documentation_options:
       table: management-source-interfaces-settings
@@ -11189,6 +11206,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'aaa_settings.tacacs.vrfs[].source_interface or aaa_settings.tacacs.servers[].vrf:
             use_mgmt_interface_vrf or aaa_settings.tacacs.servers[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_tacacs
       snmp:
         type: dict
         deprecation:
@@ -11197,6 +11215,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'snmp_settings.vrfs[].source_interface or snmp_settings.hosts[].vrf:
             use_mgmt_interface_vrf or snmp_settings.hosts[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_snmp
       radius:
         type: dict
         deprecation:
@@ -11205,6 +11224,7 @@ keys:
           remove_in_version: 6.0.0
           new_key: 'aaa_settings.radius.vrfs[].source_interface or aaa_settings.radius.servers[].vrf:
             use_mgmt_interface_vrf or aaa_settings.radius.servers[].vrf: use_inband_mgmt_vrf'
+          upgrade_handler: source_interfaces.transform_radius
       domain_lookup:
         type: dict
         deprecation:
@@ -11212,6 +11232,7 @@ keys:
           removed: true
           remove_in_version: 6.0.0
           new_key: dns_settings
+          upgrade_handler: source_interfaces.transform_domain_lookup
   spanning_tree_settings:
     type: dict
     keys:
@@ -11402,7 +11423,7 @@ keys:
     deprecation:
       removed: true
       warning: true
-      new_key: cv_settings
+      new_key: cv_settings.terminattr.disable_aaa
       remove_in_version: 6.0.0
   terminattr_ingestexclude:
     documentation_options:
@@ -11411,7 +11432,7 @@ keys:
     deprecation:
       removed: true
       warning: true
-      new_key: cv_settings
+      new_key: cv_settings.terminattr.ingestexclude
       remove_in_version: 6.0.0
   terminattr_ingestgrpcurl_port:
     documentation_options:
@@ -11429,7 +11450,7 @@ keys:
     deprecation:
       removed: true
       warning: true
-      new_key: cv_settings
+      new_key: cv_settings.terminattr.smashexcludes
       remove_in_version: 6.0.0
   timezone:
     documentation_options:
