@@ -288,6 +288,7 @@ repos:
         name: Build AVD schemas and documentation.
         entry: sh -c 'exec python-avd/scripts/build_schemas.py'
         language: python
+        # language_version: python3.12
         files: >-
           (?x)^(
           python-avd/pyavd/[a-z_]+/schema

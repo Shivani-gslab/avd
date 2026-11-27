@@ -195,6 +195,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.authentication
+              upgrade_handler: aaa_settings_dot1x
             keys:
               default:
                 type: str
@@ -203,6 +204,7 @@ keys:
                   removed: true
                   remove_in_version: 6.0.0
                   new_key: dot1x_settings.authentication.radius_groups
+                  upgrade_handler: aaa_settings_dot1x
       authorization:
         type: dict
         keys:
@@ -228,6 +230,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.dynamic_authorization
+              upgrade_handler: aaa_settings_dot1x
             keys:
               dot1x_additional_groups:
                 type: list
@@ -239,6 +242,7 @@ keys:
                   removed: true
                   remove_in_version: 6.0.0
                   new_key: dot1x_settings.dynamic_authorization.additional_groups
+                  upgrade_handler: aaa_settings_dot1x
       accounting:
         type: dict
         keys:
@@ -258,6 +262,7 @@ keys:
               removed: true
               remove_in_version: 6.0.0
               new_key: dot1x_settings.accounting
+              upgrade_handler: aaa_settings_dot1x
             keys:
               default:
                 type: dict
@@ -270,6 +275,7 @@ keys:
                       removed: true
                       remove_in_version: 6.0.0
                       new_key: dot1x_settings.accounting.mode
+                      upgrade_handler: aaa_settings_dot1x
                   methods:
                     type: list
                     min_length: 1
@@ -285,6 +291,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.syslog or dot1x_settings.accounting.radius_groups
+                            upgrade_handler: aaa_settings_dot1x
                         group:
                           type: str
                           deprecation:
@@ -292,6 +299,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.radius_groups
+                            upgrade_handler: aaa_settings_dot1x
                         multicast:
                           type: bool
                           deprecation:
@@ -299,6 +307,7 @@ keys:
                             removed: true
                             remove_in_version: 6.0.0
                             new_key: dot1x_settings.accounting.multicast
+                            upgrade_handler: aaa_settings_dot1x
                   group:
                     type: str
                     deprecation:
@@ -306,6 +315,7 @@ keys:
                       removed: true
                       remove_in_version: 6.0.0
                       new_key: dot1x_settings.accounting.radius_groups
+                      upgrade_handler: aaa_settings_dot1x
       root_login:
         type: dict
         keys:
